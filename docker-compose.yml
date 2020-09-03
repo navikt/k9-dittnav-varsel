@@ -86,28 +86,6 @@ services:
       CALLBACK_URL: "http://localhost:5000/callback"
       ISSUER: "https://localhost:9000"
 
-  wiremock:
-    container_name: wiremock
-    networks:
-      - app-tier
-    image: "rodolpheche/wiremock"
-    volumes:
-      - "./src/test/resources:/home/wiremock"
-    ports:
-      - "8000:8080"
-
-  db:
-    container_name: db
-    image: 'postgres'
-    networks:
-      - app-tier
-    restart: on-failure
-    hostname: localhost
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_PASSWORD: password
-
   k9-dittnav-varsel:
     container_name: k9-dittnav-varsel
     image: 'k9-dittnav-varsel-local:latest'
@@ -120,5 +98,4 @@ services:
       - "8080:8080"
     hostname: localhost
     depends_on:
-      - db
       - kafka
