@@ -1,6 +1,5 @@
 no.nav:
   sts:
-    url: ${SECURITY_TOKEN_SERVICE_REST_URL}
     username: ${STS_USERNAME}
     password: ${STS_PASSWORD}
 
