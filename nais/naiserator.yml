@@ -1,0 +1,57 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: {{app}}
+  namespace: {{namespace}}
+  labels:
+    team: {{team}}
+spec:
+  image: {{ image }}
+  port: 8080
+  accessPolicy:
+    outbound:
+      external:
+        - host: login.microsoftonline.com
+        - host: kafka-schema-registry.nais-q.adeo.no
+      {{#each kafkaBootstrapServers as |server|}}
+        - host: {{server}}
+          ports:
+            - port: 8443
+              name: kafka
+              protocol: TLS
+      {{/each}}
+      rules: []
+  liveness:
+    path: /actuator/health
+    initialDelay: 60
+    timeout: 1
+    periodSeconds: 5
+    failureThreshold: 10
+  readiness:
+    path: /actuator/health
+    initialDelay: 60
+    timeout: 1
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 3072Mi
+    requests:
+      cpu: 250m
+      memory: 1536Mi
+  replicas:
+    min: {{minReplicas}}
+    max: {{maxReplicas}}
+    cpuThresholdPercentage: 90
+  prometheus:
+    enabled: true
+    path: /actuator/prometheus
+  vault:
+    enabled: false
+  webproxy: true
+  envFrom:
+    - secret: k9-dittnav-varsel.sts-credentials
+  env:
+  {{#each env}}
+   - name: {{@key}}
+     value: "{{this}}"
+  {{/each}}

@@ -1,0 +1,72 @@
+{
+  "topics": [
+    {
+      "configEntries": {
+        "retention.ms": -1
+      },
+      "members": [
+        {
+          "member": "igroup",
+          "role": "CONSUMER"
+        },
+        {
+          "member": "igroup",
+          "role": "PRODUCER"
+        }
+      ],
+      "numPartitions": 3,
+      "topicName": "privat-omsorgspengerutbetalingsoknad-cleanup"
+    },
+    {
+      "configEntries": {
+        "retention.ms": -1
+      },
+      "members": [
+        {
+          "member": "igroup",
+          "role": "CONSUMER"
+        },
+        {
+          "member": "igroup",
+          "role": "PRODUCER"
+        }
+      ],
+      "numPartitions": 3,
+      "topicName": "privat-omp-utbetalingsoknad-arbeidstaker-cleanup"
+    },
+    {
+      "configEntries": {
+        "retention.ms": -1
+      },
+      "members": [
+        {
+          "member": "igroup",
+          "role": "CONSUMER"
+        },
+        {
+          "member": "igroup",
+          "role": "PRODUCER"
+        }
+      ],
+      "numPartitions": 3,
+      "topicName": "privat-omsorgspengesoknad-cleanup"
+    },
+    {
+      "configEntries": {
+        "retention.ms": -1
+      },
+      "members": [
+        {
+          "member": "igroup",
+          "role": "CONSUMER"
+        },
+        {
+          "member": "igroup",
+          "role": "PRODUCER"
+        }
+      ],
+      "numPartitions": 3,
+      "topicName": "privat-pleiepengesoknad-cleanup"
+    }
+  ]
+}

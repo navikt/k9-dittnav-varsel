@@ -1,0 +1,20 @@
+no.nav:
+  sts:
+    username: sts-username
+    password: sts-password
+
+spring:
+  kafka:
+    producer:
+      client-id: k9-dittnav-varsel
+      retries: 3
+      key-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+      properties:
+        schema:
+          registry:
+            url: mock://localhost #Oppretter en mock av schemaRegistry. Se io.confluent.kafka.serializers.AbstractKafkaSchemaSerDe.MOCK_URL_PREFIX
+    consumer:
+      retry-interval: 5_000 # Egendefinert property
+      group-id: group_id
+      auto-offset-reset: earliest

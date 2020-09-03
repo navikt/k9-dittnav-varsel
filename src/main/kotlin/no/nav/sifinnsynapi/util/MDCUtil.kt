@@ -1,0 +1,29 @@
+package no.nav.sifinnsynapi.util
+
+import no.nav.sifinnsynapi.util.Constants.NAV_CALL_ID
+import org.slf4j.MDC
+import java.util.*
+
+object MDCUtil {
+    private val GEN = CallIdGenerator()
+    @JvmStatic
+    fun callId(): String {
+        return MDC.get(NAV_CALL_ID)
+    }
+
+    fun callIdOrNew(): String {
+        return Optional.ofNullable(callId()).orElse(GEN.create())
+    }
+
+    fun toMDC(key: String?, value: Any?) {
+        if (value != null) {
+            toMDC(key, value.toString())
+        }
+    }
+
+    @JvmOverloads
+    fun toMDC(key: String?, value: String?, defaultValue: String? = null) {
+        MDC.put(key, Optional.ofNullable(value)
+                .orElse(defaultValue))
+    }
+}

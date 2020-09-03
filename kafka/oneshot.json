@@ -1,0 +1,21 @@
+{
+  "topics": [
+    {
+      "topicName": "privat-sif-innsyn-mottatt",
+      "configEntries": {
+        "retention.ms": -1
+      },
+      "members": [
+        {
+          "member": "srv-k9dittnavvarsel",
+          "role": "CONSUMER"
+        },
+        {
+          "member": "srv-sif-innsyn-mtk",
+          "role": "PRODUCER"
+        }
+      ],
+      "numPartitions": 3
+    }
+  ]
+}

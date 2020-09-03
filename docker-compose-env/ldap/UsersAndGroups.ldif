@@ -1,0 +1,100 @@
+##### Add the ServiceAccounts node, as well as ApplAccounts for Basta srv users
+
+dn: ou=ServiceAccounts,dc=test,dc=local
+objectClass: organizationalUnit
+ou: ServiceAccounts
+
+# Add service user for handling LDAP group management
+
+dn: cn=igroup,ou=ServiceAccounts,dc=test,dc=local
+objectClass: inetOrgPerson
+objectClass: person
+objectClass: organizationalPerson
+uid: igroup
+cn: igroup
+sn: IntegrationTestGroup
+userPassword: itest
+
+# Add a few service users for producing and consuming
+
+dn: cn=srv-sif-innsyn-mtk,ou=ServiceAccounts,dc=test,dc=local
+objectClass: inetOrgPerson
+objectClass: person
+objectClass: organizationalPerson
+cn: srv-sif-innsyn-mtk
+uid: srv-sif-innsyn-mtk
+sn: srv-sif-innsyn-mtk
+userPassword: dummy
+
+dn: ou=ApplAccounts,ou=ServiceAccounts,dc=test,dc=local
+objectClass: organizationalUnit
+ou: ApplAccounts
+
+##### Continue with hierarchy
+
+dn: ou=BusinessUnits,dc=test,dc=local
+objectClass: organizationalUnit
+ou: BusinessUnits
+
+dn: ou=NAV,ou=BusinessUnits,dc=test,dc=local
+objectClass: organizationalUnit
+ou: NAV
+
+##### Add the Users node
+
+dn: ou=Users,ou=NAV,ou=BusinessUnits,dc=test,dc=local
+objectClass: organizationalUnit
+ou: Users
+
+# Add some users for authentication test
+
+dn: cn=n000001,ou=Users,ou=NAV,ou=BusinessUnits,dc=test,dc=local
+objectClass: inetOrgPerson
+objectClass: person
+objectClass: organizationalPerson
+cn: n000001
+uid: n000001
+sn: IntegrationTestAuth1
+userPassword: itest1
+
+dn: cn=n000002,ou=Users,ou=NAV,ou=BusinessUnits,dc=test,dc=local
+objectClass: inetOrgPerson
+objectClass: person
+objectClass: organizationalPerson
+cn: n000002
+uid: n000002
+sn: IntegrationTestAuth2
+userPassword: itest2
+
+dn: cn=n145821,ou=Users,ou=NAV,ou=BusinessUnits,dc=test,dc=local
+objectClass: inetOrgPerson
+objectClass: person
+objectClass: organizationalPerson
+cn: n145821
+uid: n145821
+sn: IntegrationTestAuth3
+userPassword: itest3
+
+dn: cn=o158190,ou=Users,ou=NAV,ou=BusinessUnits,dc=test,dc=local
+objectClass: inetOrgPerson
+objectClass: person
+objectClass: organizationalPerson
+cn: o158190
+uid: o158190
+sn: IntegrationTestAuth3
+userPassword: itest4
+
+##### Continue downwards to the group part
+
+dn: ou=Groups,ou=NAV,ou=BusinessUnits,dc=test,dc=local
+objectClass: organizationalUnit
+ou: Groups
+
+dn: OU=AccountGroupNotInRemedy,OU=Groups,OU=NAV,OU=BusinessUnits,DC=test,DC=local
+objectClass: organizationalUnit
+ou: AccountGroupNotInRemedy
+
+# Finally
+dn: OU=kafka,OU=AccountGroupNotInRemedy,OU=Groups,OU=NAV,OU=BusinessUnits,DC=test,DC=local
+objectClass: organizationalUnit
+ou: kafka
