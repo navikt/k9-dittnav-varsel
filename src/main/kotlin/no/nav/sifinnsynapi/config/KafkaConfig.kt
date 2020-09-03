@@ -19,7 +19,17 @@ class KafkaConfig(
         @Value("\${spring.kafka.consumer.retry-interval}")
         val retryInterval: Long,
         @Suppress("SpringJavaInjectionPointsAutowiringInspection") val kafkaTemplate: KafkaTemplate<String, Any>,
-        val objectMapper: ObjectMapper) {
+        val objectMapper: ObjectMapper,
+        @Value("\${sts.username}") val stsUsername: String,
+        @Value("\${sts.password}") val stsPasword: String
+) {
+
+
+    init {
+        logger.info("STS_USERNAME = {}", stsUsername)
+        logger.info("STS_PASSWORD har verdi = {}", !stsPasword.isNullOrBlank())
+    }
+
     companion object{
         private val logger = LoggerFactory.getLogger(KafkaConfig::class.java)
     }
