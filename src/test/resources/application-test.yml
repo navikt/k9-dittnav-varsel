@@ -3,6 +3,10 @@ no.nav:
     username: sts-username
     password: sts-password
 
+sts:
+  username: sts-username
+  password: sts-password
+
 spring:
   kafka:
     producer:
