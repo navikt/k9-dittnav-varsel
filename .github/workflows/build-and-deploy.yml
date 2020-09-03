@@ -76,6 +76,20 @@ jobs:
           RESOURCE: nais/naiserator.yml
           VARS: nais/dev-gcp.json
 
+  deploy-dev-sbs:
+    name: Deploy to dev-sbs
+    if: startsWith(github.ref, 'refs/heads/dev-') || startsWith(github.ref, 'refs/heads/master') # Deploy if branch is either master or dev-*
+    needs: build-code-and-push-docker # Depends on build-code-and-push-docker job
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-sbs
+          RESOURCE: nais/naiserator.yml
+          VARS: nais/dev-sbs.json
+
 #  deploy-prod-gcp:
 #    name: Deploy to prod-gcp
 #    if: startsWith(github.ref, 'refs/heads/master')  # If the branch is master
