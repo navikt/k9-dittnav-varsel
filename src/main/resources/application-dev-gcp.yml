@@ -24,7 +24,7 @@ spring:
       sasl:
         mechanism: PLAIN
         jaas:
-          config: org.apache.kafka.common.security.plain.PlainLoginModule required username=${sts.username} password=${sts.password};
+          config: org.apache.kafka.common.security.plain.PlainLoginModule required username=${STS_USERNAME} password=${STS_USERNAME};
     producer:
       client-id: k9-dittnav-varsel
       retries: 3
