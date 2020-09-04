@@ -13,10 +13,10 @@ spec:
       external:
         - host: login.microsoftonline.com
         - host: kafka-schema-registry.nais-q.adeo.no
-          ports:
-            - port: 8443
-              name: schema-registery
-              protocol: TLS
+#          ports:
+#            - port: 8443
+#              name: schema-registery
+#              protocol: TLS
       {{#each kafkaBootstrapServers as |server|}}
         - host: {{server}}
           ports:
