@@ -20,14 +20,14 @@ class KafkaConfig(
         val retryInterval: Long,
         @Suppress("SpringJavaInjectionPointsAutowiringInspection") val kafkaTemplate: KafkaTemplate<String, Any>,
         val objectMapper: ObjectMapper,
-        @Value("\${sts.username}") val stsUsername: String,
-        @Value("\${sts.password}") val stsPasword: String
+        @Value("\${no.nav.sts.username}") val stsUsername: String,
+        @Value("\${no.nav.sts.password}") val stsPassword: String
 ) {
 
 
     init {
         logger.info("STS_USERNAME = {}", stsUsername)
-        logger.info("STS_PASSWORD har verdi = {}", !stsPasword.isNullOrBlank())
+        logger.info("STS_PASSWORD = {}", stsPassword)
     }
 
     companion object{
