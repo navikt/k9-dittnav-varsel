@@ -1,4 +1,4 @@
-package no.nav.sifinnsynapi.pleiepenger.syktbarn
+package no.nav.sifinnsynapi.innsyn
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.brukernotifikasjon.schemas.Beskjed
@@ -14,15 +14,15 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 @Service
-class PleiepengerSyktBarnHendelseKonsument(
+class InnsynHendelseKonsument(
         private val dittnavService: DittnavService,
         @Value("\${no.nav.sts.username}") private val stsUsername: String
 ) {
     companion object {
-        private val logger = LoggerFactory.getLogger(PleiepengerSyktBarnHendelseKonsument::class.java)
+        private val logger = LoggerFactory.getLogger(InnsynHendelseKonsument::class.java)
     }
 
-    @KafkaListener(topics = [INNSYN_MOTTATT], groupId = "#{'\${spring.kafka.consumer.group-id}'}", containerFactory = "kafkaJsonListenerContainerFactory")
+    @KafkaListener(topics = [INNSYN_MOTTATT], id = "innsyn-mottatt-listener", groupId = "#{'\${spring.kafka.consumer.group-id}'}", containerFactory = "kafkaJsonListenerContainerFactory")
     fun konsumer(@Payload melding: InnsynMelding) {
         logger.info("Mottok hendelse fra innsyn med eventID: {}", melding.eventId)
 

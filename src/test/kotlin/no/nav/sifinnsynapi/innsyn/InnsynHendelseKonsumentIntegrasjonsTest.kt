@@ -1,4 +1,4 @@
-package no.nav.sifinnsynapi.pleiepenger.syktbarn
+package no.nav.sifinnsynapi.innsyn
 
 import assertk.assertThat
 import assertk.assertions.isNotEmpty
@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit
 @DirtiesContext
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT) // Integrasjonstest - Kjører opp hele Spring Context med alle konfigurerte beans.
-class PleiepengerSyktBarnHendelseKonsumentIntegrasjonsTest {
+class InnsynHendelseKonsumentIntegrasjonsTest {
 
     @Autowired
     lateinit var mapper: ObjectMapper
@@ -53,7 +53,7 @@ class PleiepengerSyktBarnHendelseKonsumentIntegrasjonsTest {
     lateinit var dittNavConsumer: Consumer<Nokkel, Beskjed> // Kafka consumer som brukes til å lese kafka meldinger.
 
     companion object {
-        private val log: Logger = LoggerFactory.getLogger(PleiepengerSyktBarnHendelseKonsumentIntegrasjonsTest::class.java)
+        private val log: Logger = LoggerFactory.getLogger(InnsynHendelseKonsumentIntegrasjonsTest::class.java)
     }
 
     @BeforeAll

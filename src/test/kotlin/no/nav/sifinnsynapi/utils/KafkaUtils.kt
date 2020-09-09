@@ -6,8 +6,8 @@ import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED
-import no.nav.sifinnsynapi.pleiepenger.syktbarn.InnsynMelding
-import no.nav.sifinnsynapi.pleiepenger.syktbarn.somJson
+import no.nav.sifinnsynapi.innsyn.InnsynMelding
+import no.nav.sifinnsynapi.innsyn.somJson
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
