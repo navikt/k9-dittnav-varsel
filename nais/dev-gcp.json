@@ -18,5 +18,7 @@
     "SPRING_KAFKA_BOOTSTRAP_SERVERS": "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
     "SPRING_KAFKA_PROPERTIES_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais-q.adeo.no",
     "SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL": "SASL_SSL"
-  }
+  },
+  "slack-channel": "sif-alerts-dev",
+  "slack-notify-type": "<!here> | k9-dittnav-varsel | "
 }

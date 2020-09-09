@@ -7,6 +7,7 @@ on:
       - '.gitignore'
       - 'LICENCE'
       - 'CODEOWNERS'
+      - '.github/workflows/apply-alerts.yml'
     branches:
 
 env:
