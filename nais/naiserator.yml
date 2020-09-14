@@ -11,12 +11,9 @@ spec:
   accessPolicy:
     outbound:
       external:
-        - host: login.microsoftonline.com
-        - host: kafka-schema-registry.nais-q.adeo.no
-#          ports:
-#            - port: 8443
-#              name: schema-registery
-#              protocol: TLS
+      {{#each outboundRules as |host|}}
+        - host: {{host}}
+        {{/each}}
       {{#each kafkaBootstrapServers as |server|}}
         - host: {{server}}
           ports:

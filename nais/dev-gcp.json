@@ -8,6 +8,10 @@
   "ingresses": [
     "https://k9-dittnav-varsel.dev.nav.no"
   ],
+  "outboundRules": [
+    "kafka-schema-registry.nais-q.adeo.no",
+    "login.microsoftonline.com"
+  ],
   "kafkaBootstrapServers": [
     "b27apvl00045.preprod.local",
     "b27apvl00046.preprod.local",
