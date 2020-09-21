@@ -1,0 +1,33 @@
+no.nav:
+  sts:
+    username: ${STS_USERNAME}
+    password: ${STS_PASSWORD}
+
+management:
+   endpoints:
+      web:
+         exposure:
+            include: health, prometheus
+   endpoint:
+      health:
+         show-details: always
+spring:
+  kafka:
+    #bootstrap-servers: # Settes i nais/<cluster>.json
+    ssl:
+      trust-store-location: file:${javax.net.ssl.trustStore}
+      trust-store-password: ${javax.net.ssl.trustStorePassword}
+    producer:
+      client-id: k9-dittnav-varsel
+      retries: 3
+      key-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+    consumer:
+      enable-auto-commit: false
+      group-id: group_id
+      auto-offset-reset: latest
+      retry-interval: 60_000 # Egendefinert property
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+  mvc:
+    log-request-details: true

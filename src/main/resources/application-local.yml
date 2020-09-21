@@ -1,12 +1,3 @@
-no.nav:
-   dittnav:
-      pleiepenger-sykt-barn:
-         beskjed:
-            grupperingsId: pleiepenger-sykt-barn
-            tekst: 'Vi har mottatt din søknad om pleiepenger. Klikk på linken for mer info.'
-            link: https://sif-innsyn.dev.nav.no/familie/sykdom-i-familien/soknad/innsyn
-            dagerSynlig: 7
-
 management:
    endpoints:
       web:
@@ -19,10 +10,6 @@ management:
 server:
    port: # Settes av miljøvariabel.
 spring:
-   cloud:
-      vault:
-         database:
-            role: # Settes av miljøvariabel.
    output:
     ansi:
       enabled: always
@@ -30,18 +17,5 @@ spring:
       name: k9-dittnav-varsel
       admin:
          enabled: true
-   datasource:
-      url: # Settes av miljøvariabel.
-      password: # Settes av miljøvariabel.
-      username: # Settes av miljøvariabel.
-   jpa:
-      show-sql: true
-      properties:
-         hibernate: format_sql=true
-      hibernate:
-         ddl-auto: create-drop
-   flyway:
-      baselineOnMigrate: true
-      enabled: true
-   http:
+   mvc:
       log-request-details: true

@@ -67,7 +67,7 @@ class InnsynHendelseKonsumentIntegrasjonsTest {
     }
 
     @Test
-    fun `Konsumere hendelse om Pleiepenger - Sykt barn, persister og tilgjengligjør gjennom API`() {
+    fun `gitt konsumert innsynsmelding, forvent publisert dittnav beskjed`() {
 
         // legg på 1 hendelse om mottatt søknad om pleiepenger sykt barn...
         val melding = InnsynMelding(
