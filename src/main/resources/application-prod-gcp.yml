@@ -1,0 +1,25 @@
+spring:
+  mvc:
+    log-request-details: false
+
+  kafka:
+    properties:
+      schema:
+        registry:
+          url:
+      security:
+        protocol:  # Settes i nais/<cluster>.json
+      sasl:
+        mechanism: PLAIN
+        jaas:
+          config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${no.nav.sts.username}" password="${no.nav.sts.password}";
+
+    producer:
+      ssl:
+        trust-store-location: file:${javax.net.ssl.trustStore}
+        trust-store-password: ${javax.net.ssl.trustStorePassword}
+
+    consumer:
+      ssl:
+        trust-store-location: file:${javax.net.ssl.trustStore}
+        trust-store-password: ${javax.net.ssl.trustStorePassword}
