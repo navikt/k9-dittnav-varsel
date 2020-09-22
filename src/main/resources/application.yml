@@ -18,13 +18,13 @@ spring:
       trust-store-location: file:${javax.net.ssl.trustStore}
       trust-store-password: ${javax.net.ssl.trustStorePassword}
     producer:
-      client-id: k9-dittnav-varsel
+      client-id: ${spring.application.name}
       retries: 3
       key-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
       value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
     consumer:
       enable-auto-commit: false
-      group-id: group_id
+      group-id: ${spring.application.name}
       auto-offset-reset: latest
       retry-interval: 60_000 # Egendefinert property
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
