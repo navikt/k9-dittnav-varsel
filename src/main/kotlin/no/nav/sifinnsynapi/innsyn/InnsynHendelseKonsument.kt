@@ -1,5 +1,7 @@
 package no.nav.sifinnsynapi.innsyn
 
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
@@ -34,12 +36,19 @@ class InnsynHendelseKonsument(
 }
 
 data class InnsynMelding(
+        val metadata: Metadata,
         val grupperingsId: String,
         val tekst: String,
         val link: String,
         val dagerSynlig: Long,
         val søkerFødselsnummer: String,
         val eventId: String
+)
+
+data class Metadata @JsonCreator constructor(
+        @JsonProperty("version") val version : Int,
+        @JsonProperty("correlationId") val correlationId : String,
+        @JsonProperty("requestId") val requestId : String
 )
 
 fun InnsynMelding.somJson(mapper: ObjectMapper) = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this)

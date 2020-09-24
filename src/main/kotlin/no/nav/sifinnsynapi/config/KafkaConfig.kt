@@ -1,6 +1,9 @@
 package no.nav.sifinnsynapi.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import no.nav.sifinnsynapi.innsyn.InnsynMelding
+import no.nav.sifinnsynapi.util.Constants
+import no.nav.sifinnsynapi.util.MDCUtil
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -21,7 +24,8 @@ class KafkaConfig(
         @Suppress("SpringJavaInjectionPointsAutowiringInspection") val kafkaTemplate: KafkaTemplate<String, Any>,
         val objectMapper: ObjectMapper,
         @Value("\${no.nav.sts.username}") val stsUsername: String,
-        @Value("\${no.nav.sts.password}") val stsPassword: String
+        @Value("\${no.nav.sts.password}") val stsPassword: String,
+        @Value("\${spring.application.name:k9-dittnav-varsel}") private val applicationName: String
 ) {
 
 
@@ -43,7 +47,14 @@ class KafkaConfig(
         factory.containerProperties.isAckOnError = false;
         factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD;
         factory.setErrorHandler(SeekToCurrentErrorHandler(FixedBackOff(retryInterval, FixedBackOff.UNLIMITED_ATTEMPTS)))
+        factory.setRecordFilterStrategy {
+            val melding = objectMapper.readValue(it.value(), InnsynMelding::class.java)
+            val correlationId = melding.metadata.correlationId
+            MDCUtil.toMDC(Constants.NAV_CALL_ID, correlationId)
+            MDCUtil.toMDC(Constants.NAV_CONSUMER_ID, applicationName)
 
+            false
+        }
         return factory
     }
 }

@@ -71,6 +71,11 @@ class InnsynHendelseKonsumentIntegrasjonsTest {
 
         // legg på 1 hendelse om mottatt søknad om pleiepenger sykt barn...
         val melding = InnsynMelding(
+                metadata = Metadata(
+                    version = 1,
+                    correlationId = UUID.randomUUID().toString(),
+                    requestId = UUID.randomUUID().toString()
+                ),
                 grupperingsId = "pleiepenger-sykt-barn",
                 eventId = UUID.randomUUID().toString(),
                 søkerFødselsnummer = "12345678910",
