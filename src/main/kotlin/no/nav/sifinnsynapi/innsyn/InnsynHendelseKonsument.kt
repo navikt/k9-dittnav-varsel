@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
-import no.nav.sifinnsynapi.config.Topics.INNSYN_MOTTATT
+import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_BESKJED
 import no.nav.sifinnsynapi.dittnav.DittnavService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -24,7 +24,7 @@ class InnsynHendelseKonsument(
         private val logger = LoggerFactory.getLogger(InnsynHendelseKonsument::class.java)
     }
 
-    @KafkaListener(topics = [INNSYN_MOTTATT], id = "innsyn-mottatt-listener", groupId = "#{'\${spring.kafka.consumer.group-id}'}", containerFactory = "kafkaJsonListenerContainerFactory")
+    @KafkaListener(topics = [K9_DITTNAV_VARSEL_BESKJED], id = "innsyn-mottatt-listener", groupId = "#{'\${spring.kafka.consumer.group-id}'}", containerFactory = "kafkaJsonListenerContainerFactory")
     fun konsumer(@Payload melding: InnsynMelding) {
         logger.info("Mottok hendelse fra innsyn med eventID: {}", melding.eventId)
 
