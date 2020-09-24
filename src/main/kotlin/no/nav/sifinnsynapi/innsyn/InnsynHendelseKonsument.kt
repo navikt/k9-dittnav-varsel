@@ -24,7 +24,7 @@ class InnsynHendelseKonsument(
         private val logger = LoggerFactory.getLogger(InnsynHendelseKonsument::class.java)
     }
 
-    @KafkaListener(topics = [K9_DITTNAV_VARSEL_BESKJED], id = "innsyn-mottatt-listener", groupId = "#{'\${spring.kafka.consumer.group-id}'}", containerFactory = "kafkaJsonListenerContainerFactory")
+    @KafkaListener(topics = [K9_DITTNAV_VARSEL_BESKJED], id = "k9-dittnav-varsel-beskjed-listener", groupId = "#{'\${spring.kafka.consumer.group-id}'}", containerFactory = "kafkaJsonListenerContainerFactory")
     fun konsumer(@Payload melding: InnsynMelding) {
         logger.info("Mottok hendelse fra innsyn med eventID: {}", melding.eventId)
 
