@@ -16,15 +16,17 @@
 * [10. Drift og støtte](#11-drift-og-sttte)
 
 # 1. Kontekst
-Kafka konsumer og API-tjeneste for sif-innsynsplatform.
+Kafka konsumer og producer som fungerer som et mellomledd mellom sif-brukerdialog og andre varslingstjenester som dittnav.
 
 # 2. Funksjonelle Krav
-Denne tjenesten understøtter behovet for innsyn for bruker.
-Tjenesten lytter etter diverse søknads hendelser som e.g. mottatte søknader, søknader under behandling, etc. og lagrer dem  i database.
-Tjenesten eksponerer også api-er for henting av overnevnte data, for å gi bruker innsyn i egne saker.
+Denne tjenesten understøtter behovet for varsling til bruker.
+Et varsel kan være av følgende formater:
+* Dittnav beskjed
+* SMS
+* Epost
 
 # 3. Begrensninger
-Innsyn i sakene til bruker begrenses til kapittel 9 ytelsene som e.g. omsorgspenger, pleiepenger, etc.
+Denne tjenesten begrenses begrenses sykdom-i-familien og er ment å brukes som et felles komponent til varsling for andre tjenester i teamet.
 
 # 4. Programvarearkitektur
 
@@ -77,24 +79,12 @@ Deretter, kjøre følgende kommando for å koble til kafka instansen:
 kafka-console-producer --broker-list localhost:9092 --topic privat-sif-innsyn-mottak --producer.config=$CLASSPATH/producer.properties
 ```
 
-### Henting av data via api-endepunktene
-Applikasjonen er konfigurert med en lokal oicd provider stub for å utsending og verifisering av tokens. For å kunne gjøre kall på endepunktene, må man ha et gyldig token.
-
-#### Henting av token
-1. Åpne oicd-provider-gui i nettleseren enten ved å bruke docker dashbord, eller ved å gå til http://localhost:5000.
-2. Trykk "Token for nivå 4" for å logge inn med ønsket bruker, ved å oppgi fødselsnummer. Tokenet blir da satt som en cookie (selvbetjening-idtoken) i nettleseren.
-3. Deretter kan du åpne http://localhost:8080/swagger-ui.html for å teste ut endepunktene.
-
-Om man ønsker å bruke postman må man selv, lage en cookie og sette tokenet manuelt. Eksempel:
-selvbetjening-idtoken=eyJhbGciOiJSUzI1NiIsInR5cCI6Ikp.eyJzdWIiOiIwMTAxMDExMjM0NSIsImFjc.FBmVFuHI9d8akrVdAxi1dRg03qKV4EGk; Path=/; Domain=localhost; Expires=Fri, 18 Jun 2021 08:46:13 GMT;
-
 # 10. Drift og støtte
 ## Logging
 Loggene til tjenesten kan leses på to måter:
 
 ### Kibana
 For [dev-gcp: https://logs.adeo.no/goto/7db198143c27f93228b17f3b07f16e39](https://logs.adeo.no/goto/7db198143c27f93228b17f3b07f16e39)
-
 For [prod-gcp: https://logs.adeo.no/goto/e796ec96af7bb1032a11d388e6849451](https://logs.adeo.no/goto/e796ec96af7bb1032a11d388e6849451)
 
 ### Kubectl
@@ -120,6 +110,5 @@ Vi bruker [nais-alerts](https://doc.nais.io/observability/alerts) for å sette o
 ## Henvendelser
 Spørsmål koden eller prosjekttet kan rettes til team dusseldorf på:
 * [\#sif-brukerdialog](https://nav-it.slack.com/archives/CQ7QKSHJR)
-* [\#sif-innsynsplattform](https://nav-it.slack.com/archives/C013ZJTKUNB)
 
 
