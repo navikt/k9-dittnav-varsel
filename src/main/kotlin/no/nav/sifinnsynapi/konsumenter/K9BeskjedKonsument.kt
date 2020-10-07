@@ -1,4 +1,4 @@
-package no.nav.sifinnsynapi.innsyn
+package no.nav.sifinnsynapi.konsumenter
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -25,7 +25,7 @@ class InnsynHendelseKonsument(
     }
 
     @KafkaListener(topics = [K9_DITTNAV_VARSEL_BESKJED], id = "k9-dittnav-varsel-beskjed-listener", groupId = "#{'\${spring.kafka.consumer.group-id}'}", containerFactory = "kafkaJsonListenerContainerFactory")
-    fun konsumer(@Payload melding: InnsynMelding) {
+    fun konsumer(@Payload melding: K9Beskjed) {
         logger.info("Mottok hendelse fra innsyn med eventID: {}", melding.eventId)
 
         dittnavService.sendBeskjed(
@@ -35,7 +35,7 @@ class InnsynHendelseKonsument(
     }
 }
 
-data class InnsynMelding(
+data class K9Beskjed(
         val metadata: Metadata,
         val grupperingsId: String,
         val tekst: String,
@@ -51,16 +51,16 @@ data class Metadata @JsonCreator constructor(
         @JsonProperty("requestId") val requestId : String
 )
 
-fun InnsynMelding.somJson(mapper: ObjectMapper) = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this)
+fun K9Beskjed.somJson(mapper: ObjectMapper) = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this)
 
-private fun InnsynMelding.somNøkkel(systembruker: String): Nokkel {
+private fun K9Beskjed.somNøkkel(systembruker: String): Nokkel {
     return Nokkel(
             systembruker,
             eventId
     )
 }
 
-private fun InnsynMelding.somBeskjed(): Beskjed {
+private fun K9Beskjed.somBeskjed(): Beskjed {
     return Beskjed(
             System.currentTimeMillis(),
             Instant.now().plus(dagerSynlig, ChronoUnit.DAYS).toEpochMilli(),

@@ -6,8 +6,8 @@ import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED
-import no.nav.sifinnsynapi.innsyn.InnsynMelding
-import no.nav.sifinnsynapi.innsyn.somJson
+import no.nav.sifinnsynapi.konsumenter.K9Beskjed
+import no.nav.sifinnsynapi.konsumenter.somJson
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -24,7 +24,7 @@ fun EmbeddedKafkaBroker.opprettKafkaProducer(): Producer<String, Any> {
     return DefaultKafkaProducerFactory<String, Any>(HashMap(KafkaTestUtils.producerProps(this))).createProducer()
 }
 
-fun Producer<String, Any>.leggPåTopic(hendelse: InnsynMelding, topic: String, mapper: ObjectMapper) {
+fun Producer<String, Any>.leggPåTopic(hendelse: K9Beskjed, topic: String, mapper: ObjectMapper) {
     this.send(ProducerRecord(topic, hendelse.somJson(mapper)))
     this.flush()
 }

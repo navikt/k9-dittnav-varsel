@@ -1,4 +1,4 @@
-package no.nav.sifinnsynapi.innsyn
+package no.nav.sifinnsynapi.konsumenter
 
 import assertk.assertThat
 import assertk.assertions.isNotEmpty
@@ -70,7 +70,7 @@ class InnsynHendelseKonsumentIntegrasjonsTest {
     fun `gitt konsumert innsynsmelding, forvent publisert dittnav beskjed`() {
 
         // legg på 1 hendelse om mottatt søknad om pleiepenger sykt barn...
-        val melding = InnsynMelding(
+        val melding = K9Beskjed(
                 metadata = Metadata(
                     version = 1,
                     correlationId = UUID.randomUUID().toString(),

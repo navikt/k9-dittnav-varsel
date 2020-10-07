@@ -1,7 +1,7 @@
 package no.nav.sifinnsynapi.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nav.sifinnsynapi.innsyn.InnsynMelding
+import no.nav.sifinnsynapi.konsumenter.K9Beskjed
 import no.nav.sifinnsynapi.util.Constants
 import no.nav.sifinnsynapi.util.MDCUtil
 import org.slf4j.LoggerFactory
@@ -48,7 +48,7 @@ class KafkaConfig(
         factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD;
         factory.setErrorHandler(SeekToCurrentErrorHandler(FixedBackOff(retryInterval, FixedBackOff.UNLIMITED_ATTEMPTS)))
         factory.setRecordFilterStrategy {
-            val melding = objectMapper.readValue(it.value(), InnsynMelding::class.java)
+            val melding = objectMapper.readValue(it.value(), K9Beskjed::class.java)
             val correlationId = melding.metadata.correlationId
             MDCUtil.toMDC(Constants.NAV_CALL_ID, correlationId)
             MDCUtil.toMDC(Constants.NAV_CONSUMER_ID, applicationName)
