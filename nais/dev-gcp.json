@@ -9,6 +9,7 @@
     "https://k9-dittnav-varsel.dev.nav.no"
   ],
   "outboundRules": [
+    "kafka-schema-registry.nais-q.adeo.no",
     "login.microsoftonline.com"
   ],
   "env": {
