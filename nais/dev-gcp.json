@@ -12,11 +12,6 @@
     "kafka-schema-registry.nais-q.adeo.no",
     "login.microsoftonline.com"
   ],
-  "kafkaBootstrapServers": [
-    "b27apvl00045.preprod.local",
-    "b27apvl00046.preprod.local",
-    "b27apvl00047.preprod.local"
-  ],
   "env": {
     "SPRING_PROFILES_ACTIVE": "dev-gcp",
     "SPRING_APPLICATION_NAME": "k9-dittnav-varsel",

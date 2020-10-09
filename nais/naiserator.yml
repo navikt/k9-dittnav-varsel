@@ -14,13 +14,6 @@ spec:
       {{#each outboundRules as |host|}}
         - host: {{host}}
         {{/each}}
-      {{#each kafkaBootstrapServers as |server|}}
-        - host: {{server}}
-          ports:
-            - port: 8443
-              name: kafka
-              protocol: TLS
-      {{/each}}
       rules: []
   liveness:
     path: /actuator/health
