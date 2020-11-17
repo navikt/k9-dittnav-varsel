@@ -26,7 +26,7 @@ class InnsynHendelseKonsument(
 
     @KafkaListener(topics = [K9_DITTNAV_VARSEL_BESKJED], id = "k9-dittnav-varsel-beskjed-listener", groupId = "#{'\${spring.kafka.consumer.group-id}'}", containerFactory = "kafkaJsonListenerContainerFactory")
     fun konsumer(@Payload melding: K9Beskjed) {
-        logger.info("Mottok hendelse fra innsyn med eventID: {}", melding.eventId)
+        logger.info("Mottok hendelse fra innsyn med eventID: {}, event: :{}", melding.eventId, melding)
 
         dittnavService.sendBeskjed(
                 melding.somNøkkel(stsUsername),
@@ -43,7 +43,11 @@ data class K9Beskjed(
         val dagerSynlig: Long,
         val søkerFødselsnummer: String,
         val eventId: String
-)
+) {
+    override fun toString(): String {
+        return "K9Beskjed(metadata=$metadata, grupperingsId='$grupperingsId', tekst='$tekst', link='$link', dagerSynlig=$dagerSynlig, søkerFødselsnummer='***********', eventId='$eventId')"
+    }
+}
 
 data class Metadata @JsonCreator constructor(
         @JsonProperty("version") val version : Int,

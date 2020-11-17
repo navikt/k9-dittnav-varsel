@@ -46,7 +46,9 @@ class KafkaConfig(
         factory.setMessageConverter(JsonMessageConverter(objectMapper))
         factory.containerProperties.isAckOnError = false;
         factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD;
-        factory.setErrorHandler(SeekToCurrentErrorHandler(FixedBackOff(retryInterval, FixedBackOff.UNLIMITED_ATTEMPTS)))
+        val seekToCurrentErrorHandler = SeekToCurrentErrorHandler(FixedBackOff(retryInterval, FixedBackOff.UNLIMITED_ATTEMPTS))
+        seekToCurrentErrorHandler.setClassifications(mapOf(), true)
+        factory.setErrorHandler(seekToCurrentErrorHandler)
         factory.setRecordFilterStrategy {
             val melding = objectMapper.readValue(it.value(), K9Beskjed::class.java)
             val correlationId = melding.metadata.correlationId

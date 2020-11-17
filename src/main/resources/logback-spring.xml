@@ -4,7 +4,7 @@
 		class="ch.qos.logback.core.ConsoleAppender">
 		<encoder class="net.logstash.logback.encoder.LogstashEncoder" />
 	</appender>
-	<springProfile name="local, test,dev-gcp">
+	<springProfile name="local, test">
 		<appender name="stdout"
 			class="ch.qos.logback.core.ConsoleAppender">
 			<layout class="ch.qos.logback.classic.PatternLayout">
@@ -25,7 +25,7 @@
 			<OnMatch>DENY</OnMatch>
 		</turboFilter>
 	</springProfile>
-	<springProfile name="dev-gcp,local">
+	<springProfile name="dev-gcp, prod-gcp,local">
 		<logger name="no.nav.sifinnsynapi" level="trace" />
 	</springProfile>
 </configuration>
