@@ -65,6 +65,7 @@ private fun K9Beskjed.somNøkkel(systembruker: String): Nokkel {
 }
 
 private fun K9Beskjed.somBeskjed(): Beskjed {
+    val link = link ?: ""
     return Beskjed(
             System.currentTimeMillis(),
             Instant.now().plus(dagerSynlig, ChronoUnit.DAYS).toEpochMilli(),
