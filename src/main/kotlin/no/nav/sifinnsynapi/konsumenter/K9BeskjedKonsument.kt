@@ -65,14 +65,14 @@ private fun K9Beskjed.somNøkkel(systembruker: String): Nokkel {
 }
 
 private fun K9Beskjed.somBeskjed(): Beskjed {
-    val link = link ?: ""
+    val linkUtenNull = link ?: ""
     return Beskjed(
             System.currentTimeMillis(),
             Instant.now().plus(dagerSynlig, ChronoUnit.DAYS).toEpochMilli(),
             søkerFødselsnummer,
             grupperingsId,
             tekst,
-            link,
+            linkUtenNull,
             4
     )
 }
