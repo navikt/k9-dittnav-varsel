@@ -97,17 +97,17 @@ class InnsynHendelseKonsumentIntegrasjonsTest {
     @Test
     fun `Skal håndtere at link i K9Beskjed er satt til null, gjør den om til ""`() {
 
-        // legg på 1 hendelse om mottatt søknad om pleiepenger sykt barn med link = null...
+        // legg på 1 hendelse om mottatt søknad om midlertidig alene med link = null...
         val melding = K9Beskjed(
                 metadata = Metadata(
                         version = 1,
                         correlationId = UUID.randomUUID().toString(),
                         requestId = UUID.randomUUID().toString()
                 ),
-                grupperingsId = "pleiepenger-sykt-barn",
+                grupperingsId = "omp-midlertidig-alene",
                 eventId = UUID.randomUUID().toString(),
                 søkerFødselsnummer = "12345678910",
-                tekst = "Vi har mottatt din søknad om pleiepenger - sykt barn. Klikk undr for mer info.",
+                tekst = "Vi har mottatt omsorgspengesøknad fra deg om å bli regnet som alene om omsorgen for barn.",
                 link = null,
                 dagerSynlig = 7
         )
