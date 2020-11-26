@@ -93,5 +93,33 @@ class InnsynHendelseKonsumentIntegrasjonsTest {
             assertThat(lesMelding).isNotEmpty()
         }
     }
+
+    @Test
+    fun `Skal håndtere at link i K9Beskjed er satt til null, gjør den om til ""`() {
+
+        // legg på 1 hendelse om mottatt søknad om midlertidig alene med link = null...
+        val melding = K9Beskjed(
+                metadata = Metadata(
+                        version = 1,
+                        correlationId = UUID.randomUUID().toString(),
+                        requestId = UUID.randomUUID().toString()
+                ),
+                grupperingsId = "omp-midlertidig-alene",
+                eventId = UUID.randomUUID().toString(),
+                søkerFødselsnummer = "12345678910",
+                tekst = "Vi har mottatt omsorgspengesøknad fra deg om å bli regnet som alene om omsorgen for barn.",
+                link = null,
+                dagerSynlig = 7
+        )
+        producer.leggPåTopic(melding, K9_DITTNAV_VARSEL_BESKJED, mapper)
+
+        // forvent at mottatt hendelse konsumeres og persisteres, samt at gitt restkall gitt forventet resultat.
+        await.atMost(60, TimeUnit.SECONDS).untilAsserted {
+
+            val lesMelding = dittNavConsumer.lesMelding(melding.eventId)
+            log.info("----> dittnav melding: {}", lesMelding)
+            assertThat(lesMelding).isNotEmpty()
+        }
+    }
 }
 
