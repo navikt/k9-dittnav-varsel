@@ -16,6 +16,7 @@ import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.listener.SeekToCurrentErrorHandler
 import org.springframework.kafka.support.converter.JsonMessageConverter
 import org.springframework.util.backoff.FixedBackOff
+import java.time.Duration
 
 @Configuration
 class KafkaConfig(
@@ -46,6 +47,9 @@ class KafkaConfig(
         factory.setMessageConverter(JsonMessageConverter(objectMapper))
         factory.containerProperties.isAckOnError = false;
         factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD;
+        // https://docs.spring.io/spring-kafka/reference/html/#listener-container
+        factory.containerProperties.authorizationExceptionRetryInterval = Duration.ofSeconds(10L)
+
         val seekToCurrentErrorHandler = SeekToCurrentErrorHandler(FixedBackOff(retryInterval, FixedBackOff.UNLIMITED_ATTEMPTS))
         seekToCurrentErrorHandler.setClassifications(mapOf(), true)
         factory.setErrorHandler(seekToCurrentErrorHandler)
