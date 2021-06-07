@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.3.1.RELEASE"
-    id("io.spring.dependency-management") version "1.0.9.RELEASE"
-    kotlin("jvm") version "1.3.72"
-    kotlin("plugin.spring") version "1.3.72"
+    id("org.springframework.boot") version "2.4.5"
+    id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    kotlin("jvm") version "1.5.10"
+    kotlin("plugin.spring") version "1.5.10"
 }
 
 group = "no.nav"
@@ -37,7 +37,7 @@ repositories {
 
     maven {
         name = "confluent"
-        url = uri("http://packages.confluent.io/maven/")
+        url = uri("https://packages.confluent.io/maven/")
     }
 
     maven {
@@ -98,10 +98,10 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine")
     implementation("org.zalando:problem-spring-web-starter:$zalandoVersion")
 
-    testImplementation("org.awaitility:awaitility-kotlin:4.0.3")
-    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.21")
-    testImplementation("com.ninja-squad:springmockk:2.0.1")
-    testImplementation("io.mockk:mockk:1.10.0")
+    testImplementation("org.awaitility:awaitility-kotlin:4.1.0")
+    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.24")
+    testImplementation("com.ninja-squad:springmockk:3.0.1")
+    testImplementation("io.mockk:mockk:1.11.0")
 }
 
 tasks.withType<Test> {
