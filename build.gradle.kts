@@ -94,11 +94,11 @@ dependencies {
     testImplementation("org.springframework.kafka:spring-kafka-test")
 
     // Diverse
-    implementation("org.json:json:20200518")
+    implementation("org.json:json:20210307")
     implementation("com.github.ben-manes.caffeine:caffeine")
     implementation("org.zalando:problem-spring-web-starter:$zalandoVersion")
 
-    testImplementation("org.awaitility:awaitility-kotlin:4.0.3")
+    testImplementation("org.awaitility:awaitility-kotlin:4.1.0")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.24")
     testImplementation("com.ninja-squad:springmockk:3.0.1")
     testImplementation("io.mockk:mockk:1.11.0")
