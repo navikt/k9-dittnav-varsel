@@ -7,6 +7,13 @@ metadata:
     team: dusseldorf
 spec:
   pool: {{kafka-pool}}
+  config: # optional; all fields are optional too; defaults shown
+    cleanupPolicy: delete  # delete, compact
+    minimumInSyncReplicas: 1
+    partitions: 1
+    replication: 3  # see min/max requirements
+    retentionBytes: -1  # -1 means unlimited
+    retentionHours: 72  # -1 means unlimited
   acl:
     - team: dusseldorf
       application: k9-dittnav-varsel
