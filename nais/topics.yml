@@ -1,0 +1,13 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: privat-k9-dittnav-varsel-beskjed
+  namespace: dusseldorf
+  labels:
+    team: dusseldorf
+spec:
+  pool: {{kafka-pool}}
+  acl:
+    - team: dusseldorf
+      application: k9-dittnav-varsel
+      access: readwrite

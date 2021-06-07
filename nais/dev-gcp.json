@@ -3,6 +3,7 @@
   "cluster": "dev-gcp",
   "namespace": "dusseldorf",
   "team": "dusseldorf",
+  "kafkaPool": "nav-dev",
   "minReplicas": "1",
   "maxReplicas": "2",
   "ingresses": [
