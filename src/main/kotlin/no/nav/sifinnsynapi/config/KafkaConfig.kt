@@ -13,7 +13,6 @@ import org.springframework.kafka.config.KafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.listener.ContainerProperties
-import org.springframework.kafka.listener.GenericErrorHandler
 import org.springframework.kafka.listener.SeekToCurrentErrorHandler
 import org.springframework.kafka.support.converter.JsonMessageConverter
 import org.springframework.util.backoff.FixedBackOff
