@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED
-import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_BESKJED
+import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_BESKJED_ONPREM
 import no.nav.sifinnsynapi.utils.leggPåTopic
 import no.nav.sifinnsynapi.utils.lesMelding
 import no.nav.sifinnsynapi.utils.opprettDittnavConsumer
@@ -32,8 +32,8 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 @EmbeddedKafka( // Setter opp og tilgjengligjør embeded kafka broker
-        topics = [K9_DITTNAV_VARSEL_BESKJED, DITT_NAV_BESKJED],
-        bootstrapServersProperty = "spring.kafka.bootstrap-servers" // Setter bootstrap-servers for consumer og producer.
+        topics = [K9_DITTNAV_VARSEL_BESKJED_ONPREM, DITT_NAV_BESKJED],
+        bootstrapServersProperty = "kafka.onprem.servers" // Setter bootstrap-servers for consumer og producer.
 )
 @ExtendWith(SpringExtension::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -83,7 +83,7 @@ class InnsynHendelseKonsumentIntegrasjonsTest {
                 link = "https://www.nav.no",
                 dagerSynlig = 7
         )
-        producer.leggPåTopic(melding, K9_DITTNAV_VARSEL_BESKJED, mapper)
+        producer.leggPåTopic(melding, K9_DITTNAV_VARSEL_BESKJED_ONPREM, mapper)
 
         // forvent at mottatt hendelse konsumeres og persisteres, samt at gitt restkall gitt forventet resultat.
         await.atMost(60, TimeUnit.SECONDS).untilAsserted {
@@ -111,7 +111,7 @@ class InnsynHendelseKonsumentIntegrasjonsTest {
                 link = null,
                 dagerSynlig = 7
         )
-        producer.leggPåTopic(melding, K9_DITTNAV_VARSEL_BESKJED, mapper)
+        producer.leggPåTopic(melding, K9_DITTNAV_VARSEL_BESKJED_ONPREM, mapper)
 
         // forvent at mottatt hendelse konsumeres og persisteres, samt at gitt restkall gitt forventet resultat.
         await.atMost(60, TimeUnit.SECONDS).untilAsserted {

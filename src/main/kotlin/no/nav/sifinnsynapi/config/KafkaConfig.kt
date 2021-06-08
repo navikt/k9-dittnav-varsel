@@ -1,3 +1,4 @@
+/*
 package no.nav.sifinnsynapi.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -64,3 +65,4 @@ class KafkaConfig(
         return factory
     }
 }
+*/
