@@ -19,7 +19,7 @@
     "SPRING_KAFKA_BOOTSTRAP_SERVERS": "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
     "KAFKA_ONPREM_SERVERS": "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
     "KAFKA_ONPREM_CONSUMER_AUTO_OFFSET_RESET": "none",
-    "KAFKA_ONPREM_PROPERTIES_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais-q.adeo.no",
+    "KAFKA_ONPREM_PRODUCER_PROPERTIES_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais-q.adeo.no",
     "KAFKA_ONPREM_PROPERTIES_SECURITY_PROTOCOL": "SASL_SSL"
   },
   "slack-channel": "sif-alerts-dev",
