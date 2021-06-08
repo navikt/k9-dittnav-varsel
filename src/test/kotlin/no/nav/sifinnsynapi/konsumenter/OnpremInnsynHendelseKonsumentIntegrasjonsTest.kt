@@ -1,16 +1,12 @@
 package no.nav.sifinnsynapi.konsumenter
 
 import assertk.assertThat
-import assertk.assertions.isNotEmpty
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_BESKJED_ONPREM
-import no.nav.sifinnsynapi.utils.leggPåTopic
-import no.nav.sifinnsynapi.utils.lesMelding
-import no.nav.sifinnsynapi.utils.opprettDittnavConsumer
-import no.nav.sifinnsynapi.utils.opprettKafkaProducer
+import no.nav.sifinnsynapi.utils.*
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.Producer
 import org.awaitility.kotlin.await
@@ -28,7 +24,6 @@ import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 @EmbeddedKafka( // Setter opp og tilgjengligjør embeded kafka broker
@@ -40,7 +35,7 @@ import java.util.concurrent.TimeUnit
 @DirtiesContext
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT) // Integrasjonstest - Kjører opp hele Spring Context med alle konfigurerte beans.
-class InnsynHendelseKonsumentIntegrasjonsTest {
+class OnpremInnsynHendelseKonsumentIntegrasjonsTest {
 
     @Autowired
     lateinit var mapper: ObjectMapper
@@ -53,7 +48,7 @@ class InnsynHendelseKonsumentIntegrasjonsTest {
     lateinit var dittNavConsumer: Consumer<Nokkel, Beskjed> // Kafka consumer som brukes til å lese kafka meldinger.
 
     companion object {
-        private val log: Logger = LoggerFactory.getLogger(InnsynHendelseKonsumentIntegrasjonsTest::class.java)
+        private val log: Logger = LoggerFactory.getLogger(OnpremInnsynHendelseKonsumentIntegrasjonsTest::class.java)
     }
 
     @BeforeAll
@@ -67,59 +62,43 @@ class InnsynHendelseKonsumentIntegrasjonsTest {
     }
 
     @Test
-    fun `gitt konsumert innsynsmelding, forvent publisert dittnav beskjed`() {
-
+    fun `gitt konsumert hendelse, forvent publisert dittnav beskjed`() {
         // legg på 1 hendelse om mottatt søknad om pleiepenger sykt barn...
-        val melding = K9Beskjed(
-                metadata = Metadata(
-                    version = 1,
-                    correlationId = UUID.randomUUID().toString(),
-                    requestId = UUID.randomUUID().toString()
-                ),
-                grupperingsId = "pleiepenger-sykt-barn",
-                eventId = UUID.randomUUID().toString(),
-                søkerFødselsnummer = "12345678910",
-                tekst = "Vi har mottatt din søknad om pleiepenger - sykt barn. Klikk undr for mer info.",
-                link = "https://www.nav.no",
-                dagerSynlig = 7
+        val k9Beskjed = gyldigK9Beskjed(
+            tekst = "Vi har mottatt din søknad om pleiepenger - sykt barn. Klikk under for mer info.",
+            grupperingsId = "pleiepenger-sykt-barn",
+            link = "https://www.nav.no"
         )
-        producer.leggPåTopic(melding, K9_DITTNAV_VARSEL_BESKJED_ONPREM, mapper)
 
-        // forvent at mottatt hendelse konsumeres og persisteres, samt at gitt restkall gitt forventet resultat.
+        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED_ONPREM, mapper)
+
+        // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
         await.atMost(60, TimeUnit.SECONDS).untilAsserted {
-
-            val lesMelding = dittNavConsumer.lesMelding(melding.eventId)
-            log.info("----> dittnav melding: {}", lesMelding)
-            assertThat(lesMelding).isNotEmpty()
+            val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
+            if(brukernotifikasjon != null) validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
         }
     }
 
     @Test
     fun `Skal håndtere at link i K9Beskjed er satt til null, gjør den om til ""`() {
-
         // legg på 1 hendelse om mottatt søknad om midlertidig alene med link = null...
-        val melding = K9Beskjed(
-                metadata = Metadata(
-                        version = 1,
-                        correlationId = UUID.randomUUID().toString(),
-                        requestId = UUID.randomUUID().toString()
-                ),
-                grupperingsId = "omp-midlertidig-alene",
-                eventId = UUID.randomUUID().toString(),
-                søkerFødselsnummer = "12345678910",
-                tekst = "Vi har mottatt omsorgspengesøknad fra deg om å bli regnet som alene om omsorgen for barn.",
-                link = null,
-                dagerSynlig = 7
+        val k9Beskjed = gyldigK9Beskjed(
+            tekst = "Vi har mottatt omsorgspengesøknad fra deg om å bli regnet som alene om omsorgen for barn.",
+            grupperingsId = "omp-midlertidig-alene",
+            link = null
         )
-        producer.leggPåTopic(melding, K9_DITTNAV_VARSEL_BESKJED_ONPREM, mapper)
+        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED_ONPREM, mapper)
 
-        // forvent at mottatt hendelse konsumeres og persisteres, samt at gitt restkall gitt forventet resultat.
+        // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
         await.atMost(60, TimeUnit.SECONDS).untilAsserted {
-
-            val lesMelding = dittNavConsumer.lesMelding(melding.eventId)
-            log.info("----> dittnav melding: {}", lesMelding)
-            assertThat(lesMelding).isNotEmpty()
+            val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
+            if(brukernotifikasjon != null) validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
         }
     }
 }
 
+fun validerRiktigBrukernotifikasjon(k9Beskjed: K9Beskjed, brukernotifikasjon: Beskjed){
+    assertThat(k9Beskjed.tekst == brukernotifikasjon.getTekst())
+    assertThat(k9Beskjed.søkerFødselsnummer == brukernotifikasjon.getFodselsnummer())
+    assertThat(k9Beskjed.grupperingsId == brukernotifikasjon.getGrupperingsId())
+}

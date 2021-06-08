@@ -18,7 +18,6 @@ import java.util.function.BiConsumer
 class CommonKafkaConfig {
     companion object {
         fun configureConcurrentKafkaListenerContainerFactory(
-            clientId: String,
             consumerFactory: ConsumerFactory<String, String>,
             retryInterval: Long,
             kafkaTemplate: KafkaTemplate<Nokkel, Beskjed>,
@@ -40,17 +39,17 @@ class CommonKafkaConfig {
             // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#committing-offsets
             factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD;
 
-            // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#delivery-header
-            factory.containerProperties.isDeliveryAttemptHeader = true
-
             // https://docs.spring.io/spring-kafka/reference/html/#listener-container
             factory.containerProperties.authorizationExceptionRetryInterval = Duration.ofSeconds(10L)
 
+            // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#delivery-header
+            factory.containerProperties.isDeliveryAttemptHeader = true
+
             //https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#after-rollback
-            val defaultAfterRollbackProcessor =
-                DefaultAfterRollbackProcessor<String, String>(recoverer(logger), FixedBackOff(retryInterval, Long.MAX_VALUE))
+            val defaultAfterRollbackProcessor = DefaultAfterRollbackProcessor<String, String>(recoverer(logger), FixedBackOff(retryInterval, Long.MAX_VALUE))
             defaultAfterRollbackProcessor.setClassifications(mapOf(), true)
             factory.setAfterRollbackProcessor(defaultAfterRollbackProcessor)
+
             return factory
         }
 

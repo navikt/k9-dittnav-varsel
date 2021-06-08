@@ -8,13 +8,15 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 
 @Service
-class DittnavService(private val kafkaTemplate: KafkaTemplate<Nokkel, Beskjed>) {
+class DittnavService(private val onpremKafkaTemplate: KafkaTemplate<Nokkel, Beskjed>) {
 
     fun sendBeskjed(nøkkel: Nokkel, beskjed: Beskjed) {
-        kafkaTemplate.send(ProducerRecord(
+        onpremKafkaTemplate.send(
+            ProducerRecord(
                 DITT_NAV_BESKJED,
                 nøkkel,
                 beskjed
-        ))
+            )
+        )
     }
 }

@@ -38,7 +38,6 @@ class OnpremKafkaConfig(
     @Value("\${kafka.onprem.producer.client-id}") private val clientId: String,
     @Value("\${kafka.onprem.producer.key-serializer}") private val keySerializer: String,
     @Value("\${kafka.onprem.producer.value-serializer}") private val valueSerializer: String,
-    @Value("\${kafka.onprem.producer.transaction-id-prefix}") private val transactionIdPrefix: String,
     @Value("\${kafka.onprem.producer.retries}") private val retries: Int,
     @Value("\${kafka.onprem.producer.properties.schema.registry.url}") private val schemaRegistryUrl: String,
 
@@ -86,7 +85,6 @@ class OnpremKafkaConfig(
         ) + commonConfig()
 
         val factory = DefaultKafkaProducerFactory<Nokkel, Beskjed>(producerProperties)
-        //factory.setTransactionIdPrefix(transactionIdPrefix) //TODO
         return factory
     }
 
@@ -100,7 +98,6 @@ class OnpremKafkaConfig(
         onpremConsumerFactory: ConsumerFactory<String, String>,
         onpremKafkaTemplate: KafkaTemplate<Nokkel, Beskjed>
     ): ConcurrentKafkaListenerContainerFactory<String, String> = configureConcurrentKafkaListenerContainerFactory(
-        clientId = groupId,
         consumerFactory = onpremConsumerFactory,
         kafkaTemplate = onpremKafkaTemplate,
         retryInterval = retryInterval,

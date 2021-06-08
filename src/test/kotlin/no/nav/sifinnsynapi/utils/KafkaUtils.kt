@@ -41,10 +41,12 @@ fun EmbeddedKafkaBroker.opprettDittnavConsumer(): Consumer<Nokkel, Beskjed> {
     return consumer
 }
 
-fun Consumer<Nokkel, Beskjed>.lesMelding(søknadId: String): List<ConsumerRecord<Nokkel, Beskjed>> {
+fun Consumer<Nokkel, Beskjed>.hentBrukernotifikasjon(søknadId: String): ConsumerRecord<Nokkel, Beskjed>? {
     seekToBeginning(assignment())
     val consumerRecords = this.poll(Duration.ofSeconds(1))
     return consumerRecords
             .records(DITT_NAV_BESKJED)
             .filter { it.key().getEventId() == søknadId }
+            .first()
+
 }
