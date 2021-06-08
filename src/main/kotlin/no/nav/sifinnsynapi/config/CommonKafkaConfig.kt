@@ -3,6 +3,9 @@ package no.nav.sifinnsynapi.config
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.sifinnsynapi.konsumenter.K9Beskjed
+import no.nav.sifinnsynapi.util.Constants
+import no.nav.sifinnsynapi.util.MDCUtil
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.Logger
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
@@ -49,6 +52,16 @@ class CommonKafkaConfig {
             val defaultAfterRollbackProcessor = DefaultAfterRollbackProcessor<String, String>(recoverer(logger), FixedBackOff(retryInterval, Long.MAX_VALUE))
             defaultAfterRollbackProcessor.setClassifications(mapOf(), true)
             factory.setAfterRollbackProcessor(defaultAfterRollbackProcessor)
+
+
+            factory.setRecordFilterStrategy {
+                val melding = objectMapper.readValue(it.value(), K9Beskjed::class.java)
+                val correlationId = melding.metadata.correlationId
+                MDCUtil.toMDC(Constants.NAV_CALL_ID, correlationId)
+                MDCUtil.toMDC(Constants.NAV_CONSUMER_ID, "k9-dittnav-varsel")
+
+                false
+            }
 
             return factory
         }
