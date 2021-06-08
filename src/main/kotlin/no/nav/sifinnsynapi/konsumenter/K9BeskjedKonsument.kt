@@ -52,7 +52,7 @@ data class K9Beskjed(
 data class Metadata @JsonCreator constructor(
         @JsonProperty("version") val version : Int,
         @JsonProperty("correlationId") val correlationId : String,
-        @JsonProperty("requestId") val requestId : String
+        @JsonProperty("requestId") val requestId : String? = null
 )
 
 fun K9Beskjed.somJson(mapper: ObjectMapper) = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this)
