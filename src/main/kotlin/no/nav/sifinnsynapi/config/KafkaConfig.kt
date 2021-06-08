@@ -46,7 +46,6 @@ class KafkaConfig(
         factory.consumerFactory = consumerFactory
         factory.setReplyTemplate(kafkaTemplate)
         factory.setMessageConverter(JsonMessageConverter(objectMapper))
-        factory.containerProperties.isAckOnError = false;
         factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD;
         // https://docs.spring.io/spring-kafka/reference/html/#listener-container
         factory.containerProperties.authorizationExceptionRetryInterval = Duration.ofSeconds(10L)
