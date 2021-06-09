@@ -17,7 +17,4 @@ kafka:
     producer:
       client-id: sif-innsyn-api-onprem
       transaction-id-prefix: sif-innsyn-api-onprem.tx.
-      properties:
-        schema:
-          registry:
-            url: mock://localhost
+      schema-registry-url: mock://localhost

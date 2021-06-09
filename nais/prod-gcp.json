@@ -16,10 +16,9 @@
   "env": {
     "SPRING_PROFILES_ACTIVE": "prod-gcp",
     "SPRING_APPLICATION_NAME": "k9-dittnav-varsel",
-    "SPRING_KAFKA_BOOTSTRAP_SERVERS": "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443",
     "KAFKA_ONPREM_SERVERS": "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443",
     "KAFKA_ONPREM_CONSUMER_AUTO_OFFSET_RESET": "none",
-    "KAFKA_ONPREM_PRODUCER_PROPERTIES_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.adeo.no",
+    "KAFKA_ONPREM_PRODUCER_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.adeo.no",
     "KAFKA_ONPREM_PROPERTIES_SECURITY_PROTOCOL": "SASL_SSL"
   },
   "slack-channel": "sif-alerts",

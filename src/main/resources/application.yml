@@ -34,3 +34,4 @@ kafka:
       value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
       transaction-id-prefix: ${HOSTNAME}.tx-
       retries: 3
+      schemaRegistryUrl: # overstyres fra nais/<cluster>.json
