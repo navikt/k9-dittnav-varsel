@@ -17,9 +17,9 @@ data class SecurityProperties(
     val securityProtocol: String? = null,
     val saslMechanism: String? = null,
     val saslJaasConfig: String? = null,
-    val trustStoreLocation: Resource? = null,
-    val trustStorePassword: String? = null,
-    val trustStoreType: String? = null,
+    val sslTrustStoreLocation: Resource? = null,
+    val sslTrustStorePassword: String? = null,
+    val sslTrustStoreType: String? = null,
 )
 
 data class ConsumerProperties(
