@@ -31,12 +31,14 @@ class OnpremKafkaConfig(
     } + securityConfig()
 
     fun securityConfig() = mutableMapOf<String, Any>().apply {
-        kafkaOnpremProperties.properties?.security?.protocol?.let { put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, it) }
-        kafkaOnpremProperties.properties?.sasl?.mechanism?.let { put(SaslConfigs.SASL_MECHANISM, it) }
-        kafkaOnpremProperties.properties?.sasl?.jaasConfig?.let { put(SaslConfigs.SASL_JAAS_CONFIG, it) }
-        kafkaOnpremProperties.properties?.ssl?.trustStoreLocation?.let { put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, it.file.absolutePath) }
-        kafkaOnpremProperties.properties?.ssl?.trustStorePassword?.let { put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, it) }
-        kafkaOnpremProperties.properties?.ssl?.trustStoreType?.let { put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, it) }
+        kafkaOnpremProperties.properties?.let {
+            put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, it.security.protocol)
+            put(SaslConfigs.SASL_MECHANISM, it.sasl.mechanism)
+            put(SaslConfigs.SASL_JAAS_CONFIG, it.sasl.jaasConfig)
+            put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, it.ssl.trustStoreLocation.file.absolutePath)
+            put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, it.ssl.trustStorePassword)
+            put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, it.ssl.trustStoreType)
+        }
     }
 
     @Bean
