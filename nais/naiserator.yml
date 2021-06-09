@@ -8,6 +8,8 @@ metadata:
 spec:
   image: {{ image }}
   port: 8080
+  kafka:
+    pool: {{kafkaPool}}
   accessPolicy:
     outbound:
       external:

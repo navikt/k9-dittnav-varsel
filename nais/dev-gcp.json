@@ -3,6 +3,7 @@
   "cluster": "dev-gcp",
   "namespace": "dusseldorf",
   "team": "dusseldorf",
+  "kafkaPool": "nav-dev",
   "minReplicas": "1",
   "maxReplicas": "2",
   "ingresses": [
@@ -15,9 +16,9 @@
   "env": {
     "SPRING_PROFILES_ACTIVE": "dev-gcp",
     "SPRING_APPLICATION_NAME": "k9-dittnav-varsel",
-    "SPRING_KAFKA_BOOTSTRAP_SERVERS": "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
-    "SPRING_KAFKA_PROPERTIES_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais-q.adeo.no",
-    "SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL": "SASL_SSL"
+    "KAFKA_ONPREM_SERVERS": "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
+    "KAFKA_ONPREM_CONSUMER_AUTO_OFFSET_RESET": "none",
+    "KAFKA_ONPREM_PRODUCER_SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais-q.adeo.no"
   },
   "slack-channel": "sif-alerts-dev",
   "slack-notify-type": "<!here> | k9-dittnav-varsel | "
