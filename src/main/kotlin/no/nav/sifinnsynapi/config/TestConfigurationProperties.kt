@@ -14,12 +14,24 @@ data class KafkaOnpremProperties(
 )
 
 data class SecurityProperties(
-    val securityProtocol: String? = null,
-    val saslMechanism: String? = null,
-    val saslJaasConfig: String? = null,
-    val sslTrustStoreLocation: Resource? = null,
-    val sslTrustStorePassword: String? = null,
-    val sslTrustStoreType: String? = null,
+    val security: Security? = null,
+    val sasl: Sasl? = null,
+    val ssl: Ssl? = null
+)
+
+data class Security (
+    val protocol: String? = null
+)
+
+data class Sasl(
+    val mechanism: String? = null,
+    val jaasConfig: String? = null,
+)
+
+data class Ssl(
+    val trustStoreLocation: Resource? = null,
+    val trustStorePassword: String? = null,
+    val trustStoreType: String? = null,
 )
 
 data class ConsumerProperties(
