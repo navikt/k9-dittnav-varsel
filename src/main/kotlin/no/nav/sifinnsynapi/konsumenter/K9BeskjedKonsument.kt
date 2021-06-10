@@ -36,18 +36,9 @@ class HendelseKonsument(
         groupId = "#{'\${kafka.aiven.consumer.group-id}'}",
         containerFactory = "aivenKafkaJsonListenerContainerFactory"
     )
-    fun konsumerAiven(@Payload tempFix: TempFix) {
-        val melding = tempFix.data.k9Beskjed
+    fun konsumerAiven(@Payload melding: K9Beskjed) {
         logger.info("AIVEN - Mottok K9Beskjed med eventID: {}, event: :{}", melding.eventId, melding)
 
         dittnavService.sendBeskjedOnprem(melding.somNøkkel(stsUsername), melding.somBeskjed())
     }
 }
-
-data class TempFix (
-    val data: Data
-)
-
-data class Data (
-    val metadata: Metadata, val k9Beskjed: K9Beskjed
-)
