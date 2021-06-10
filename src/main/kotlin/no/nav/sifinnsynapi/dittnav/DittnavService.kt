@@ -15,7 +15,7 @@ class DittnavService(
     companion object{
         val logger = LoggerFactory.getLogger(DittnavService::class.java)
     }
-    fun sendBeskjed(nøkkel: Nokkel, beskjed: Beskjed) {
+    fun sendBeskjedOnprem(nøkkel: Nokkel, beskjed: Beskjed) {
         logger.info("Sender beskjed videre til ${DITT_NAV_BESKJED} med eventId ${nøkkel.getEventId()}")
         onpremKafkaTemplate.send(
             ProducerRecord(

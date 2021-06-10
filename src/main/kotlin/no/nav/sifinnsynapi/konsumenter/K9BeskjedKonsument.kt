@@ -25,9 +25,9 @@ class HendelseKonsument(
         containerFactory = "onpremKafkaJsonListenerContainerFactory"
     )
     fun konsumerOnprem(@Payload melding: K9Beskjed) {
-        logger.info("Mottok hendelse ONPREM med eventID: {}, event: :{}", melding.eventId, melding)
+        logger.info("Mottok K9Beskjed ONPREM med eventID: {}, event: :{}", melding.eventId, melding)
 
-        dittnavService.sendBeskjed(melding.somNøkkel(stsUsername), melding.somBeskjed())
+        dittnavService.sendBeskjedOnprem(melding.somNøkkel(stsUsername), melding.somBeskjed())
     }
 
     @KafkaListener(
@@ -37,8 +37,8 @@ class HendelseKonsument(
         containerFactory = "aivenKafkaJsonListenerContainerFactory"
     )
     fun konsumerAiven(@Payload melding: K9Beskjed) {
-        logger.info("Mottok hendelse AIVEN med eventID: {}, event: :{}", melding.eventId, melding)
+        logger.info("Mottok K9Beskjed AIVEN med eventID: {}, event: :{}", melding.eventId, melding)
 
-        dittnavService.sendBeskjed(melding.somNøkkel(stsUsername), melding.somBeskjed())
+        dittnavService.sendBeskjedOnprem(melding.somNøkkel(stsUsername), melding.somBeskjed())
     }
 }
