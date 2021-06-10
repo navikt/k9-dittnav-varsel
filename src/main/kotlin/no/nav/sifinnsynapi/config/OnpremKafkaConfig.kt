@@ -65,8 +65,7 @@ class OnpremKafkaConfig(
             "schema.registry.url" to kafkaOnpremProperties.producer.schemaRegistryUrl
         ) + commonConfig()
 
-        val factory = DefaultKafkaProducerFactory<Nokkel, Beskjed>(producerProperties)
-        return factory
+        return DefaultKafkaProducerFactory<Nokkel, Beskjed>(producerProperties)
     }
 
     @Bean

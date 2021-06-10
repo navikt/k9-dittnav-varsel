@@ -14,3 +14,14 @@ kafka:
         trust-store-location: file:${javax.net.ssl.trustStore}
         trust-store-password: ${javax.net.ssl.trustStorePassword}
         trust-store-type: JKS
+  aiven:
+    properties:
+      security:
+        protocol: SSL
+      ssl:
+        truststore-location: file:${KAFKA_TRUSTSTORE_PATH}
+        trust-store-password: ${KAFKA_CREDSTORE_PASSWORD}
+        trust-store-type: JKS
+        keystore-location: file:${KAFKA_KEYSTORE_PATH}
+        keystore-password: ${KAFKA_CREDSTORE_PASSWORD}
+        keystore-type: PKCS12

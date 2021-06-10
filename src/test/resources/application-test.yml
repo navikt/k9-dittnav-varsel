@@ -16,5 +16,14 @@ kafka:
       auto-offset-reset: earliest
     producer:
       client-id: sif-innsyn-api-onprem
-      transaction-id-prefix: sif-innsyn-api-onprem.tx.
+      schema-registry-url: mock://localhost
+  aiven:
+    servers: localhost:9092 # placeholder
+    consumer:
+      retry-interval: 5_000 # Egendefinert property
+      group-id: sif-innsyn-api-aiven
+      auto-offset-reset: earliest
+    producer:
+      client-id: sif-innsyn-api-aiven
+      retries: 3
       schema-registry-url: mock://localhost
