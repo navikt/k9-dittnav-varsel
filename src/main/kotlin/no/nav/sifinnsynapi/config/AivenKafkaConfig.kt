@@ -34,10 +34,10 @@ class AivenKafkaConfig(
         put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "") // Disable server host name verification
         kafkaAivenProperties.properties?.let {
             put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, it.security.protocol)
-            put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, it.ssl.truststoreLocation)
+            put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, it.ssl.truststoreLocation.file.absolutePath)
             put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, it.ssl.truststorePassword)
             put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, it.ssl.truststoreType)
-            put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, it.ssl.keystoreLocation)
+            put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, it.ssl.keystoreLocation.file.absolutePath)
             put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, it.ssl.keystorePassword)
             put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, it.ssl.keystoreType)
         }
