@@ -57,7 +57,7 @@ class OnpremHendelseKonsumentIntegrasjonsTest {
     }
 
     @Test
-    fun `gitt konsumert hendelse, forvent publisert dittnav beskjed`() {
+    fun `Legger K9Beskjed på topic og forvent publisert dittnav beskjed`() {
         // legg på 1 hendelse om mottatt søknad om pleiepenger sykt barn...
         val k9Beskjed = gyldigK9Beskjed(
             tekst = "Vi har mottatt din søknad om pleiepenger - sykt barn. Klikk under for mer info.",
@@ -75,7 +75,7 @@ class OnpremHendelseKonsumentIntegrasjonsTest {
     }
 
     @Test
-    fun `Skal håndtere at link i K9Beskjed er satt til null, gjør den om til ""`() {
+    fun `Dersom K9Beskjed link er null forventes det at publisert dittnav  Beskjed link er tom`() {
         // legg på 1 hendelse om mottatt søknad om midlertidig alene med link = null...
         val k9Beskjed = gyldigK9Beskjed(
             tekst = "Vi har mottatt omsorgspengesøknad fra deg om å bli regnet som alene om omsorgen for barn.",
@@ -87,7 +87,10 @@ class OnpremHendelseKonsumentIntegrasjonsTest {
         // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
         await.atMost(60, TimeUnit.SECONDS).untilAsserted {
             val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
-            if(brukernotifikasjon != null) validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
+            if(brukernotifikasjon != null){
+                validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
+                assertThat(brukernotifikasjon.getLink() == "")
+            }
         }
     }
 }

@@ -56,7 +56,7 @@ class AivenHendelseKonsumentIntegrasjonsTest {
     }
 
     //@Test
-    fun `Legger hendelse på Avien topic , forvent publisert dittnav beskjed`() {
+    fun `Legger K9Beskjed på topic og forvent publisert dittnav beskjed`() {
         // legg på 1 hendelse om mottatt søknad om pleiepenger sykt barn...
         val k9Beskjed = gyldigK9Beskjed(
             tekst = "Vi har mottatt din søknad om pleiepenger - sykt barn. Klikk under for mer info.",
