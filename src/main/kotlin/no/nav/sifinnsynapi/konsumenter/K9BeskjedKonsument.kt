@@ -37,7 +37,7 @@ class HendelseKonsument(
         containerFactory = "aivenKafkaJsonListenerContainerFactory"
     )
     fun konsumerAiven(@Payload tempFix: TempFix) {
-        val melding = tempFix.k9Beskjed
+        val melding = tempFix.data.k9Beskjed
         logger.info("AIVEN - Mottok K9Beskjed med eventID: {}, event: :{}", melding.eventId, melding)
 
         dittnavService.sendBeskjedOnprem(melding.somNøkkel(stsUsername), melding.somBeskjed())
@@ -45,5 +45,9 @@ class HendelseKonsument(
 }
 
 data class TempFix (
+    val data: Data
+)
+
+data class Data (
     val metadata: Metadata, val k9Beskjed: K9Beskjed
 )
