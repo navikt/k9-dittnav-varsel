@@ -5,7 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.brukernotifikasjon.schemas.builders.BeskjedBuilder
+import java.net.URL
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZoneOffset.UTC
 import java.time.temporal.ChronoUnit
 
 data class K9Beskjed(
@@ -38,14 +44,15 @@ fun K9Beskjed.somNøkkel(systembruker: String): Nokkel {
 }
 
 fun K9Beskjed.somBeskjed(): Beskjed {
-    val linkUtenNull = link ?: ""
-    return Beskjed(
-        System.currentTimeMillis(),
-        Instant.now().plus(dagerSynlig, ChronoUnit.DAYS).toEpochMilli(),
-        søkerFødselsnummer,
-        grupperingsId,
-        tekst,
-        linkUtenNull,
-        4
-    )
+    val builder = BeskjedBuilder()
+        .withEksternVarsling(false)
+        .withFodselsnummer(this.søkerFødselsnummer)
+        .withGrupperingsId(this.grupperingsId)
+        .withSikkerhetsnivaa(4)
+        .withSynligFremTil(LocalDateTime.now().plusDays(dagerSynlig))
+        .withTekst(tekst)
+        .withTidspunkt(LocalDateTime.now(UTC))
+
+    if(link != null) builder.withLink(URL(link))
+    return builder.build()
 }
