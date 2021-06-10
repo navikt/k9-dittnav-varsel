@@ -57,7 +57,7 @@ class CommonKafkaConfig {
             factory.setRecordFilterStrategy {
                 val melding = objectMapper.readValue(it.value(), K9Beskjed::class.java)
                 val correlationId = melding.metadata.correlationId
-                MDCUtil.toMDC(Constants.NAV_CALL_ID, correlationId)
+                MDCUtil.toMDC(Constants.CORRELATION_ID, correlationId)
                 MDCUtil.toMDC(Constants.NAV_CONSUMER_ID, "k9-dittnav-varsel")
 
                 false

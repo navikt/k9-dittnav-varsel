@@ -1,6 +1,6 @@
 package no.nav.sifinnsynapi.util
 
-import no.nav.sifinnsynapi.util.Constants.NAV_CALL_ID
+import no.nav.sifinnsynapi.util.Constants.CORRELATION_ID
 import org.slf4j.MDC
 import java.util.*
 
@@ -8,7 +8,7 @@ object MDCUtil {
     private val GEN = CallIdGenerator()
     @JvmStatic
     fun callId(): String {
-        return MDC.get(NAV_CALL_ID)
+        return MDC.get(CORRELATION_ID)
     }
 
     fun callIdOrNew(): String {
