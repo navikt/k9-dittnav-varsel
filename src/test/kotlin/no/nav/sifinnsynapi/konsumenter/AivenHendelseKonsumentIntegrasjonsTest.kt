@@ -55,7 +55,7 @@ class AivenHendelseKonsumentIntegrasjonsTest {
     internal fun tearDown() {
     }
 
-    //@Test
+    //@Test //TODO 10/06/2021 - Denne må fikses
     fun `Legger K9Beskjed på topic og forvent publisert dittnav beskjed`() {
         // legg på 1 hendelse om mottatt søknad om pleiepenger sykt barn...
         val k9Beskjed = gyldigK9Beskjed(

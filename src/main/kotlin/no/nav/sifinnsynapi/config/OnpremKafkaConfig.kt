@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.configureConcurrentKafkaListenerContainerFactory
+import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.consumerFactory
+import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.kafkaTemplate
+import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.producerFactory
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
@@ -19,58 +22,22 @@ import org.springframework.kafka.core.*
 @Configuration
 class OnpremKafkaConfig(
     private val objectMapper: ObjectMapper,
-    private val kafkaOnpremProperties: KafkaOnpremProperties
+    private val kafkaClusterProperties: KafkaClusterProperties
 ) {
 
     companion object {
         private val logger = LoggerFactory.getLogger(OnpremKafkaConfig::class.java)
     }
 
-    fun commonConfig() = mutableMapOf<String, Any>().apply {
-        put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafkaOnpremProperties.servers)
-    } + securityConfig()
-
-    fun securityConfig() = mutableMapOf<String, Any>().apply {
-        kafkaOnpremProperties.properties?.let {
-            put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, it.security.protocol)
-            put(SaslConfigs.SASL_MECHANISM, it.sasl.mechanism)
-            put(SaslConfigs.SASL_JAAS_CONFIG, it.sasl.jaasConfig)
-            put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, it.ssl.trustStoreLocation.file.absolutePath)
-            put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, it.ssl.trustStorePassword)
-            put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, it.ssl.trustStoreType)
-        }
-    }
+    @Bean
+    fun onpremConsumerFactory(): ConsumerFactory<String, String> = consumerFactory(kafkaClusterProperties.onprem)
 
     @Bean
-    fun onpremConsumerFactory(): ConsumerFactory<String, String> {
-        val consumerProperties = mutableMapOf<String, Any>(
-            ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to kafkaOnpremProperties.consumer.enableAutoCommit,
-            ConsumerConfig.GROUP_ID_CONFIG to kafkaOnpremProperties.consumer.groupId,
-            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to kafkaOnpremProperties.consumer.autoOffsetReset,
-            ConsumerConfig.ISOLATION_LEVEL_CONFIG to kafkaOnpremProperties.consumer.isolationLevel,
-            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to kafkaOnpremProperties.consumer.keyDeserializer,
-            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to kafkaOnpremProperties.consumer.valueDeserializer
-        ) + commonConfig()
-
-        return DefaultKafkaConsumerFactory(consumerProperties)
-    }
-
-    @Bean
-    fun onpremProducerFactory(): ProducerFactory<Nokkel, Beskjed> {
-        val producerProperties = mutableMapOf<String, Any>(
-            ProducerConfig.CLIENT_ID_CONFIG to kafkaOnpremProperties.producer.clientId,
-            ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to kafkaOnpremProperties.producer.keySerializer,
-            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to kafkaOnpremProperties.producer.valueSerializer,
-            ProducerConfig.RETRIES_CONFIG to kafkaOnpremProperties.producer.retries,
-            "schema.registry.url" to kafkaOnpremProperties.producer.schemaRegistryUrl
-        ) + commonConfig()
-
-        return DefaultKafkaProducerFactory<Nokkel, Beskjed>(producerProperties)
-    }
+    fun onpremProducerFactory(): ProducerFactory<Nokkel, Beskjed> = producerFactory(kafkaClusterProperties.onprem)
 
     @Bean
     fun onpremKafkaTemplate(onpremProducerFactory: ProducerFactory<Nokkel, Beskjed>): KafkaTemplate<Nokkel, Beskjed> {
-        return KafkaTemplate(onpremProducerFactory)
+        return kafkaTemplate(onpremProducerFactory)
     }
 
     @Bean
@@ -80,7 +47,8 @@ class OnpremKafkaConfig(
     ): ConcurrentKafkaListenerContainerFactory<String, String> = configureConcurrentKafkaListenerContainerFactory(
         consumerFactory = onpremConsumerFactory,
         kafkaTemplate = onpremKafkaTemplate,
-        retryInterval = kafkaOnpremProperties.consumer.retryInterval,
+        retryInterval = kafkaClusterProperties.onprem.consumer.retryInterval,
         objectMapper = objectMapper,
-        logger = logger)
+        logger = logger
+    )
 }
