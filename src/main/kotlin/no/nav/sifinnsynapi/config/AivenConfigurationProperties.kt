@@ -20,7 +20,7 @@ data class SecurityPropertiesAiven(
 
 data class SslAiven(
     val truststoreLocation: Resource,
-    val truststorePassord: String,
+    val truststorePassword: String,
     val truststoreType: String,
     val keystoreLocation: Resource,
     val keystorePassword: String,
