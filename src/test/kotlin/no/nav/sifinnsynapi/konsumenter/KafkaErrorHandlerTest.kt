@@ -65,12 +65,12 @@ class KafkaErrorHandlerTest {
     }
 
     @Test
-    fun `Sender K9Beskjed men dittnavService feiler, forvent at den retry minst 10 ganger `() {
+    fun `Sender K9Beskjed hvor dittnavService feiler, forvent at SeekToCurrentErrorHandler prøver igjen minst 20 ganger`() {
         every {
             dittnavService.sendBeskjedOnprem(any(), any())
-        } throws Exception("Ops noe gikk galt.")
+        } throws Exception("Ops noe gikk galt! Mocket feil")
 
-        // legg på 1 hendelse om mottatt søknad om pleiepenger sykt barn...
+        // legg på 1 hendelse om mottatt søknad
         val k9Beskjed = gyldigK9Beskjed(
             tekst = "Vi har mottatt din søknad om pleiepenger - sykt barn. Klikk under for mer info.",
             link = "https://www.nav.no"
@@ -83,7 +83,7 @@ class KafkaErrorHandlerTest {
             assertTrue(brukernotifikasjon == null)
         }
 
-        verify(atLeast = 10) {
+        verify(atLeast = 20) {
             dittnavService.sendBeskjedOnprem(any(), any())
         }
     }

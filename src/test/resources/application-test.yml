@@ -13,7 +13,7 @@ kafka:
   onprem:
     servers: ${kafka-servers}
     consumer:
-      retry-interval: 1000 # Egendefinert property
+      retry-interval: 100 # Egendefinert property
       group-id: sif-innsyn-api-onprem
       auto-offset-reset: earliest
     producer:
@@ -22,7 +22,7 @@ kafka:
   aiven:
     servers: ${kafka-servers}
     consumer:
-      retry-interval: 1000 # Egendefinert property
+      retry-interval: 100 # Egendefinert property
       group-id: sif-innsyn-api-aiven
       auto-offset-reset: earliest
     producer:
