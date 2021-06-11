@@ -43,7 +43,7 @@ class OnpremHendelseKonsumentIntegrasjonsTest {
     @Autowired
     private lateinit var embeddedKafkaBroker: EmbeddedKafkaBroker // Broker som brukes til å konfigurere opp en kafka producer.
 
-    lateinit var producer: Producer<String, Any> // Kafka producer som brukes til å legge på kafka meldinger. Mer spesifikk, Hendelser om mottat søknad i innsyn.
+    lateinit var producer: Producer<String, Any> // Kafka producer som brukes til å legge på kafka meldinger
     lateinit var dittNavConsumer: Consumer<Nokkel, Beskjed> // Kafka consumer som brukes til å lese kafka meldinger.
 
     @BeforeAll
@@ -68,10 +68,9 @@ class OnpremHendelseKonsumentIntegrasjonsTest {
         producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED_ONPREM, mapper)
 
         // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
-        await.atMost(60, TimeUnit.SECONDS).untilAsserted {
-            val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
-            if(brukernotifikasjon != null) validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
-        }
+        val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId).value()
+        validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
+
     }
 
     @Test
@@ -85,13 +84,10 @@ class OnpremHendelseKonsumentIntegrasjonsTest {
         producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED_ONPREM, mapper)
 
         // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
-        await.atMost(60, TimeUnit.SECONDS).untilAsserted {
-            val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
-            if(brukernotifikasjon != null){
-                validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
-                assertThat(brukernotifikasjon.getLink() == "")
-            }
-        }
+        val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId).value()
+        validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
+        assertThat(brukernotifikasjon.getLink() == "")
+
     }
 }
 

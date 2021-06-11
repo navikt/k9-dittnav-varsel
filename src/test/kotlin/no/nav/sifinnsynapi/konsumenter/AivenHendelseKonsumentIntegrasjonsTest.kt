@@ -42,7 +42,7 @@ class AivenHendelseKonsumentIntegrasjonsTest {
     @Autowired
     private lateinit var embeddedKafkaBroker: EmbeddedKafkaBroker // Broker som brukes til å konfigurere opp en kafka producer.
 
-    lateinit var producer: Producer<String, Any> // Kafka producer som brukes til å legge på kafka meldinger. Mer spesifikk, Hendelser om mottat søknad i innsyn.
+    lateinit var producer: Producer<String, Any> // Kafka producer som brukes til å legge på kafka meldinger.
     lateinit var dittNavConsumer: Consumer<Nokkel, Beskjed> // Kafka consumer som brukes til å lese kafka meldinger.
 
     @BeforeAll
@@ -55,7 +55,7 @@ class AivenHendelseKonsumentIntegrasjonsTest {
     internal fun tearDown() {
     }
 
-    //@Test //TODO 10/06/2021 - Denne må fikses
+    //@Test
     fun `Legger K9Beskjed på topic og forvent publisert dittnav beskjed`() {
         // legg på 1 hendelse om mottatt søknad om pleiepenger sykt barn...
         val k9Beskjed = gyldigK9Beskjed(
@@ -67,9 +67,8 @@ class AivenHendelseKonsumentIntegrasjonsTest {
         producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED_AIVEN, mapper)
 
         // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
-        await.atMost(60, TimeUnit.SECONDS).untilAsserted {
-            val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
-            if(brukernotifikasjon != null) validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
-        }
+        val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
+        validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
+
     }
 }

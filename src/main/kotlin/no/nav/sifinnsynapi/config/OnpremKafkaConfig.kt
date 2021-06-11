@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.*
+import org.springframework.kafka.transaction.KafkaTransactionManager
 
 
 @Configuration
@@ -36,19 +37,24 @@ class OnpremKafkaConfig(
     fun onpremProducerFactory(): ProducerFactory<Nokkel, Beskjed> = producerFactory(kafkaClusterProperties.onprem)
 
     @Bean
-    fun onpremKafkaTemplate(onpremProducerFactory: ProducerFactory<Nokkel, Beskjed>): KafkaTemplate<Nokkel, Beskjed> {
-        return kafkaTemplate(onpremProducerFactory)
-    }
+    fun onpremKafkaTemplate(onpremProducerFactory: ProducerFactory<Nokkel, Beskjed>): KafkaTemplate<Nokkel, Beskjed> =
+        kafkaTemplate(onpremProducerFactory, kafkaClusterProperties.onprem)
+
+    @Bean
+    fun onpremKafkaTransactionManager(onpremProducerFactory: ProducerFactory<Nokkel, Beskjed>) =
+        CommonKafkaConfig.kafkaTransactionManager(onpremProducerFactory, kafkaClusterProperties.onprem)
 
     @Bean
     fun onpremKafkaJsonListenerContainerFactory(
         onpremConsumerFactory: ConsumerFactory<String, String>,
-        onpremKafkaTemplate: KafkaTemplate<Nokkel, Beskjed>
+        onpremKafkaTemplate: KafkaTemplate<Nokkel, Beskjed>,
+        onpremKafkaTransactionManager: KafkaTransactionManager<Nokkel, Beskjed>
     ): ConcurrentKafkaListenerContainerFactory<String, String> = configureConcurrentKafkaListenerContainerFactory(
         consumerFactory = onpremConsumerFactory,
         kafkaTemplate = onpremKafkaTemplate,
         retryInterval = kafkaClusterProperties.onprem.consumer.retryInterval,
         objectMapper = objectMapper,
-        logger = logger
+        logger = logger,
+        transactionManager = onpremKafkaTransactionManager
     )
 }

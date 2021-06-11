@@ -25,5 +25,4 @@ kafka:
       auto-offset-reset: earliest
     producer:
       client-id: sif-innsyn-api-aiven
-      retries: 3
       schema-registry-url: mock://localhost

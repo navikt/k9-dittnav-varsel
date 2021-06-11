@@ -18,6 +18,8 @@ import org.springframework.kafka.core.*
 import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.listener.DefaultAfterRollbackProcessor
 import org.springframework.kafka.support.converter.JsonMessageConverter
+import org.springframework.kafka.transaction.KafkaTransactionManager
+import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.util.backoff.FixedBackOff
 import java.time.Duration
 import java.util.function.BiConsumer
@@ -66,7 +68,7 @@ class CommonKafkaConfig {
 
         fun producerFactory(kafkaConfigProps: KafkaConfigProperties): ProducerFactory<Nokkel, Beskjed> {
             val producerProps = kafkaConfigProps.producer
-            return DefaultKafkaProducerFactory(
+            return DefaultKafkaProducerFactory<Nokkel, Beskjed>(
                 mutableMapOf<String, Any>(
                     ProducerConfig.CLIENT_ID_CONFIG to producerProps.clientId,
                     ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to producerProps.keySerializer,
@@ -74,21 +76,38 @@ class CommonKafkaConfig {
                     ProducerConfig.RETRIES_CONFIG to producerProps.retries,
                     "schema.registry.url" to producerProps.schemaRegistryUrl
                 ) + commonConfig(kafkaConfigProps)
-            )
+            ).apply {
+                setTransactionIdPrefix(producerProps.transactionIdPrefix)
+            }
         }
 
-        fun kafkaTemplate(producerFactory: ProducerFactory<Nokkel, Beskjed>) = KafkaTemplate(producerFactory)
+        fun kafkaTemplate(producerFactory: ProducerFactory<Nokkel, Beskjed>, kafkaConfigProps: KafkaConfigProperties) =
+            KafkaTemplate(producerFactory).apply {
+                setTransactionIdPrefix(kafkaConfigProps.producer.transactionIdPrefix)
+            }
+
+        fun kafkaTransactionManager(
+            producerFactory: ProducerFactory<Nokkel, Beskjed>,
+            kafkaConfigProps: KafkaConfigProperties
+        ) =
+            KafkaTransactionManager(producerFactory).apply {
+                setTransactionIdPrefix(kafkaConfigProps.producer.transactionIdPrefix)
+            }
 
         fun configureConcurrentKafkaListenerContainerFactory(
             consumerFactory: ConsumerFactory<String, String>,
             retryInterval: Long,
             kafkaTemplate: KafkaTemplate<Nokkel, Beskjed>,
             objectMapper: ObjectMapper,
-            logger: Logger
+            logger: Logger,
+            transactionManager: PlatformTransactionManager,
         ): ConcurrentKafkaListenerContainerFactory<String, String> {
             val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
 
             factory.consumerFactory = consumerFactory
+
+            // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#chained-transaction-manager
+            factory.containerProperties.transactionManager = transactionManager
 
             factory.setReplyTemplate(kafkaTemplate)
 
@@ -108,7 +127,10 @@ class CommonKafkaConfig {
             factory.containerProperties.isDeliveryAttemptHeader = true
 
             //https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#after-rollback
-            val defaultAfterRollbackProcessor = DefaultAfterRollbackProcessor<String, String>(recoverer(logger), FixedBackOff(retryInterval, Long.MAX_VALUE))
+            val defaultAfterRollbackProcessor = DefaultAfterRollbackProcessor<String, String>(
+                recoverer(logger),
+                FixedBackOff(retryInterval, Long.MAX_VALUE)
+            )
             defaultAfterRollbackProcessor.setClassifications(mapOf(), true)
             factory.setAfterRollbackProcessor(defaultAfterRollbackProcessor)
 
