@@ -42,12 +42,12 @@ fun EmbeddedKafkaBroker.opprettDittnavConsumer(): Consumer<Nokkel, Beskjed> {
     return consumer
 }
 
-fun Consumer<Nokkel, Beskjed>.hentBrukernotifikasjon(søknadId: String): ConsumerRecord<Nokkel, Beskjed> {
-    val end = System.currentTimeMillis() + Duration.ofSeconds(20).toMillis()
+fun Consumer<Nokkel, Beskjed>.hentBrukernotifikasjon(søknadId: String): ConsumerRecord<Nokkel, Beskjed>? {
+    val end = System.currentTimeMillis() + Duration.ofSeconds(10).toMillis()
     seekToBeginning(assignment())
     while (System.currentTimeMillis() < end) {
 
-        val entries: List<ConsumerRecord<Nokkel, Beskjed>> = poll(Duration.ofSeconds(10))
+        val entries: List<ConsumerRecord<Nokkel, Beskjed>> = poll(Duration.ofSeconds(5))
             .records(DITT_NAV_BESKJED)
             .filter { it.key().getEventId() == søknadId }
 
@@ -56,6 +56,6 @@ fun Consumer<Nokkel, Beskjed>.hentBrukernotifikasjon(søknadId: String): Consume
             return entries.first()
         }
     }
-    throw IllegalStateException("Fant ikke dittnav varsel for søknad med id=$søknadId etter 20 sekunder.")
-
+    return null
+    //throw IllegalStateException("Fant ikke dittnav varsel for søknad med id=$søknadId etter 20 sekunder.")
 }

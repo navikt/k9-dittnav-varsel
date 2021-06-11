@@ -1,13 +1,20 @@
 package no.nav.sifinnsynapi.konsumenter
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.justRun
+import io.mockk.verify
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_BESKJED_ONPREM
+import no.nav.sifinnsynapi.dittnav.DittnavService
 import no.nav.sifinnsynapi.utils.*
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.Producer
+import org.awaitility.kotlin.await
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.extension.ExtendWith
@@ -30,7 +37,7 @@ import java.util.concurrent.TimeUnit
 @DirtiesContext
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT) // Integrasjonstest - Kjører opp hele Spring Context med alle konfigurerte beans.
-class OnpremHendelseKonsumentIntegrasjonsTest {
+class KafkaErrorHandlerTest {
 
     @Autowired
     lateinit var mapper: ObjectMapper
@@ -41,6 +48,9 @@ class OnpremHendelseKonsumentIntegrasjonsTest {
 
     lateinit var producer: Producer<String, Any> // Kafka producer som brukes til å legge på kafka meldinger
     lateinit var dittNavConsumer: Consumer<Nokkel, Beskjed> // Kafka consumer som brukes til å lese kafka meldinger.
+
+    @MockkBean()
+    lateinit var dittnavService: DittnavService
 
     @BeforeAll
     fun setUp() {
@@ -55,7 +65,11 @@ class OnpremHendelseKonsumentIntegrasjonsTest {
     }
 
     @Test
-    fun `Legger K9Beskjed på topic og forvent publisert dittnav beskjed`() {
+    fun `Sender K9Beskjed men dittnavService feiler, forvent at den retry minst 10 ganger `() {
+        every {
+            dittnavService.sendBeskjedOnprem(any(), any())
+        } throws Exception("Ops noe gikk galt.")
+
         // legg på 1 hendelse om mottatt søknad om pleiepenger sykt barn...
         val k9Beskjed = gyldigK9Beskjed(
             tekst = "Vi har mottatt din søknad om pleiepenger - sykt barn. Klikk under for mer info.",
@@ -64,33 +78,14 @@ class OnpremHendelseKonsumentIntegrasjonsTest {
 
         producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED_ONPREM, mapper)
 
-        // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
-        val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
-        validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
+        await.atMost(30, TimeUnit.SECONDS).untilAsserted {
+            val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
+            assertTrue(brukernotifikasjon == null)
+        }
 
+        verify(atLeast = 10) {
+            dittnavService.sendBeskjedOnprem(any(), any())
+        }
     }
 
-    @Test
-    fun `Dersom K9Beskjed link er null forventes det at publisert dittnav  Beskjed link er tom`() {
-        // legg på 1 hendelse om mottatt søknad om midlertidig alene med link = null...
-        val k9Beskjed = gyldigK9Beskjed(
-            tekst = "Vi har mottatt omsorgspengesøknad fra deg om å bli regnet som alene om omsorgen for barn.",
-            link = null
-        )
-        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED_ONPREM, mapper)
-
-        // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
-        val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
-        validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
-        assertTrue(brukernotifikasjon?.getLink() == "")
-
-    }
-}
-
-fun validerRiktigBrukernotifikasjon(k9Beskjed: K9Beskjed, brukernotifikasjon: Beskjed?){
-    assertTrue(brukernotifikasjon != null)
-    assertTrue(k9Beskjed.tekst == brukernotifikasjon?.getTekst())
-    assertTrue(k9Beskjed.søkerFødselsnummer == brukernotifikasjon?.getFodselsnummer())
-    assertTrue(k9Beskjed.grupperingsId == brukernotifikasjon?.getGrupperingsId())
-    println("BRUKERNOTIFIKASJON VALIDERT OK")
 }
