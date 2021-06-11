@@ -37,8 +37,8 @@ class HendelseKonsument(
         containerFactory = "aivenKafkaJsonListenerContainerFactory"
     )
     fun konsumerAiven(@Payload melding: K9Beskjed) {
-        logger.info("AIVEN - Mottok K9Beskjed med eventID: {}, event: :{}", melding.eventId, melding)
-
+        if(melding.ytelse != null) logger.info("AIVEN - Mottok K9Beskjed fra ytelse {} med eventID: {}, event: :{}", melding.ytelse, melding.eventId, melding)
+        else logger.info("AIVEN - Mottok K9Beskjed med eventID: {}, event: :{}", melding.eventId, melding)
         dittnavService.sendBeskjedOnprem(melding.somNøkkel(stsUsername), melding.somBeskjed())
     }
 }

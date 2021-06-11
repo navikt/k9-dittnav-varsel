@@ -56,11 +56,11 @@ class AivenHendelseKonsumentIntegrasjonsTest {
 
     @Test
     fun `Legger K9Beskjed på topic og forvent publisert dittnav beskjed`() {
-        // legg på 1 hendelse om mottatt søknad om pleiepenger sykt barn...
+        // legg på 1 hendelse om mottatt søknad
         val k9Beskjed = gyldigK9Beskjed(
-            tekst = "Vi har mottatt din søknad om pleiepenger - sykt barn. Klikk under for mer info.",
-            grupperingsId = "pleiepenger-sykt-barn",
-            link = "https://www.nav.no"
+            tekst = "Vi har mottatt din melding om registrering av aleneomsorg.",
+            link = "https://www.nav.no",
+            ytelse = Ytelse.OMD_ALENEOMSORG
         )
 
         producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED_AIVEN, mapper)

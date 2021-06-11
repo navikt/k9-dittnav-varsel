@@ -60,7 +60,6 @@ class OnpremHendelseKonsumentIntegrasjonsTest {
         // legg på 1 hendelse om mottatt søknad om pleiepenger sykt barn...
         val k9Beskjed = gyldigK9Beskjed(
             tekst = "Vi har mottatt din søknad om pleiepenger - sykt barn. Klikk under for mer info.",
-            grupperingsId = "pleiepenger-sykt-barn",
             link = "https://www.nav.no"
         )
 
@@ -77,7 +76,6 @@ class OnpremHendelseKonsumentIntegrasjonsTest {
         // legg på 1 hendelse om mottatt søknad om midlertidig alene med link = null...
         val k9Beskjed = gyldigK9Beskjed(
             tekst = "Vi har mottatt omsorgspengesøknad fra deg om å bli regnet som alene om omsorgen for barn.",
-            grupperingsId = "omp-midlertidig-alene",
             link = null
         )
         producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED_ONPREM, mapper)

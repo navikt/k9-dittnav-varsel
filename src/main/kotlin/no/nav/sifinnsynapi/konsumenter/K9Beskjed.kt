@@ -21,11 +21,17 @@ data class K9Beskjed(
     val link: String? = null,
     val dagerSynlig: Long,
     val søkerFødselsnummer: String,
-    val eventId: String
+    val eventId: String,
+    val ytelse: Ytelse? = null
 ) {
     override fun toString(): String {
-        return "K9Beskjed(metadata=$metadata, grupperingsId='$grupperingsId', tekst='$tekst', link='$link', dagerSynlig=$dagerSynlig, søkerFødselsnummer='***********', eventId='$eventId')"
+        return "K9Beskjed(metadata=$metadata, tekst='$tekst', link='$link', dagerSynlig=$dagerSynlig, eventId='$eventId')"
     }
+}
+
+enum class Ytelse{
+    //Omsorgsdager-aleneomsorg
+    OMD_ALENEOMSORG
 }
 
 data class Metadata @JsonCreator constructor(
