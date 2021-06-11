@@ -7,9 +7,11 @@ sts:
   username: sts-username
   password: sts-password
 
+kafka-servers: localhost:9092 # placeholder
+
 kafka:
   onprem:
-    servers: localhost:9092 # placeholder
+    servers: ${kafka-servers}
     consumer:
       retry-interval: 5_000 # Egendefinert property
       group-id: sif-innsyn-api-onprem
@@ -18,7 +20,7 @@ kafka:
       client-id: sif-innsyn-api-onprem
       schema-registry-url: mock://localhost
   aiven:
-    servers: localhost:9092 # placeholder
+    servers: ${kafka-servers}
     consumer:
       retry-interval: 5_000 # Egendefinert property
       group-id: sif-innsyn-api-aiven

@@ -33,8 +33,7 @@ data class KafkaProducerProperties(
     val keySerializer: String,
     val valueSerializer: String,
     val retries: Int,
-    val schemaRegistryUrl: String,
-    val transactionIdPrefix: String
+    val schemaRegistryUrl: String
 )
 
 data class KafkaProperties(

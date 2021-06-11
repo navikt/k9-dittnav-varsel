@@ -5,13 +5,11 @@ import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConf
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.runApplication
 import org.springframework.kafka.annotation.EnableKafka
-import org.springframework.transaction.annotation.EnableTransactionManagement
 
 @SpringBootApplication(exclude = [
     ErrorMvcAutoConfiguration::class
 ])
 @EnableKafka
-@EnableTransactionManagement
 @ConfigurationPropertiesScan("no.nav.sifinnsynapi")
 class K9DittnavVarselApiApplication
 

@@ -10,10 +10,7 @@ import no.nav.sifinnsynapi.utils.*
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.Producer
 import org.awaitility.kotlin.await
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -27,7 +24,7 @@ import java.util.concurrent.TimeUnit
 @EmbeddedKafka( // Setter opp og tilgjengligjør embeded kafka broker
     topics = [K9_DITTNAV_VARSEL_BESKJED_ONPREM, DITT_NAV_BESKJED],
     count = 3,
-    bootstrapServersProperty = "kafka.onprem.servers" // Setter bootstrap-servers for consumer og producer.
+    bootstrapServersProperty = "kafka-servers" // Setter bootstrap-servers for consumer og producer.
 )
 @ExtendWith(SpringExtension::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -52,8 +49,10 @@ class OnpremHendelseKonsumentIntegrasjonsTest {
         dittNavConsumer = embeddedKafkaBroker.opprettDittnavConsumer()
     }
 
-    @AfterEach
+    @AfterAll
     internal fun tearDown() {
+        producer.close()
+        dittNavConsumer.close()
     }
 
     @Test

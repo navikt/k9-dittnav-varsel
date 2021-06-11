@@ -34,7 +34,6 @@ kafka:
       value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
       retries: 3
       schemaRegistryUrl: # overstyres fra nais/<cluster>.json
-      transaction-id-prefix: .tx-
   aiven:
     servers: ${KAFKA_BROKERS}
     consumer:
@@ -51,4 +50,3 @@ kafka:
       value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
       retries: 3
       schemaRegistryUrl: ${KAFKA_SCHEMA_REGISTRY}
-      transaction-id-prefix: .tx-

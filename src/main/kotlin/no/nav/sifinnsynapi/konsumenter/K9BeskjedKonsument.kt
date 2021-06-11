@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
 @Service
 class HendelseKonsument(
@@ -19,7 +18,6 @@ class HendelseKonsument(
         private val logger = LoggerFactory.getLogger(HendelseKonsument::class.java)
     }
 
-    //@Transactional("onpremKafkaTransactionManager")
     @KafkaListener(
         topics = [K9_DITTNAV_VARSEL_BESKJED_ONPREM],
         id = "k9-dittnav-varsel-beskjed-onprem-listener",
@@ -32,7 +30,6 @@ class HendelseKonsument(
         dittnavService.sendBeskjedOnprem(melding.somNøkkel(stsUsername), melding.somBeskjed())
     }
 
-    @Transactional("aivenKafkaTransactionManager")
     @KafkaListener(
         topics = [K9_DITTNAV_VARSEL_BESKJED_AIVEN],
         id = "k9-dittnav-varsel-beskjed-aiven-listener",
