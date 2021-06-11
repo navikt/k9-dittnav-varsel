@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit
 @DirtiesContext
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT) // Integrasjonstest - Kjører opp hele Spring Context med alle konfigurerte beans.
-class OnpremHendelseKonsumentIntegrasjonsTest {
+class OnpremK9BeskjedKonsumentIntegrasjonsTest {
 
     @Autowired
     lateinit var mapper: ObjectMapper
@@ -56,7 +56,7 @@ class OnpremHendelseKonsumentIntegrasjonsTest {
 
     @Test
     fun `Legger K9Beskjed på topic og forvent publisert dittnav beskjed`() {
-        // legg på 1 hendelse om mottatt søknad om pleiepenger sykt barn...
+        // legg på 1 hendelse om mottatt søknad
         val k9Beskjed = gyldigK9Beskjed(
             tekst = "Vi har mottatt din søknad om pleiepenger - sykt barn. Klikk under for mer info.",
             link = "https://www.nav.no"
@@ -67,12 +67,11 @@ class OnpremHendelseKonsumentIntegrasjonsTest {
         // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
         val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
         validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
-
     }
 
     @Test
     fun `Dersom K9Beskjed link er null forventes det at publisert dittnav  Beskjed link er tom`() {
-        // legg på 1 hendelse om mottatt søknad om midlertidig alene med link = null...
+        // legg på 1 hendelse om mottatt søknad med link = null...
         val k9Beskjed = gyldigK9Beskjed(
             tekst = "Vi har mottatt omsorgspengesøknad fra deg om å bli regnet som alene om omsorgen for barn.",
             link = null
@@ -83,8 +82,8 @@ class OnpremHendelseKonsumentIntegrasjonsTest {
         val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
         validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
         assertTrue(brukernotifikasjon?.getLink() == "")
-
     }
+
 }
 
 fun validerRiktigBrukernotifikasjon(k9Beskjed: K9Beskjed, brukernotifikasjon: Beskjed?){

@@ -10,12 +10,12 @@ import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Service
 
 @Service
-class HendelseKonsument(
+class K9BeskjedKonsument(
     private val dittnavService: DittnavService,
     @Value("\${no.nav.sts.username}") private val stsUsername: String
 ) {
     companion object {
-        private val logger = LoggerFactory.getLogger(HendelseKonsument::class.java)
+        private val logger = LoggerFactory.getLogger(K9BeskjedKonsument::class.java)
     }
 
     @KafkaListener(
