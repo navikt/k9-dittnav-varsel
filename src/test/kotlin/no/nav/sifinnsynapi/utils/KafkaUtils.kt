@@ -13,6 +13,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.test.EmbeddedKafkaBroker
@@ -42,11 +43,19 @@ fun EmbeddedKafkaBroker.opprettDittnavConsumer(): Consumer<Nokkel, Beskjed> {
 }
 
 fun Consumer<Nokkel, Beskjed>.hentBrukernotifikasjon(søknadId: String): ConsumerRecord<Nokkel, Beskjed>? {
+    val end = System.currentTimeMillis() + Duration.ofSeconds(10).toMillis()
     seekToBeginning(assignment())
-    val consumerRecords = this.poll(Duration.ofSeconds(1))
-    return consumerRecords
+    while (System.currentTimeMillis() < end) {
+
+        val entries: List<ConsumerRecord<Nokkel, Beskjed>> = poll(Duration.ofSeconds(5))
             .records(DITT_NAV_BESKJED)
             .filter { it.key().getEventId() == søknadId }
-            .first()
 
+        if (entries.isNotEmpty()) {
+            assertEquals(1, entries.size)
+            return entries.first()
+        }
+    }
+    return null
+    //throw IllegalStateException("Fant ikke dittnav varsel for søknad med id=$søknadId etter 20 sekunder.")
 }

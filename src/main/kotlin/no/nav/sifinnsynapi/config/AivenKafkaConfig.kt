@@ -15,35 +15,34 @@ import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
 
-
 @Configuration
-class OnpremKafkaConfig(
+class AivenKafkaConfig(
     private val objectMapper: ObjectMapper,
     private val kafkaClusterProperties: KafkaClusterProperties
 ) {
 
     companion object {
-        private val logger = LoggerFactory.getLogger(OnpremKafkaConfig::class.java)
+        private val logger = LoggerFactory.getLogger(AivenKafkaConfig::class.java)
     }
 
     @Bean
-    fun onpremConsumerFactory(): ConsumerFactory<String, String> = consumerFactory(kafkaClusterProperties.onprem)
+    fun aivenConsumerFactory(): ConsumerFactory<String, String> = consumerFactory(kafkaClusterProperties.aiven)
 
     @Bean
-    fun onpremProducerFactory(): ProducerFactory<Nokkel, Beskjed> = producerFactory(kafkaClusterProperties.onprem)
+    fun aivenProducerFactory(): ProducerFactory<Nokkel, Beskjed> = producerFactory(kafkaClusterProperties.aiven)
 
     @Bean
-    fun onpremKafkaTemplate(onpremProducerFactory: ProducerFactory<Nokkel, Beskjed>): KafkaTemplate<Nokkel, Beskjed> =
-        kafkaTemplate(onpremProducerFactory)
+    fun aivenKafkaTemplate(aivenProducerFactory: ProducerFactory<Nokkel, Beskjed>): KafkaTemplate<Nokkel, Beskjed> =
+        kafkaTemplate(aivenProducerFactory)
 
     @Bean
-    fun onpremKafkaJsonListenerContainerFactory(
-        onpremConsumerFactory: ConsumerFactory<String, String>,
-        onpremKafkaTemplate: KafkaTemplate<Nokkel, Beskjed>
+    fun aivenKafkaJsonListenerContainerFactory(
+        aivenConsumerFactory: ConsumerFactory<String, String>,
+        aivenKafkaTemplate: KafkaTemplate<Nokkel, Beskjed>
     ): ConcurrentKafkaListenerContainerFactory<String, String> = configureConcurrentKafkaListenerContainerFactory(
-        consumerFactory = onpremConsumerFactory,
-        kafkaTemplate = onpremKafkaTemplate,
-        retryInterval = kafkaClusterProperties.onprem.consumer.retryInterval,
+        consumerFactory = aivenConsumerFactory,
+        kafkaTemplate = aivenKafkaTemplate,
+        retryInterval = kafkaClusterProperties.aiven.consumer.retryInterval,
         objectMapper = objectMapper,
         logger = logger
     )

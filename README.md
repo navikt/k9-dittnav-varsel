@@ -25,16 +25,45 @@ Et varsel kan være av følgende formater:
 * SMS
 * Epost
 
+K9-dittnav-varsel eksponerer to topicer hvor det kan legges en K9Beskjed på.
+
+Onprem har topicen **_privat-k9-dittnav-varsel-beskjed_** hvor det foreløpig er sif-innsyn-api som produserer.
+
+I Aiven har vi også en topic som heter **_dusseldorf.privat-k9-dittnav-varsel-beskjed_**.
+
+Det er ønskelig at tjenestene som egentlig ikke har noe med innsyn migrerer over til å legge
+K9Beskjed direkte på topicen, og ikke gjennom sif-innsyn-api.
+
 # 3. Begrensninger
-Denne tjenesten begrenses begrenses sykdom-i-familien og er ment å brukes som et felles komponent til varsling for andre tjenester i teamet.
+Denne tjenesten begrenses sykdom-i-familien og er ment å brukes som et felles komponent til varsling for andre tjenester i teamet.
 
 # 4. Programvarearkitektur
 
 # 5. Kode
+K9Beskjed skal legges på topic ser slik ut:
+```
+data class K9Beskjed(
+    val metadata: Metadata,
+    val grupperingsId: String,
+    val tekst: String,
+    val link: String? = null,
+    val dagerSynlig: Long,
+    val søkerFødselsnummer: String,
+    val eventId: String,
+    val ytelse: Ytelse? = null
+)
+
+enum class Ytelse{
+    OMSORGSDAGER_ALENEOMSORG
+}
+```
+
 
 # 6. Data
 
 # 7. Infrastrukturarkitektur
+
+
 
 # 8. Distribusjon av tjenesten (deployment)
 Distribusjon av tjenesten er gjort med bruk av Github Actions.

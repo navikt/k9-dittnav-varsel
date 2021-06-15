@@ -19,5 +19,8 @@ spec:
       application: k9-dittnav-varsel
       access: readwrite
     - team: dusseldorf
+      application: omsorgsdager-aleneomsorg-prosessering
+      access: write
+    - team: dusseldorf
       application: sif-karapace
       access: readwrite
