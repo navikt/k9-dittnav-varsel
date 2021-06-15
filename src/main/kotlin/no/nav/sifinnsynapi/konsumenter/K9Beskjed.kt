@@ -25,7 +25,7 @@ data class K9Beskjed(
     val ytelse: Ytelse? = null
 ) {
     override fun toString(): String {
-        return "K9Beskjed(metadata=$metadata, tekst='$tekst', link='$link', dagerSynlig=$dagerSynlig, eventId='$eventId')"
+        return "K9Beskjed(metadata=$metadata, grupperingsId='$grupperingsId', tekst='$tekst', link='$link', dagerSynlig=$dagerSynlig, eventId='$eventId')"
     }
 }
 
