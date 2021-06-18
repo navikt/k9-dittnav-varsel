@@ -30,7 +30,8 @@ data class K9Beskjed(
 }
 
 enum class Ytelse{
-    OMSORGSDAGER_ALENEOMSORG
+    OMSORGSDAGER_ALENEOMSORG,
+    OMSORGSPENGER_MIDLERTIDIG_ALENE
 }
 
 data class Metadata @JsonCreator constructor(
