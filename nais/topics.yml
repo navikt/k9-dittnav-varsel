@@ -22,5 +22,8 @@ spec:
       application: omsorgsdager-aleneomsorg-prosessering
       access: write
     - team: dusseldorf
+      application: omsorgspenger-midlertidig-alene-prosessering
+      access: write
+    - team: dusseldorf
       application: sif-karapace
       access: readwrite
