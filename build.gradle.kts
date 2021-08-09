@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.5.2"
+    id("org.springframework.boot") version "2.5.3"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    kotlin("jvm") version "1.5.20"
-    kotlin("plugin.spring") version "1.5.20"
+    kotlin("jvm") version "1.5.21"
+    kotlin("plugin.spring") version "1.5.21"
 }
 
 group = "no.nav"
@@ -25,7 +25,11 @@ val logstashLogbackEncoderVersion by extra("6.3")
 val tokenValidationVersion by extra("1.1.5")
 val retryVersion by extra("1.3.0")
 val zalandoVersion by extra("0.25.2")
-
+val jsonVersion by extra("20210307")
+val awaitilityKotlinVersion by extra("4.1.0")
+val assertkJvmVersion by extra("0.24")
+val springMockkVersion by extra("3.0.1")
+val mockkVersion by extra("1.12.0")
 
 repositories {
     mavenCentral()
@@ -44,7 +48,6 @@ repositories {
         url = uri("https://jitpack.io")
     }
 }
-
 dependencies {
 
     // NAV
@@ -68,7 +71,6 @@ dependencies {
     }
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.jupiter:junit-jupiter-engine")
-    //developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     // Metrics
     implementation("io.micrometer:micrometer-registry-prometheus")
@@ -94,14 +96,14 @@ dependencies {
     testImplementation("org.springframework.kafka:spring-kafka-test")
 
     // Diverse
-    implementation("org.json:json:20210307")
+    implementation("org.json:json:$jsonVersion")
     implementation("com.github.ben-manes.caffeine:caffeine")
     implementation("org.zalando:problem-spring-web-starter:$zalandoVersion")
 
-    testImplementation("org.awaitility:awaitility-kotlin:4.1.0")
-    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.24")
-    testImplementation("com.ninja-squad:springmockk:3.0.1")
-    testImplementation("io.mockk:mockk:1.11.0")
+    testImplementation("org.awaitility:awaitility-kotlin:$awaitilityKotlinVersion")
+    testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkJvmVersion")
+    testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
+    testImplementation("io.mockk:mockk:$mockkVersion")
 }
 
 tasks.withType<Test> {
