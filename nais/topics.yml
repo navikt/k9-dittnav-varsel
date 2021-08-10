@@ -28,5 +28,8 @@ spec:
       application: omsorgsdager-melding-prosessering
       access: write
     - team: dusseldorf
+      application: k9-ettersending-prosessering
+      access: write
+    - team: dusseldorf
       application: sif-karapace
       access: readwrite
