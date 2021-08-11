@@ -34,7 +34,13 @@ enum class Ytelse{
     OMSORGSPENGER_MIDLERTIDIG_ALENE,
     OMSORGSDAGER_MELDING_OVERFØRE,
     OMSORGSDAGER_MELDING_KORONA,
-    OMSORGSDAGER_MELDING_FORDELE
+    OMSORGSDAGER_MELDING_FORDELE,
+    ETTERSENDING_PLEIEPENGER_SYKT_BARN,
+    ETTERSENDING_OMP_UTV_KS, // Ettersending - Omsorgspenger utvidet rett - kronisk syke eller funksjonshemming.
+    ETTERSENDING_OMP_UT_SNF, // Ettersending - Omsorgspenger utbetaling SNF ytelse.
+    ETTERSENDING_OMP_UT_ARBEIDSTAKER, // Ettersending - Omsorgspenger utbetaling arbeidstaker ytelse.
+    ETTERSENDING_OMP_UTV_MA, // Ettersending - Omsorgspenger utvidet rett - midlertidig alene
+    ETTERSENDING_OMP_DELE_DAGER // Ettersending - Melding om deling av omsorgsdager
 }
 
 data class Metadata @JsonCreator constructor(
