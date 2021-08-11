@@ -69,6 +69,21 @@ class AivenK9BeskjedKonsumentIntegrasjonsTest {
         // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
         val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
         validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
+    }
 
+    @Test
+    fun `Legger K9Beskjed på topic fra ettersending og forvent publisert dittnav beskjed`() {
+        // legg på 1 hendelse om mottatt søknad
+        val k9Beskjed = gyldigK9Beskjed(
+            tekst = "Vi har mottatt din ettersendelse til pleiepenger.",
+            link = null,
+            ytelse = Ytelse.ETTERSENDING_PLEIEPENGER_SYKT_BARN
+        )
+
+        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED_AIVEN, mapper)
+
+        // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
+        val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
+        validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
     }
 }
