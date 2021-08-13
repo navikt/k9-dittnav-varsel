@@ -40,7 +40,8 @@ enum class Ytelse{
     ETTERSENDING_OMP_UT_SNF, // Ettersending - Omsorgspenger utbetaling SNF ytelse.
     ETTERSENDING_OMP_UT_ARBEIDSTAKER, // Ettersending - Omsorgspenger utbetaling arbeidstaker ytelse.
     ETTERSENDING_OMP_UTV_MA, // Ettersending - Omsorgspenger utvidet rett - midlertidig alene
-    ETTERSENDING_OMP_DELE_DAGER // Ettersending - Melding om deling av omsorgsdager
+    ETTERSENDING_OMP_DELE_DAGER, // Ettersending - Melding om deling av omsorgsdager,
+    OMSORGSPENGER_UTV_KS // Omsorgspenger utvidet rett - kronisk syke eller funksjonshemming.
 }
 
 data class Metadata @JsonCreator constructor(
