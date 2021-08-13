@@ -86,4 +86,20 @@ class AivenK9BeskjedKonsumentIntegrasjonsTest {
         val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
         validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
     }
+
+    @Test
+    fun `Legger K9Beskjed på topic fra omsorgspenger utvidet rett og forvent publisert dittnav beskjed`() {
+        // legg på 1 hendelse om mottatt søknad
+        val k9Beskjed = gyldigK9Beskjed(
+            tekst = "Vi har mottatt søknad fra deg om ekstra omsorgsdager ved kronisk sykt eller funksjonshemmet barn.",
+            link = null,
+            ytelse = Ytelse.OMSORGSPENGER_UTV_KS
+        )
+
+        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED_AIVEN, mapper)
+
+        // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
+        val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
+        validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
+    }
 }
