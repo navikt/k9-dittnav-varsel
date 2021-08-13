@@ -31,5 +31,8 @@ spec:
       application: k9-ettersending-prosessering
       access: write
     - team: dusseldorf
+      application: omsorgspengesoknad-prosessering
+      access: write
+    - team: dusseldorf
       application: sif-karapace
       access: readwrite
