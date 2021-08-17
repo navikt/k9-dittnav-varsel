@@ -34,5 +34,8 @@ spec:
       application: omsorgspengesoknad-prosessering
       access: write
     - team: dusseldorf
+      application: omsorgspengerutbetalingsoknad-prosessering
+      access: write
+    - team: dusseldorf
       application: sif-karapace
       access: readwrite
