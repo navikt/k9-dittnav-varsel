@@ -37,5 +37,8 @@ spec:
       application: omsorgspengerutbetalingsoknad-prosessering
       access: write
     - team: dusseldorf
+      application: sif-innsyn-api
+      access: write
+    - team: dusseldorf
       application: sif-karapace
       access: readwrite
