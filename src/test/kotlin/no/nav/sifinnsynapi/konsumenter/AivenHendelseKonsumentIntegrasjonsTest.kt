@@ -118,4 +118,20 @@ class AivenK9BeskjedKonsumentIntegrasjonsTest {
         val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
         validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
     }
+
+    @Test
+    fun `Legger K9Beskjed på topic fra pleiepenger livets sluttfase og forventer publisert dittnav beskjed`() {
+        // legg på 1 hendelse om mottatt søknad
+        val k9Beskjed = gyldigK9Beskjed(
+            tekst = "Søknad om pleiepenger livets sluttfase",
+            link = null,
+            ytelse = Ytelse.PLEIEPENGER_LIVETS_SLUTTFASE
+        )
+
+        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED_AIVEN, mapper)
+
+        // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
+        val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
+        validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
+    }
 }

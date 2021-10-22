@@ -18,27 +18,39 @@ spec:
     - team: dusseldorf
       application: k9-dittnav-varsel
       access: readwrite
+
     - team: dusseldorf
       application: omsorgsdager-aleneomsorg-prosessering
       access: write
+
     - team: dusseldorf
       application: omsorgspenger-midlertidig-alene-prosessering
       access: write
+
     - team: dusseldorf
       application: omsorgsdager-melding-prosessering
       access: write
+
     - team: dusseldorf
       application: k9-ettersending-prosessering
       access: write
+
     - team: dusseldorf
       application: omsorgspengesoknad-prosessering
       access: write
+
     - team: dusseldorf
       application: omsorgspengerutbetalingsoknad-prosessering
       access: write
+
     - team: dusseldorf
       application: sif-innsyn-api
       access: write
+
     - team: dusseldorf
       application: sif-karapace
       access: readwrite
+
+    - team: dusseldorf
+      application: pleiepenger-livets-sluttfase-prosessering
+      access: write
