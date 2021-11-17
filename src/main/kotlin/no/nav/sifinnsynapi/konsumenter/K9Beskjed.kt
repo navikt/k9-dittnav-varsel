@@ -43,6 +43,7 @@ enum class Ytelse{
     ETTERSENDING_OMP_DELE_DAGER, // Ettersending - Melding om deling av omsorgsdager,
     OMSORGSPENGER_UTV_KS, // Omsorgspenger utvidet rett - kronisk syke eller funksjonshemming.
     OMSORGSPENGER_UT_SNF, // Omsorgspenger utbetaling snf
+    OMSORGSPENGER_UT_ARBEIDSTAKER, // Omsorgspenger utbetaling arbeidstaker
     PLEIEPENGER_LIVETS_SLUTTFASE
 }
 

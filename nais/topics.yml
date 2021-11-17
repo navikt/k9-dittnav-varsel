@@ -54,3 +54,7 @@ spec:
     - team: dusseldorf
       application: pleiepenger-livets-sluttfase-prosessering
       access: write
+
+    - team: dusseldorf
+      application: omsorgspengerutbetalingsoknad-arbeidstaker-prosessering
+      access: write
