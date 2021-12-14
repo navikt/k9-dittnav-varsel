@@ -102,7 +102,7 @@ class CommonKafkaConfig {
             factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD;
 
             // https://docs.spring.io/spring-kafka/reference/html/#listener-container
-            factory.containerProperties.authorizationExceptionRetryInterval = Duration.ofSeconds(10L)
+            factory.containerProperties.setAuthExceptionRetryInterval(Duration.ofSeconds(10L))
 
             // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#delivery-header
             factory.containerProperties.isDeliveryAttemptHeader = true

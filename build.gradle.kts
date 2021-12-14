@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.5.6"
+    id("org.springframework.boot") version "2.6.1"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    kotlin("jvm") version "1.5.31"
-    kotlin("plugin.spring") version "1.5.31"
+    kotlin("jvm") version "1.6.0"
+    kotlin("plugin.spring") version "1.6.0"
 }
 
 group = "no.nav"
@@ -19,7 +19,6 @@ configurations {
 val springfoxVersion by extra("2.9.2")
 val confluentVersion by extra("5.5.0")
 ext["log4j2.version"] = "2.15.0" // TODO: 13/12/2021 kan fjernes når spring boot oppgraderes til  v2.5.8 eller v2.6.2
-
 val avroVersion by extra("1.9.2")
 val brukernotifikasjonVersion by extra("1.2021.01.18-11.12-b9c8c40b98d1")
 val logstashLogbackEncoderVersion by extra("6.3")
