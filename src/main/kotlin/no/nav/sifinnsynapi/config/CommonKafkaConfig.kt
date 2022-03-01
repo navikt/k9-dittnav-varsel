@@ -1,6 +1,7 @@
 package no.nav.sifinnsynapi.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
 import no.nav.brukernotifikasjon.schemas.input.NokkelInput
 import no.nav.sifinnsynapi.konsumenter.K9Beskjed
@@ -72,7 +73,9 @@ class CommonKafkaConfig {
                     ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to producerProps.keySerializer,
                     ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to producerProps.valueSerializer,
                     ProducerConfig.RETRIES_CONFIG to producerProps.retries,
-                    "schema.registry.url" to producerProps.schemaRegistryUrl
+                    "schema.registry.url" to producerProps.schemaRegistryUrl, // TODO: 01/03/2022 KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG
+                    KafkaAvroDeserializerConfig.BASIC_AUTH_CREDENTIALS_SOURCE to "USER_INFO",
+                    KafkaAvroDeserializerConfig.USER_INFO_CONFIG to "${producerProps.schemaRegistryUser}:${producerProps.schemaRegistryPassword}"
                 ) + commonConfig(kafkaConfigProps)
             )
         }
