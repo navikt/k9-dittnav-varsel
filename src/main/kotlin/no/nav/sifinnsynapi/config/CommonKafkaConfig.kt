@@ -1,8 +1,8 @@
 package no.nav.sifinnsynapi.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nav.brukernotifikasjon.schemas.Beskjed
-import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
+import no.nav.brukernotifikasjon.schemas.input.NokkelInput
 import no.nav.sifinnsynapi.konsumenter.K9Beskjed
 import no.nav.sifinnsynapi.util.Constants
 import no.nav.sifinnsynapi.util.MDCUtil
@@ -64,7 +64,7 @@ class CommonKafkaConfig {
             )
         }
 
-        fun producerFactory(kafkaConfigProps: KafkaConfigProperties): ProducerFactory<Nokkel, Beskjed> {
+        fun producerFactory(kafkaConfigProps: KafkaConfigProperties): ProducerFactory<NokkelInput, BeskjedInput> {
             val producerProps = kafkaConfigProps.producer
             return DefaultKafkaProducerFactory(
                 mutableMapOf<String, Any>(
@@ -77,12 +77,12 @@ class CommonKafkaConfig {
             )
         }
 
-        fun kafkaTemplate(producerFactory: ProducerFactory<Nokkel, Beskjed>) = KafkaTemplate(producerFactory)
+        fun kafkaTemplate(producerFactory: ProducerFactory<NokkelInput, BeskjedInput>) = KafkaTemplate(producerFactory)
 
         fun configureConcurrentKafkaListenerContainerFactory(
             consumerFactory: ConsumerFactory<String, String>,
             retryInterval: Long,
-            kafkaTemplate: KafkaTemplate<Nokkel, Beskjed>,
+            kafkaTemplate: KafkaTemplate<NokkelInput, BeskjedInput>,
             objectMapper: ObjectMapper,
             logger: Logger
         ): ConcurrentKafkaListenerContainerFactory<String, String> {

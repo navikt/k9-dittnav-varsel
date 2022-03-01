@@ -1,24 +1,6 @@
-no.nav:
-  sts:
-    username: sts-username
-    password: sts-password
-
-sts:
-  username: sts-username
-  password: sts-password
-
 kafka-servers: localhost:9092 # placeholder
 
 kafka:
-  onprem:
-    servers: ${kafka-servers}
-    consumer:
-      retry-interval: 100 # Egendefinert property
-      group-id: sif-innsyn-api-onprem
-      auto-offset-reset: earliest
-    producer:
-      client-id: sif-innsyn-api-onprem
-      schema-registry-url: mock://localhost
   aiven:
     servers: ${kafka-servers}
     consumer:

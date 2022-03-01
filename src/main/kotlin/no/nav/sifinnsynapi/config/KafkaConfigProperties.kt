@@ -7,7 +7,6 @@ import org.springframework.core.io.Resource
 @ConstructorBinding
 @ConfigurationProperties(prefix = "kafka")
 data class KafkaClusterProperties (
-    val onprem: KafkaConfigProperties,
     val aiven: KafkaConfigProperties
 )
 
@@ -38,7 +37,7 @@ data class KafkaProducerProperties(
 
 data class KafkaProperties(
     val security: KafkaSecurityProperties,
-    val sasl: KafkaSaslProperties? = null,
+    val sasl: KafkaSaslProperties? = null, // TODO: 01/03/2022 Kan denne fjernes nå som onprem fjernes?
     val ssl: KafkaSslProperties
 )
 
@@ -55,7 +54,7 @@ data class KafkaSslProperties(
     val truststoreLocation: Resource,
     val truststorePassword: String,
     val truststoreType: String,
-    val keystoreLocation: Resource? = null,
+    val keystoreLocation: Resource? = null, // TODO: 01/03/2022 Fjerne nullable nå som vi kun bruker Aiven?
     val keystorePassword: String? = null,
     val keystoreType: String? = null,
 )

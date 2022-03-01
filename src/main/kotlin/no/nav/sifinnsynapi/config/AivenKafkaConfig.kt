@@ -1,8 +1,8 @@
 package no.nav.sifinnsynapi.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nav.brukernotifikasjon.schemas.Beskjed
-import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
+import no.nav.brukernotifikasjon.schemas.input.NokkelInput
 import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.configureConcurrentKafkaListenerContainerFactory
 import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.consumerFactory
 import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.kafkaTemplate
@@ -29,16 +29,16 @@ class AivenKafkaConfig(
     fun aivenConsumerFactory(): ConsumerFactory<String, String> = consumerFactory(kafkaClusterProperties.aiven)
 
     @Bean
-    fun aivenProducerFactory(): ProducerFactory<Nokkel, Beskjed> = producerFactory(kafkaClusterProperties.aiven)
+    fun aivenProducerFactory(): ProducerFactory<NokkelInput, BeskjedInput> = producerFactory(kafkaClusterProperties.aiven)
 
     @Bean
-    fun aivenKafkaTemplate(aivenProducerFactory: ProducerFactory<Nokkel, Beskjed>): KafkaTemplate<Nokkel, Beskjed> =
+    fun aivenKafkaTemplate(aivenProducerFactory: ProducerFactory<NokkelInput, BeskjedInput>): KafkaTemplate<NokkelInput, BeskjedInput> =
         kafkaTemplate(aivenProducerFactory)
 
     @Bean
     fun aivenKafkaJsonListenerContainerFactory(
         aivenConsumerFactory: ConsumerFactory<String, String>,
-        aivenKafkaTemplate: KafkaTemplate<Nokkel, Beskjed>
+        aivenKafkaTemplate: KafkaTemplate<NokkelInput, BeskjedInput>
     ): ConcurrentKafkaListenerContainerFactory<String, String> = configureConcurrentKafkaListenerContainerFactory(
         consumerFactory = aivenConsumerFactory,
         kafkaTemplate = aivenKafkaTemplate,
