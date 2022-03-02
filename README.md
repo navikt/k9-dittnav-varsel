@@ -25,7 +25,7 @@ Et varsel kan være av følgende formater:
 * SMS
 * Epost
 
-K9-dittnav-varsel eksponerer en topice hvor det kan legges en K9Beskjed på som mappes om til dittnav-beskjed og sendes videre. 
+K9-dittnav-varsel eksponerer en topic hvor det kan legges en K9Beskjed på som mappes om til dittnav-beskjed og sendes videre. 
 
 I Aiven heter topicen **_dusseldorf.privat-k9-dittnav-varsel-beskjed_**.
 
