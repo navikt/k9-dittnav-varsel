@@ -25,9 +25,9 @@ Et varsel kan være av følgende formater:
 * SMS
 * Epost
 
-K9-dittnav-varsel eksponerer en topice hvor det kan legges en K9Beskjed på.
+K9-dittnav-varsel eksponerer en topice hvor det kan legges en K9Beskjed på som mappes om til dittnav-beskjed og sendes videre. 
 
-I Aiven har heter topicen **_dusseldorf.privat-k9-dittnav-varsel-beskjed_**.
+I Aiven heter topicen **_dusseldorf.privat-k9-dittnav-varsel-beskjed_**.
 
 Det er ønskelig at tjenestene som egentlig ikke har noe med innsyn migrerer over til å legge
 K9Beskjed direkte på topicen, og ikke gjennom sif-innsyn-api.
@@ -38,7 +38,7 @@ Denne tjenesten begrenses sykdom-i-familien og er ment å brukes som et felles k
 # 4. Programvarearkitektur
 
 # 5. Kode
-K9Beskjed skal legges på topic ser slik ut:
+K9Beskjed:
 ```
 data class K9Beskjed(
     val metadata: Metadata,
