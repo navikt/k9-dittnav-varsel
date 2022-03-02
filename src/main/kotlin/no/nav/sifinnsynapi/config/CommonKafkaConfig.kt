@@ -11,7 +11,6 @@ import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.ProducerConfig
-import org.apache.kafka.common.config.SaslConfigs
 import org.apache.kafka.common.config.SslConfigs
 import org.slf4j.Logger
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
@@ -40,14 +39,9 @@ class CommonKafkaConfig {
                 put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, sslProps.truststorePassword)
                 put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, sslProps.truststoreType)
 
-                props.sasl?.let { saslProps: KafkaSaslProperties ->
-                    put(SaslConfigs.SASL_MECHANISM, saslProps.mechanism)
-                    put(SaslConfigs.SASL_JAAS_CONFIG, saslProps.jaasConfig)
-                }
-
-                sslProps.keystoreLocation?.let { put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, it.file.absolutePath) }
-                sslProps.keystorePassword?.let { put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, it) }
-                sslProps.keystoreType?.let { put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, it) }
+                put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, sslProps.keystoreLocation.file.absolutePath)
+                put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, sslProps.keystorePassword)
+                put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, sslProps.keystoreType)
             }
         }
 
