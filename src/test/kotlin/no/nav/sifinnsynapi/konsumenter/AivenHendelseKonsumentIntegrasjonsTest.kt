@@ -1,14 +1,14 @@
 package no.nav.sifinnsynapi.konsumenter
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nav.brukernotifikasjon.schemas.Beskjed
-import no.nav.brukernotifikasjon.schemas.Nokkel
-import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED
+import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
+import no.nav.brukernotifikasjon.schemas.input.NokkelInput
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_BESKJED_AIVEN
 import no.nav.sifinnsynapi.utils.*
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.Producer
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -22,7 +22,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @EmbeddedKafka( // Setter opp og tilgjengligjør embeded kafka broker
-    topics = [K9_DITTNAV_VARSEL_BESKJED_AIVEN, DITT_NAV_BESKJED],
+    topics = [K9_DITTNAV_VARSEL_BESKJED_AIVEN],
     count = 3,
     bootstrapServersProperty = "kafka-servers" // Setter bootstrap-servers for consumer og producer.
 )
@@ -41,7 +41,7 @@ class AivenK9BeskjedKonsumentIntegrasjonsTest {
     private lateinit var embeddedKafkaBroker: EmbeddedKafkaBroker // Broker som brukes til å konfigurere opp en kafka producer.
 
     lateinit var producer: Producer<String, Any> // Kafka producer som brukes til å legge på kafka meldinger.
-    lateinit var dittNavConsumer: Consumer<Nokkel, Beskjed> // Kafka consumer som brukes til å lese kafka meldinger.
+    lateinit var dittNavConsumer: Consumer<NokkelInput, BeskjedInput> // Kafka consumer som brukes til å lese kafka meldinger.
 
     @BeforeAll
     fun setUp() {
@@ -150,4 +150,11 @@ class AivenK9BeskjedKonsumentIntegrasjonsTest {
         val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
         validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
     }
+}
+
+
+fun validerRiktigBrukernotifikasjon(k9Beskjed: K9Beskjed, brukernotifikasjon: BeskjedInput?) {
+    assertTrue(brukernotifikasjon != null)
+    assertTrue(k9Beskjed.tekst == brukernotifikasjon?.getTekst())
+    k9Beskjed.link?.let { assertTrue(k9Beskjed.link == brukernotifikasjon?.getLink()) }
 }

@@ -1,8 +1,9 @@
 package no.nav.sifinnsynapi.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nav.brukernotifikasjon.schemas.Beskjed
-import no.nav.brukernotifikasjon.schemas.Nokkel
+import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
+import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
+import no.nav.brukernotifikasjon.schemas.input.NokkelInput
 import no.nav.sifinnsynapi.konsumenter.K9Beskjed
 import no.nav.sifinnsynapi.util.Constants
 import no.nav.sifinnsynapi.util.MDCUtil
@@ -10,7 +11,6 @@ import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.ProducerConfig
-import org.apache.kafka.common.config.SaslConfigs
 import org.apache.kafka.common.config.SslConfigs
 import org.slf4j.Logger
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
@@ -39,14 +39,9 @@ class CommonKafkaConfig {
                 put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, sslProps.truststorePassword)
                 put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, sslProps.truststoreType)
 
-                props.sasl?.let { saslProps: KafkaSaslProperties ->
-                    put(SaslConfigs.SASL_MECHANISM, saslProps.mechanism)
-                    put(SaslConfigs.SASL_JAAS_CONFIG, saslProps.jaasConfig)
-                }
-
-                sslProps.keystoreLocation?.let { put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, it.file.absolutePath) }
-                sslProps.keystorePassword?.let { put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, it) }
-                sslProps.keystoreType?.let { put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, it) }
+                put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, sslProps.keystoreLocation.file.absolutePath)
+                put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, sslProps.keystorePassword)
+                put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, sslProps.keystoreType)
             }
         }
 
@@ -64,7 +59,7 @@ class CommonKafkaConfig {
             )
         }
 
-        fun producerFactory(kafkaConfigProps: KafkaConfigProperties): ProducerFactory<Nokkel, Beskjed> {
+        fun producerFactory(kafkaConfigProps: KafkaConfigProperties): ProducerFactory<NokkelInput, BeskjedInput> {
             val producerProps = kafkaConfigProps.producer
             return DefaultKafkaProducerFactory(
                 mutableMapOf<String, Any>(
@@ -72,17 +67,19 @@ class CommonKafkaConfig {
                     ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to producerProps.keySerializer,
                     ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to producerProps.valueSerializer,
                     ProducerConfig.RETRIES_CONFIG to producerProps.retries,
-                    "schema.registry.url" to producerProps.schemaRegistryUrl
+                    KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG to producerProps.schemaRegistryUrl,
+                    KafkaAvroDeserializerConfig.BASIC_AUTH_CREDENTIALS_SOURCE to "USER_INFO",
+                    KafkaAvroDeserializerConfig.USER_INFO_CONFIG to "${producerProps.schemaRegistryUser}:${producerProps.schemaRegistryPassword}"
                 ) + commonConfig(kafkaConfigProps)
             )
         }
 
-        fun kafkaTemplate(producerFactory: ProducerFactory<Nokkel, Beskjed>) = KafkaTemplate(producerFactory)
+        fun kafkaTemplate(producerFactory: ProducerFactory<NokkelInput, BeskjedInput>) = KafkaTemplate(producerFactory)
 
         fun configureConcurrentKafkaListenerContainerFactory(
             consumerFactory: ConsumerFactory<String, String>,
             retryInterval: Long,
-            kafkaTemplate: KafkaTemplate<Nokkel, Beskjed>,
+            kafkaTemplate: KafkaTemplate<NokkelInput, BeskjedInput>,
             objectMapper: ObjectMapper,
             logger: Logger
         ): ConcurrentKafkaListenerContainerFactory<String, String> {

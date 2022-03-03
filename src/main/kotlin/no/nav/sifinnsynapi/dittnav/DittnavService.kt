@@ -1,8 +1,8 @@
 package no.nav.sifinnsynapi.dittnav
 
-import no.nav.brukernotifikasjon.schemas.Beskjed
-import no.nav.brukernotifikasjon.schemas.Nokkel
-import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED
+import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
+import no.nav.brukernotifikasjon.schemas.input.NokkelInput
+import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED_AIVEN
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.core.KafkaTemplate
@@ -10,20 +10,19 @@ import org.springframework.stereotype.Service
 
 @Service
 class DittnavService(
-    private val onpremKafkaTemplate: KafkaTemplate<Nokkel, Beskjed>
+    private val aivenKafkaTemplate: KafkaTemplate<NokkelInput, BeskjedInput>
 ) {
-    companion object{
-        val logger = LoggerFactory.getLogger(DittnavService::class.java)
-    }
-    fun sendBeskjedOnprem(nøkkel: Nokkel, beskjed: Beskjed) {
-        onpremKafkaTemplate.send(
+    val logger = LoggerFactory.getLogger(DittnavService::class.java)
+
+    fun sendBeskjedPåAiven(nøkkel: NokkelInput, beskjed: BeskjedInput) {
+        aivenKafkaTemplate.send(
             ProducerRecord(
-                DITT_NAV_BESKJED,
+                DITT_NAV_BESKJED_AIVEN,
                 nøkkel,
                 beskjed
             )
         ).also {
-            logger.info("Sender beskjed videre til ${DITT_NAV_BESKJED} med eventId ${nøkkel.getEventId()}")
+            logger.info("Sender beskjed videre til ${DITT_NAV_BESKJED_AIVEN} med eventId ${nøkkel.getEventId()}")
         }
     }
 }

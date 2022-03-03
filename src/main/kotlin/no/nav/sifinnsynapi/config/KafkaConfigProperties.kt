@@ -7,7 +7,6 @@ import org.springframework.core.io.Resource
 @ConstructorBinding
 @ConfigurationProperties(prefix = "kafka")
 data class KafkaClusterProperties (
-    val onprem: KafkaConfigProperties,
     val aiven: KafkaConfigProperties
 )
 
@@ -33,12 +32,13 @@ data class KafkaProducerProperties(
     val keySerializer: String,
     val valueSerializer: String,
     val retries: Int,
-    val schemaRegistryUrl: String
+    val schemaRegistryUrl: String,
+    val schemaRegistryUser: String,
+    val schemaRegistryPassword: String,
 )
 
 data class KafkaProperties(
     val security: KafkaSecurityProperties,
-    val sasl: KafkaSaslProperties? = null,
     val ssl: KafkaSslProperties
 )
 
@@ -46,16 +46,11 @@ data class KafkaSecurityProperties(
     val protocol: String
 )
 
-data class KafkaSaslProperties(
-    val mechanism: String,
-    val jaasConfig: String,
-)
-
 data class KafkaSslProperties(
     val truststoreLocation: Resource,
     val truststorePassword: String,
     val truststoreType: String,
-    val keystoreLocation: Resource? = null,
-    val keystorePassword: String? = null,
-    val keystoreType: String? = null,
+    val keystoreLocation: Resource,
+    val keystorePassword: String,
+    val keystoreType: String
 )

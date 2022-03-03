@@ -25,11 +25,9 @@ Et varsel kan være av følgende formater:
 * SMS
 * Epost
 
-K9-dittnav-varsel eksponerer to topicer hvor det kan legges en K9Beskjed på.
+K9-dittnav-varsel eksponerer en topic hvor det kan legges en K9Beskjed på som mappes om til dittnav-beskjed og sendes videre. 
 
-Onprem har topicen **_privat-k9-dittnav-varsel-beskjed_** hvor det foreløpig er sif-innsyn-api som produserer.
-
-I Aiven har vi også en topic som heter **_dusseldorf.privat-k9-dittnav-varsel-beskjed_**.
+I Aiven heter topicen **_dusseldorf.privat-k9-dittnav-varsel-beskjed_**.
 
 Det er ønskelig at tjenestene som egentlig ikke har noe med innsyn migrerer over til å legge
 K9Beskjed direkte på topicen, og ikke gjennom sif-innsyn-api.
@@ -40,7 +38,7 @@ Denne tjenesten begrenses sykdom-i-familien og er ment å brukes som et felles k
 # 4. Programvarearkitektur
 
 # 5. Kode
-K9Beskjed skal legges på topic ser slik ut:
+K9Beskjed:
 ```
 data class K9Beskjed(
     val metadata: Metadata,
@@ -54,7 +52,21 @@ data class K9Beskjed(
 )
 
 enum class Ytelse{
-    OMSORGSDAGER_ALENEOMSORG
+    OMSORGSDAGER_ALENEOMSORG,
+    OMSORGSPENGER_MIDLERTIDIG_ALENE,
+    OMSORGSDAGER_MELDING_OVERFØRE,
+    OMSORGSDAGER_MELDING_KORONA,
+    OMSORGSDAGER_MELDING_FORDELE,
+    ETTERSENDING_PLEIEPENGER_SYKT_BARN,
+    ETTERSENDING_OMP_UTV_KS, // Ettersending - Omsorgspenger utvidet rett - kronisk syke eller funksjonshemming.
+    ETTERSENDING_OMP_UT_SNF, // Ettersending - Omsorgspenger utbetaling SNF ytelse.
+    ETTERSENDING_OMP_UT_ARBEIDSTAKER, // Ettersending - Omsorgspenger utbetaling arbeidstaker ytelse.
+    ETTERSENDING_OMP_UTV_MA, // Ettersending - Omsorgspenger utvidet rett - midlertidig alene
+    ETTERSENDING_OMP_DELE_DAGER, // Ettersending - Melding om deling av omsorgsdager,
+    OMSORGSPENGER_UTV_KS, // Omsorgspenger utvidet rett - kronisk syke eller funksjonshemming.
+    OMSORGSPENGER_UT_SNF, // Omsorgspenger utbetaling snf
+    OMSORGSPENGER_UT_ARBEIDSTAKER, // Omsorgspenger utbetaling arbeidstaker
+    PLEIEPENGER_LIVETS_SLUTTFASE
 }
 ```
 

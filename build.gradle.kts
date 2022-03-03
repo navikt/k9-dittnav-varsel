@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.6.1"
+    id("org.springframework.boot") version "2.6.4"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("jvm") version "1.6.10"
     kotlin("plugin.spring") version "1.6.10"
@@ -19,7 +19,7 @@ configurations {
 val springfoxVersion by extra("2.9.2")
 val confluentVersion by extra("5.5.0")
 val avroVersion by extra("1.9.2")
-val brukernotifikasjonVersion by extra("1.2021.01.18-11.12-b9c8c40b98d1")
+val brukernotifikasjonVersion by extra("v2.5.1")
 val logstashLogbackEncoderVersion by extra("6.3")
 val tokenValidationVersion by extra("1.1.5")
 val retryVersion by extra("1.3.0")
