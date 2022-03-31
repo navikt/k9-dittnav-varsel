@@ -15,12 +15,12 @@ import org.apache.kafka.common.config.SslConfigs
 import org.slf4j.Logger
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.*
+import org.springframework.kafka.listener.ConsumerRecordRecoverer
 import org.springframework.kafka.listener.ContainerProperties
-import org.springframework.kafka.listener.SeekToCurrentErrorHandler
+import org.springframework.kafka.listener.DefaultErrorHandler
 import org.springframework.kafka.support.converter.JsonMessageConverter
 import org.springframework.util.backoff.FixedBackOff
 import java.time.Duration
-import java.util.function.BiConsumer
 
 class CommonKafkaConfig {
     companion object {
@@ -93,10 +93,10 @@ class CommonKafkaConfig {
             factory.setMessageConverter(JsonMessageConverter(objectMapper))
 
             // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#exactly-once
-            factory.containerProperties.eosMode = ContainerProperties.EOSMode.BETA
+            factory.containerProperties.eosMode = ContainerProperties.EOSMode.V2
 
             // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#committing-offsets
-            factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD;
+            factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD
 
             // https://docs.spring.io/spring-kafka/reference/html/#listener-container
             factory.containerProperties.setAuthExceptionRetryInterval(Duration.ofSeconds(10L))
@@ -105,21 +105,20 @@ class CommonKafkaConfig {
             factory.containerProperties.isDeliveryAttemptHeader = true
 
             // https://docs.spring.io/spring-kafka/reference/html/#seek-to-current
-            factory.setErrorHandler(SeekToCurrentErrorHandler(recoverer(logger), FixedBackOff(retryInterval, Long.MAX_VALUE)))
+            factory.setCommonErrorHandler(DefaultErrorHandler(recoverer(logger), FixedBackOff(retryInterval, Long.MAX_VALUE)))
 
-            factory.setRecordFilterStrategy {
+            factory.setRecordInterceptor {
                 val melding = objectMapper.readValue(it.value(), K9Beskjed::class.java)
                 val correlationId = melding.metadata.correlationId
                 MDCUtil.toMDC(Constants.CORRELATION_ID, correlationId)
                 MDCUtil.toMDC(Constants.NAV_CONSUMER_ID, "k9-dittnav-varsel")
-
-                false
+                it
             }
 
             return factory
         }
 
-        private fun recoverer(logger: Logger) = BiConsumer { cr: ConsumerRecord<*, *>, ex: Exception ->
+        private fun recoverer(logger: Logger) = ConsumerRecordRecoverer { cr: ConsumerRecord<*, *>, ex: Exception ->
             logger.error("Retry attempts exhausted for ${cr.topic()}-${cr.partition()}@${cr.offset()}", ex)
         }
     }

@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.6.4"
+    id("org.springframework.boot") version "2.6.5"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("jvm") version "1.6.10"
     kotlin("plugin.spring") version "1.6.10"
@@ -16,7 +16,7 @@ configurations {
         extendsFrom(configurations.annotationProcessor.get())
     }
 }
-val springfoxVersion by extra("2.9.2")
+
 val confluentVersion by extra("5.5.0")
 val avroVersion by extra("1.9.2")
 val brukernotifikasjonVersion by extra("v2.5.1")
@@ -29,8 +29,6 @@ val awaitilityKotlinVersion by extra("4.1.0")
 val assertkJvmVersion by extra("0.24")
 val springMockkVersion by extra("3.0.1")
 val mockkVersion by extra("1.12.0")
-
-ext["log4j2.version"] = "2.16.0" // TODO: 13/12/2021 kan fjernes når spring boot oppgraderes til  v2.5.8 eller v2.6.2
 
 repositories {
     mavenCentral()
