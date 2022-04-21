@@ -3,13 +3,13 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "2.6.6"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    kotlin("jvm") version "1.6.10"
-    kotlin("plugin.spring") version "1.6.10"
+    kotlin("jvm") version "1.6.21"
+    kotlin("plugin.spring") version "1.6.21"
 }
 
 group = "no.nav"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_11
+java.sourceCompatibility = JavaVersion.VERSION_17
 
 configurations {
     compileOnly {
@@ -18,17 +18,17 @@ configurations {
 }
 
 val confluentVersion by extra("5.5.0")
-val avroVersion by extra("1.9.2")
+val avroVersion by extra("1.11.0")
 val brukernotifikasjonVersion by extra("v2.5.1")
-val logstashLogbackEncoderVersion by extra("6.3")
+val logstashLogbackEncoderVersion by extra("7.0.1")
 val tokenValidationVersion by extra("1.1.5")
-val retryVersion by extra("1.3.0")
-val zalandoVersion by extra("0.25.2")
-val jsonVersion by extra("20210307")
-val awaitilityKotlinVersion by extra("4.1.0")
-val assertkJvmVersion by extra("0.24")
-val springMockkVersion by extra("3.0.1")
-val mockkVersion by extra("1.12.0")
+val retryVersion by extra("1.3.2")
+val zalandoVersion by extra("0.27.0")
+val jsonVersion by extra("20220320")
+val awaitilityKotlinVersion by extra("4.1.1")
+val assertkJvmVersion by extra("0.25")
+val springMockkVersion by extra("3.1.1")
+val mockkVersion by extra("1.12.3")
 
 repositories {
     mavenCentral()
@@ -112,7 +112,7 @@ tasks.withType<Test> {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 }
 
