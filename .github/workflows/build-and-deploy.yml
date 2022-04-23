@@ -8,6 +8,7 @@ on:
       - 'LICENCE'
       - 'CODEOWNERS'
       - '.github/workflows/apply-alerts.yml'
+      - '.github/workflows/snyk.yml'
     branches:
 
 env:
