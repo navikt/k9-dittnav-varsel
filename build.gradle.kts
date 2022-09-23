@@ -28,7 +28,7 @@ val jsonVersion by extra("20220320")
 val awaitilityKotlinVersion by extra("4.1.1")
 val assertkJvmVersion by extra("0.25")
 val springMockkVersion by extra("3.1.1")
-val mockkVersion by extra("1.12.7")
+val mockkVersion by extra("1.12.8")
 
 repositories {
     mavenCentral()
@@ -48,6 +48,13 @@ repositories {
     }
 }
 dependencies {
+
+    // Overstyrer snakeyaml grunnet sårbarhet i v1.30. Kan fjernes når avhengiheter har oppdatert.
+    implementation("org.yaml:snakeyaml") {
+        version {
+            strictly("1.32")
+        }
+    }
 
     // NAV
     implementation("com.github.navikt:brukernotifikasjon-schemas:$brukernotifikasjonVersion")
