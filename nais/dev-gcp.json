@@ -6,11 +6,7 @@
   "kafkaPool": "nav-dev",
   "minReplicas": "1",
   "maxReplicas": "2",
-  "ingresses": [
-    "https://k9-dittnav-varsel.dev.nav.no"
-  ],
   "outboundRules": [
-    "kafka-schema-registry.nais-q.adeo.no",
     "login.microsoftonline.com"
   ],
   "env": {

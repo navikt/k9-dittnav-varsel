@@ -34,10 +34,6 @@ spec:
     requests:
       cpu: 60m
       memory: 750Mi
-  ingresses:
-  {{#each ingresses as |url|}}
-     - {{url}}
-  {{/each}}
   replicas:
     min: {{minReplicas}}
     max: {{maxReplicas}}
@@ -45,11 +41,6 @@ spec:
   prometheus:
     enabled: true
     path: /actuator/prometheus
-  vault:
-    enabled: false
-  webproxy: true
-  envFrom:
-    - secret: k9-dittnav-varsel.sts-credentials
   env:
   {{#each env}}
    - name: {{@key}}
