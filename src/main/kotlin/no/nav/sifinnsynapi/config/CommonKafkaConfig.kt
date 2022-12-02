@@ -14,10 +14,14 @@ import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.config.SslConfigs
 import org.slf4j.Logger
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
-import org.springframework.kafka.core.*
+import org.springframework.kafka.core.ConsumerFactory
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory
+import org.springframework.kafka.core.DefaultKafkaProducerFactory
+import org.springframework.kafka.core.KafkaTemplate
+import org.springframework.kafka.core.ProducerFactory
 import org.springframework.kafka.listener.ConsumerRecordRecoverer
 import org.springframework.kafka.listener.ContainerProperties
-import org.springframework.kafka.listener.DefaultErrorHandler
+import org.springframework.kafka.listener.DefaultAfterRollbackProcessor
 import org.springframework.kafka.support.converter.JsonMessageConverter
 import org.springframework.util.backoff.FixedBackOff
 import java.time.Duration
@@ -92,9 +96,6 @@ class CommonKafkaConfig {
             // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#payload-conversion-with-batch
             factory.setMessageConverter(JsonMessageConverter(objectMapper))
 
-            // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#exactly-once
-            factory.containerProperties.eosMode = ContainerProperties.EOSMode.V2
-
             // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#committing-offsets
             factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD
 
@@ -105,18 +106,25 @@ class CommonKafkaConfig {
             factory.containerProperties.isDeliveryAttemptHeader = true
 
             // https://docs.spring.io/spring-kafka/reference/html/#seek-to-current
-            factory.setCommonErrorHandler(DefaultErrorHandler(recoverer(logger), FixedBackOff(retryInterval, Long.MAX_VALUE)))
+            factory.setAfterRollbackProcessor(defaultAfterRollbackProsessor(logger, retryInterval))
 
-            factory.setRecordInterceptor {
-                val melding = objectMapper.readValue(it.value(), K9Beskjed::class.java)
+            factory.setRecordInterceptor { record, _ ->
+                val melding = objectMapper.readValue(record.value(), K9Beskjed::class.java)
                 val correlationId = melding.metadata.correlationId
                 MDCUtil.toMDC(Constants.CORRELATION_ID, correlationId)
                 MDCUtil.toMDC(Constants.NAV_CONSUMER_ID, "k9-dittnav-varsel")
-                it
+                record
             }
 
             return factory
         }
+
+        private fun defaultAfterRollbackProsessor(logger: Logger, retryInterval: Long) =
+            DefaultAfterRollbackProcessor<String, String>(
+                recoverer(logger), FixedBackOff(retryInterval, Long.MAX_VALUE)
+            ).apply {
+                setClassifications(mapOf(), true)
+            }
 
         private fun recoverer(logger: Logger) = ConsumerRecordRecoverer { cr: ConsumerRecord<*, *>, ex: Exception ->
             logger.error("Retry attempts exhausted for ${cr.topic()}-${cr.partition()}@${cr.offset()}", ex)

@@ -1,10 +1,8 @@
 package no.nav.sifinnsynapi.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.core.io.Resource
 
-@ConstructorBinding
 @ConfigurationProperties(prefix = "kafka")
 data class KafkaClusterProperties (
     val aiven: KafkaConfigProperties
