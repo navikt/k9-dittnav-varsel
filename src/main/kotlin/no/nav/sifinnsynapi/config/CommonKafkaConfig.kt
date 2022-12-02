@@ -107,12 +107,12 @@ class CommonKafkaConfig {
             // https://docs.spring.io/spring-kafka/reference/html/#seek-to-current
             factory.setCommonErrorHandler(DefaultErrorHandler(recoverer(logger), FixedBackOff(retryInterval, Long.MAX_VALUE)))
 
-            factory.setRecordInterceptor {
-                val melding = objectMapper.readValue(it.value(), K9Beskjed::class.java)
+            factory.setRecordInterceptor { record, _ ->
+                val melding = objectMapper.readValue(record.value(), K9Beskjed::class.java)
                 val correlationId = melding.metadata.correlationId
                 MDCUtil.toMDC(Constants.CORRELATION_ID, correlationId)
                 MDCUtil.toMDC(Constants.NAV_CONSUMER_ID, "k9-dittnav-varsel")
-                it
+                record
             }
 
             return factory

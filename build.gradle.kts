@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.7.4"
-    id("io.spring.dependency-management") version "1.0.14.RELEASE"
-    kotlin("jvm") version "1.7.10"
-    kotlin("plugin.spring") version "1.7.10"
+    id("org.springframework.boot") version "3.0.0"
+    id("io.spring.dependency-management") version "1.1.0"
+    kotlin("jvm") version "1.7.22"
+    kotlin("plugin.spring") version "1.7.22"
 }
 
 group = "no.nav"
@@ -21,14 +21,12 @@ val confluentVersion by extra("5.5.0")
 val avroVersion by extra("1.11.0")
 val brukernotifikasjonVersion by extra("v2.5.1")
 val logstashLogbackEncoderVersion by extra("7.2")
-val tokenValidationVersion by extra("1.1.5")
-val retryVersion by extra("1.3.3")
-val zalandoVersion by extra("0.27.0")
-val jsonVersion by extra("20220320")
-val awaitilityKotlinVersion by extra("4.1.1")
+val retryVersion by extra("2.0.0")
+val jsonVersion by extra("20220924")
+val awaitilityKotlinVersion by extra("4.2.0")
 val assertkJvmVersion by extra("0.25")
-val springMockkVersion by extra("3.1.1")
-val mockkVersion by extra("1.12.8")
+val springMockkVersion by extra("3.1.2")
+val mockkVersion by extra("1.13.2")
 
 repositories {
     mavenCentral()
@@ -49,34 +47,21 @@ repositories {
 }
 dependencies {
 
-    // Overstyrer snakeyaml grunnet sårbarhet i v1.30. Kan fjernes når avhengiheter har oppdatert.
-    implementation("org.yaml:snakeyaml") {
-        version {
-            strictly("1.32")
-        }
-    }
-
     // NAV
     implementation("com.github.navikt:brukernotifikasjon-schemas:$brukernotifikasjonVersion")
 
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-web") {
-        exclude(group = "org.springframework.boot", module = "spring-boot-starter-tomcat")
-    }
-    implementation("org.springframework.boot:spring-boot-starter-jetty")
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.retry:spring-retry:$retryVersion")
     implementation("org.springframework:spring-aspects")
-    runtimeOnly("org.springframework.boot:spring-boot-properties-migrator")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-    annotationProcessor("org.springframework.boot:spring-boot-autoconfigure-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        exclude(group = "junit")
         exclude(module = "mockito-core")
     }
-    testImplementation("org.junit.jupiter:junit-jupiter-api")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine")
+
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.9.1")
 
     // Metrics
     implementation("io.micrometer:micrometer-registry-prometheus")
@@ -104,7 +89,6 @@ dependencies {
     // Diverse
     implementation("org.json:json:$jsonVersion")
     implementation("com.github.ben-manes.caffeine:caffeine")
-    implementation("org.zalando:problem-spring-web-starter:$zalandoVersion")
 
     testImplementation("org.awaitility:awaitility-kotlin:$awaitilityKotlinVersion")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkJvmVersion")
