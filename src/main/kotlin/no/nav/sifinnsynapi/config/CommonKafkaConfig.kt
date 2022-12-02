@@ -14,10 +14,14 @@ import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.config.SslConfigs
 import org.slf4j.Logger
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
-import org.springframework.kafka.core.*
+import org.springframework.kafka.core.ConsumerFactory
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory
+import org.springframework.kafka.core.DefaultKafkaProducerFactory
+import org.springframework.kafka.core.KafkaTemplate
+import org.springframework.kafka.core.ProducerFactory
 import org.springframework.kafka.listener.ConsumerRecordRecoverer
 import org.springframework.kafka.listener.ContainerProperties
-import org.springframework.kafka.listener.DefaultErrorHandler
+import org.springframework.kafka.listener.DefaultAfterRollbackProcessor
 import org.springframework.kafka.support.converter.JsonMessageConverter
 import org.springframework.util.backoff.FixedBackOff
 import java.time.Duration
@@ -102,7 +106,7 @@ class CommonKafkaConfig {
             factory.containerProperties.isDeliveryAttemptHeader = true
 
             // https://docs.spring.io/spring-kafka/reference/html/#seek-to-current
-            factory.setCommonErrorHandler(DefaultErrorHandler(recoverer(logger), FixedBackOff(retryInterval, Long.MAX_VALUE)))
+            factory.setAfterRollbackProcessor(defaultAfterRollbackProsessor(logger, retryInterval))
 
             factory.setRecordInterceptor { record, _ ->
                 val melding = objectMapper.readValue(record.value(), K9Beskjed::class.java)
@@ -114,6 +118,13 @@ class CommonKafkaConfig {
 
             return factory
         }
+
+        private fun defaultAfterRollbackProsessor(logger: Logger, retryInterval: Long) =
+            DefaultAfterRollbackProcessor<String, String>(
+                recoverer(logger), FixedBackOff(retryInterval, Long.MAX_VALUE)
+            ).apply {
+                setClassifications(mapOf(), true)
+            }
 
         private fun recoverer(logger: Logger) = ConsumerRecordRecoverer { cr: ConsumerRecord<*, *>, ex: Exception ->
             logger.error("Retry attempts exhausted for ${cr.topic()}-${cr.partition()}@${cr.offset()}", ex)

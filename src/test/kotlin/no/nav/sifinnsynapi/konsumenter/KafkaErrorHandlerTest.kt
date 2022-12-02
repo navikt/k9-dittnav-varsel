@@ -84,7 +84,7 @@ class KafkaErrorHandlerTest {
             assertTrue(brukernotifikasjon == null)
         }
 
-        verify(atLeast = 20) {
+        verify(atLeast = 10) {
             dittnavService.sendBeskjedPåAiven(any(), any())
         }
     }
