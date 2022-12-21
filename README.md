@@ -7,8 +7,9 @@
 ![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-dittnav-varsel&metric=sqale_index)
 ![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-dittnav-varsel&metric=duplicated_lines_density)
 ![Bugs](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-dittnav-varsel&metric=bugs)
-![CI / CD](https://github.com/navikt/https://github.com/navikt/k9-dittnav-varsel/actions/workflows/CI%20/%20CD/badge.svg)
-![NAIS Alerts](https://github.com/navikt/https://github.com/navikt/k9-dittnav-varsel/actions/workflows/Alerts/badge.svg)
+
+[![CI / CD](https://github.com/navikt/k9-dittnav-varsel/actions/workflows/build-and-deploy.yml/badge.svg)](https://github.com/navikt/k9-dittnav-varsel/actions/workflows/build-and-deploy.yml)
+[![Alerts](https://github.com/navikt/k9-dittnav-varsel/actions/workflows/apply-alerts.yml/badge.svg)](https://github.com/navikt/k9-dittnav-varsel/actions/workflows/apply-alerts.yml)
 
 # Innholdsoversikt
 * [1. Kontekst](#1-kontekst)
