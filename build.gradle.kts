@@ -1,10 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "3.0.0"
-    id("io.spring.dependency-management") version "1.1.0"
     kotlin("jvm") version "1.7.22"
     kotlin("plugin.spring") version "1.7.22"
+    id("org.springframework.boot") version "3.0.0"
+    id("io.spring.dependency-management") version "1.1.0"
+    id("org.sonarqube") version "3.3"
+    jacoco
 }
 
 group = "no.nav"
@@ -98,6 +100,25 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test) // tests are required to run before generating the report
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+    }
+}
+
+sonarqube {
+    properties {
+        property("sonar.projectKey", "navikt_k9-dittnav-varsel")
+        property("sonar.organization", "navikt")
+        property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.login", System.getenv("SONAR_TOKEN"))
+        property("sonar.sourceEncoding", "UTF-8")
+    }
 }
 
 tasks.withType<KotlinCompile> {

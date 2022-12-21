@@ -1,5 +1,12 @@
 # K9 Dittnav Varsel
 
+![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-dittnav-varsel&metric=ncloc)
+![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-dittnav-varsel&metric=alert_status)
+![Coverage](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-dittnav-varsel&metric=coverage)
+![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-dittnav-varsel&metric=code_smells)
+![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-dittnav-varsel&metric=sqale_index)
+![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-dittnav-varsel&metric=duplicated_lines_density)
+![Bugs](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-dittnav-varsel&metric=bugs)
 ![CI / CD](https://github.com/navikt/https://github.com/navikt/k9-dittnav-varsel/actions/workflows/CI%20/%20CD/badge.svg)
 ![NAIS Alerts](https://github.com/navikt/https://github.com/navikt/k9-dittnav-varsel/actions/workflows/Alerts/badge.svg)
 
