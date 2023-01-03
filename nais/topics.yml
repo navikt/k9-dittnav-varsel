@@ -28,10 +28,6 @@ spec:
       access: write
 
     - team: dusseldorf
-      application: omsorgsdager-melding-prosessering
-      access: write
-
-    - team: dusseldorf
       application: k9-ettersending-prosessering
       access: write
 
