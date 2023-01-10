@@ -13,7 +13,7 @@ spec:
   alerts:
     - alert: Applikasjon nede
       severity: danger
-      expr: sum(up{app="{{app}}", job="kubernetes-pods-istio-secure"}) == 0
+      expr: kube_deployment_status_replicas_available{deployment="{{app}}"} == 0
       for: 2m
       description: "App \{{ $labels.app }} er nede i namespace \{{ $labels.kubernetes_namespace }}"
       action: "`kubectl describe pod \{{ $labels.kubernetes_pod_name }} -n \{{ $labels.kubernetes_namespace }} -c \{{ $labels.app }}` for events, og `kubectl logs \{{ $labels.kubernetes_pod_name }} -n \{{ $labels.kubernetes_namespace }} -c \{{ $labels.app }}` for logger"
