@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.7.22"
-    kotlin("plugin.spring") version "1.7.22"
-    id("org.springframework.boot") version "3.0.0"
+    kotlin("jvm") version "1.8.10"
+    kotlin("plugin.spring") version "1.8.10"
+    id("org.springframework.boot") version "3.0.4"
     id("io.spring.dependency-management") version "1.1.0"
-    id("org.sonarqube") version "3.3"
+    id("org.sonarqube") version "4.0.0.2929"
     jacoco
 }
 
@@ -24,7 +24,7 @@ val avroVersion by extra("1.11.1")
 val brukernotifikasjonVersion by extra("v2.5.1")
 val logstashLogbackEncoderVersion by extra("7.2")
 val retryVersion by extra("2.0.0")
-val jsonVersion by extra("20220924")
+val jsonVersion by extra("20230227")
 val awaitilityKotlinVersion by extra("4.2.0")
 val assertkJvmVersion by extra("0.25")
 val springMockkVersion by extra("3.1.2")
@@ -63,7 +63,7 @@ dependencies {
         exclude(module = "mockito-core")
     }
 
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.9.1")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.9.2")
 
     // Metrics
     implementation("io.micrometer:micrometer-registry-prometheus")
