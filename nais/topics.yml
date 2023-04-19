@@ -54,3 +54,7 @@ spec:
     - team: dusseldorf
       application: omsorgspengerutbetalingsoknad-arbeidstaker-prosessering
       access: write
+
+    - team: dusseldorf
+      application: k9-brukerdialog-prosessering
+      access: write
