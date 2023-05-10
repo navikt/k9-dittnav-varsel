@@ -35,7 +35,7 @@ repositories {
 
     maven {
         name = "github-package-registry-navikt"
-        url = uri("https://maven.pkg.github.com/navikt/maven-releas")
+        url = uri("https://maven.pkg.github.com/navikt/maven-release")
     }
 
     maven {
