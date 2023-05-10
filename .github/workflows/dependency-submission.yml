@@ -5,6 +5,7 @@ on:
       - master
     paths:
       - "**/build.gradle.kts"
+      - ".github/workflows/gradle-dependency-submission.yml"
   workflow_dispatch:
   
 jobs:
