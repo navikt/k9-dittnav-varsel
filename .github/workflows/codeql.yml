@@ -1,0 +1,21 @@
+name: "CodeQL"
+
+env:
+  GITHUB_USERNAME: x-access-token
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  analyze:
+    name: Analyze
+    uses: navikt/sif-gha-workflows/.github/workflows/codeql-analysis.yml@main
+    secrets: inherit
+    with:
+      language: "java"
+      package-command: './gradlew clean build -x test'
