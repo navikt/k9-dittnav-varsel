@@ -52,6 +52,9 @@ repositories {
     }
 }
 dependencies {
+    implementation("org.yaml:snakeyaml:2.0") {
+        because("https://github.com/navikt/k9-dittnav-varsel/security/dependabot/2")
+    }
 
     // NAV
     implementation("com.github.navikt:brukernotifikasjon-schemas:$brukernotifikasjonVersion")
