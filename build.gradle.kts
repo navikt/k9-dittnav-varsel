@@ -70,7 +70,7 @@ dependencies {
         exclude(module = "mockito-core")
     }
 
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.9.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.0")
 
     // Metrics
     implementation("io.micrometer:micrometer-registry-prometheus")
