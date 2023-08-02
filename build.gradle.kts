@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.8.21"
-    kotlin("plugin.spring") version "1.8.21"
-    id("org.springframework.boot") version "3.0.6"
-    id("io.spring.dependency-management") version "1.1.0"
-    id("org.sonarqube") version "4.0.0.2929"
+    kotlin("jvm") version "1.9.0"
+    kotlin("plugin.spring") version "1.9.0"
+    id("org.springframework.boot") version "3.1.2"
+    id("io.spring.dependency-management") version "1.1.2"
+    id("org.sonarqube") version "4.3.0.3225"
     jacoco
 }
 
@@ -69,8 +69,6 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "mockito-core")
     }
-
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.9.3")
 
     // Metrics
     implementation("io.micrometer:micrometer-registry-prometheus")
