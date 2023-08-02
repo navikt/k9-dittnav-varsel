@@ -113,16 +113,33 @@ dependencies {
     testImplementation("io.mockk:mockk:$mockkVersion")
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
-    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
-}
+tasks {
+    withType<Test> {
+        useJUnitPlatform()
+        finalizedBy(jacocoTestReport) // report is always generated after tests run
+    }
 
-tasks.jacocoTestReport {
-    dependsOn(tasks.test) // tests are required to run before generating the report
-    reports {
-        xml.required.set(true)
-        csv.required.set(false)
+    jacocoTestReport {
+        dependsOn(test) // tests are required to run before generating the report
+        reports {
+            xml.required.set(true)
+            csv.required.set(false)
+        }
+    }
+
+    withType<KotlinCompile> {
+        kotlinOptions {
+            freeCompilerArgs = listOf("-Xjsr305=strict")
+            jvmTarget = "17"
+        }
+    }
+
+    getByName<Jar>("jar") {
+        enabled = false
+    }
+
+    withType<Wrapper> {
+        gradleVersion = "8.2.1"
     }
 }
 
@@ -134,15 +151,4 @@ sonarqube {
         property("sonar.login", System.getenv("SONAR_TOKEN"))
         property("sonar.sourceEncoding", "UTF-8")
     }
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
-    }
-}
-
-tasks.getByName<Jar>("jar") {
-    enabled = false
 }
