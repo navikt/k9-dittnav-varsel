@@ -63,7 +63,7 @@ spec:
 apiVersion: kafka.nais.io/v1
 kind: Topic
 metadata:
-  name: privat-k9-dittnav-varsel-beskjed
+  name: privat-k9-dittnav-varsel-utkast
   namespace: dusseldorf
   labels:
     team: dusseldorf
