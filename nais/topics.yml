@@ -58,3 +58,29 @@ spec:
     - team: dusseldorf
       application: k9-brukerdialog-prosessering
       access: write
+
+---
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: privat-k9-dittnav-varsel-beskjed
+  namespace: dusseldorf
+  labels:
+    team: dusseldorf
+spec:
+  pool: {{kafka-pool}}
+  config: # optional; all fields are optional too; defaults shown
+    cleanupPolicy: delete  # delete, compact
+    minimumInSyncReplicas: 2 # Krever sync mellom 2 brokers
+    partitions: 1
+    replication: 3  # see min/max requirements
+    retentionBytes: -1  # -1 means unlimited
+    retentionHours: 730  # -1 means unlimited
+  acl:
+    - team: dusseldorf
+      application: k9-dittnav-varsel
+      access: readwrite
+
+    - team: dusseldorf
+      application: k9-brukerdialog-cache
+      access: write
