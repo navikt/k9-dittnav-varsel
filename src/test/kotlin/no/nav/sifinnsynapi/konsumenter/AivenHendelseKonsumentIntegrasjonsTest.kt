@@ -7,6 +7,7 @@ import no.nav.sifinnsynapi.config.Topics
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_UTKAST
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_BESKJED
+import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_UTKAST
 import no.nav.sifinnsynapi.utils.*
 import no.nav.tms.utkast.builder.UtkastJsonBuilder
 import org.apache.kafka.clients.consumer.Consumer
@@ -29,7 +30,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 @EmbeddedKafka( // Setter opp og tilgjengligjør embeded kafka broker
-    topics = [K9_DITTNAV_VARSEL_BESKJED],
+    topics = [K9_DITTNAV_VARSEL_BESKJED, DITT_NAV_BESKJED, K9_DITTNAV_VARSEL_UTKAST, DITT_NAV_UTKAST],
     count = 3,
     bootstrapServersProperty = "kafka-servers" // Setter bootstrap-servers for consumer og producer.
 )
@@ -188,18 +189,6 @@ class AivenK9BeskjedKonsumentIntegrasjonsTest {
 
         val konsumertUtkast = utkastConsumer.hentMelding(DITT_NAV_UTKAST) { it == utkastId }?.value()
         validerRiktigUtkast(utkast.utkast, konsumertUtkast)
-    }
-
-    private fun produserK9Beskjed(k9Beskjed: K9Beskjed) {
-        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
-    }
-
-    private fun produserK9Utkast(utkast: String) {
-        val k9Utkast = gyldigK9Utkast(
-            utkast, Ytelse.PLEIEPENGER_SYKT_BARN
-        )
-
-        producer.leggPåTopic(k9Utkast, Topics.K9_DITTNAV_VARSEL_UTKAST, mapper)
     }
 }
 
