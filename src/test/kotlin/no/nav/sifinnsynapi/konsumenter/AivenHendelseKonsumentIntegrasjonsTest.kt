@@ -3,10 +3,15 @@ package no.nav.sifinnsynapi.konsumenter
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
 import no.nav.brukernotifikasjon.schemas.input.NokkelInput
-import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_BESKJED_AIVEN
+import no.nav.sifinnsynapi.config.Topics
+import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED
+import no.nav.sifinnsynapi.config.Topics.DITT_NAV_UTKAST
+import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_BESKJED
 import no.nav.sifinnsynapi.utils.*
+import no.nav.tms.utkast.builder.UtkastJsonBuilder
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.Producer
+import org.awaitility.kotlin.await
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
@@ -20,9 +25,11 @@ import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 @EmbeddedKafka( // Setter opp og tilgjengligjør embeded kafka broker
-    topics = [K9_DITTNAV_VARSEL_BESKJED_AIVEN],
+    topics = [K9_DITTNAV_VARSEL_BESKJED],
     count = 3,
     bootstrapServersProperty = "kafka-servers" // Setter bootstrap-servers for consumer og producer.
 )
@@ -41,18 +48,24 @@ class AivenK9BeskjedKonsumentIntegrasjonsTest {
     private lateinit var embeddedKafkaBroker: EmbeddedKafkaBroker // Broker som brukes til å konfigurere opp en kafka producer.
 
     lateinit var producer: Producer<String, Any> // Kafka producer som brukes til å legge på kafka meldinger.
-    lateinit var dittNavConsumer: Consumer<NokkelInput, BeskjedInput> // Kafka consumer som brukes til å lese kafka meldinger.
+    lateinit var beskjedConsumer: Consumer<NokkelInput, BeskjedInput> // Kafka consumer som brukes til å lese kafka meldinger.
+    lateinit var utkastConsumer: Consumer<String, String> // Kafka consumer som brukes til å lese utkaster.
+
 
     @BeforeAll
     fun setUp() {
         producer = embeddedKafkaBroker.opprettKafkaProducer()
-        dittNavConsumer = embeddedKafkaBroker.opprettDittnavConsumer()
+        beskjedConsumer =
+            embeddedKafkaBroker.opprettKafkaConsumer(groupId = "beskjed-consumer", topicName = DITT_NAV_BESKJED)
+        utkastConsumer =
+            embeddedKafkaBroker.opprettKafkaConsumer(groupId = "utkast-consumer", topicName = DITT_NAV_UTKAST)
     }
 
     @AfterAll
     internal fun tearDown() {
         producer.close()
-        dittNavConsumer.close()
+        beskjedConsumer.close()
+        utkastConsumer.close()
     }
 
     @Test
@@ -64,10 +77,11 @@ class AivenK9BeskjedKonsumentIntegrasjonsTest {
             ytelse = Ytelse.OMSORGSDAGER_ALENEOMSORG
         )
 
-        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED_AIVEN, mapper)
+        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
 
         // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
-        val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
+        val brukernotifikasjon =
+            beskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
         validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
     }
 
@@ -80,10 +94,11 @@ class AivenK9BeskjedKonsumentIntegrasjonsTest {
             ytelse = Ytelse.ETTERSENDING_PLEIEPENGER_SYKT_BARN
         )
 
-        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED_AIVEN, mapper)
+        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
 
         // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
-        val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
+        val brukernotifikasjon =
+            beskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
         validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
     }
 
@@ -96,10 +111,11 @@ class AivenK9BeskjedKonsumentIntegrasjonsTest {
             ytelse = Ytelse.OMSORGSPENGER_UTV_KS
         )
 
-        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED_AIVEN, mapper)
+        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
 
         // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
-        val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
+        val brukernotifikasjon =
+            beskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
         validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
     }
 
@@ -112,10 +128,11 @@ class AivenK9BeskjedKonsumentIntegrasjonsTest {
             ytelse = Ytelse.OMSORGSPENGER_UT_SNF
         )
 
-        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED_AIVEN, mapper)
+        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
 
         // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
-        val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
+        val brukernotifikasjon =
+            beskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
         validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
     }
 
@@ -128,10 +145,11 @@ class AivenK9BeskjedKonsumentIntegrasjonsTest {
             ytelse = Ytelse.PLEIEPENGER_LIVETS_SLUTTFASE
         )
 
-        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED_AIVEN, mapper)
+        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
 
         // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
-        val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
+        val brukernotifikasjon =
+            beskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
         validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
     }
 
@@ -144,11 +162,44 @@ class AivenK9BeskjedKonsumentIntegrasjonsTest {
             ytelse = Ytelse.OMSORGSPENGER_UT_ARBEIDSTAKER
         )
 
-        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED_AIVEN, mapper)
+        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
 
         // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
-        val brukernotifikasjon = dittNavConsumer.hentBrukernotifikasjon(k9Beskjed.eventId)?.value()
+        val brukernotifikasjon =
+            beskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
         validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
+    }
+
+    @Test
+    fun `Legger utkast på topic og forventer riktig dittnav utkast`() {
+
+        // legg på 1 hendelse om mottatt søknad
+        val utkastId = UUID.randomUUID().toString()
+        val utkast = gyldigK9Utkast(
+            UtkastJsonBuilder()
+                .withUtkastId(utkastId)
+                .withIdent("12345678910")
+                .withTittel("Søknad om pleiepenger sykt barn")
+                .withLink("https://www.nav.no/familie/sykdom-i-familien/soknad/pleiepenger/soknad")
+                .create(), Ytelse.PLEIEPENGER_SYKT_BARN
+        )
+
+        producer.leggPåTopic(utkast, Topics.K9_DITTNAV_VARSEL_UTKAST, mapper)
+
+        val konsumertUtkast = utkastConsumer.hentMelding(DITT_NAV_UTKAST) { it == utkastId }?.value()
+        validerRiktigUtkast(utkast.utkast, konsumertUtkast)
+    }
+
+    private fun produserK9Beskjed(k9Beskjed: K9Beskjed) {
+        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
+    }
+
+    private fun produserK9Utkast(utkast: String) {
+        val k9Utkast = gyldigK9Utkast(
+            utkast, Ytelse.PLEIEPENGER_SYKT_BARN
+        )
+
+        producer.leggPåTopic(k9Utkast, Topics.K9_DITTNAV_VARSEL_UTKAST, mapper)
     }
 }
 
@@ -157,4 +208,9 @@ fun validerRiktigBrukernotifikasjon(k9Beskjed: K9Beskjed, brukernotifikasjon: Be
     assertTrue(brukernotifikasjon != null)
     assertTrue(k9Beskjed.tekst == brukernotifikasjon?.getTekst())
     k9Beskjed.link?.let { assertTrue(k9Beskjed.link == brukernotifikasjon?.getLink()) }
+}
+
+fun validerRiktigUtkast(utkast: String, konsumertUtkast: String?) {
+    assertTrue(konsumertUtkast != null)
+    assertTrue(utkast == konsumertUtkast)
 }

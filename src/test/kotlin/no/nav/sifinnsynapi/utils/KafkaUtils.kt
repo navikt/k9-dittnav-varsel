@@ -3,10 +3,6 @@ package no.nav.sifinnsynapi.utils
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
-import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
-import no.nav.brukernotifikasjon.schemas.input.NokkelInput
-import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED_AIVEN
-import no.nav.sifinnsynapi.konsumenter.K9Beskjed
 import no.nav.sifinnsynapi.konsumenter.somJson
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -24,31 +20,35 @@ fun EmbeddedKafkaBroker.opprettKafkaProducer(): Producer<String, Any> {
     return DefaultKafkaProducerFactory<String, Any>(HashMap(KafkaTestUtils.producerProps(this))).createProducer()
 }
 
-fun Producer<String, Any>.leggPåTopic(hendelse: K9Beskjed, topic: String, mapper: ObjectMapper) {
-    this.send(ProducerRecord(topic, hendelse.somJson(mapper)))
+fun <T> Producer<String, Any>.leggPåTopic(data: T, topic: String, mapper: ObjectMapper) {
+    requireNotNull(data)
+    this.send(ProducerRecord(topic, data.somJson(mapper)))
     this.flush()
 }
 
-fun EmbeddedKafkaBroker.opprettDittnavConsumer(): Consumer<NokkelInput, BeskjedInput> {
-    val consumerProps = KafkaTestUtils.consumerProps("dittnv-consumer", "true", this)
+fun <K, V> EmbeddedKafkaBroker.opprettKafkaConsumer(groupId: String, topicName: String): Consumer<K, V> {
+
+    val consumerProps = KafkaTestUtils.consumerProps(groupId, "true", this)
     consumerProps[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = "io.confluent.kafka.serializers.KafkaAvroDeserializer"
     consumerProps[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = "io.confluent.kafka.serializers.KafkaAvroDeserializer"
     consumerProps[KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG] = "true"
     consumerProps[AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG] = "mock://localhost"
 
-    val consumer = DefaultKafkaConsumerFactory<NokkelInput, BeskjedInput>(HashMap(consumerProps)).createConsumer()
-    consumer.subscribe(listOf(DITT_NAV_BESKJED_AIVEN))
+    val consumer = DefaultKafkaConsumerFactory<K, V>(HashMap(consumerProps)).createConsumer()
+    consumer.subscribe(listOf(topicName))
     return consumer
 }
 
-fun Consumer<NokkelInput, BeskjedInput>.hentBrukernotifikasjon(søknadId: String): ConsumerRecord<NokkelInput, BeskjedInput>? {
+fun <K, V> Consumer<K, V>.hentMelding(
+    topic: String,
+    keyPredicate: (K) -> Boolean
+): ConsumerRecord<K, V>? {
     val end = System.currentTimeMillis() + Duration.ofSeconds(10).toMillis()
     seekToBeginning(assignment())
     while (System.currentTimeMillis() < end) {
-
-        val entries: List<ConsumerRecord<NokkelInput, BeskjedInput>> = poll(Duration.ofSeconds(5))
-            .records(DITT_NAV_BESKJED_AIVEN)
-            .filter { it.key().getEventId() == søknadId }
+        val entries: List<ConsumerRecord<K, V>> = poll(Duration.ofSeconds(5))
+            .records(topic)
+            .filter { keyPredicate(it.key()) }
 
         if (entries.isNotEmpty()) {
             assertEquals(1, entries.size)
@@ -56,5 +56,4 @@ fun Consumer<NokkelInput, BeskjedInput>.hentBrukernotifikasjon(søknadId: String
         }
     }
     return null
-    //throw IllegalStateException("Fant ikke dittnav varsel for søknad med id=$søknadId etter 20 sekunder.")
 }

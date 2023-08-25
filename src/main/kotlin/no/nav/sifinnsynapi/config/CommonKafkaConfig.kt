@@ -2,9 +2,6 @@ package no.nav.sifinnsynapi.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
-import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
-import no.nav.brukernotifikasjon.schemas.input.NokkelInput
-import no.nav.sifinnsynapi.konsumenter.K9Beskjed
 import no.nav.sifinnsynapi.util.Constants
 import no.nav.sifinnsynapi.util.MDCUtil
 import org.apache.kafka.clients.CommonClientConfigs
@@ -49,7 +46,7 @@ class CommonKafkaConfig {
             }
         }
 
-        fun consumerFactory(kafkaConfigProps: KafkaConfigProperties): ConsumerFactory<String, String> {
+        fun <K, V> consumerFactory(kafkaConfigProps: KafkaConfigProperties): ConsumerFactory<K, V> {
             val consumerProps = kafkaConfigProps.consumer
             return DefaultKafkaConsumerFactory(
                 mutableMapOf<String, Any>(
@@ -63,7 +60,7 @@ class CommonKafkaConfig {
             )
         }
 
-        fun producerFactory(kafkaConfigProps: KafkaConfigProperties): ProducerFactory<NokkelInput, BeskjedInput> {
+        fun <K, V> producerFactory(kafkaConfigProps: KafkaConfigProperties): ProducerFactory<K, V> {
             val producerProps = kafkaConfigProps.producer
             return DefaultKafkaProducerFactory(
                 mutableMapOf<String, Any>(
@@ -78,14 +75,15 @@ class CommonKafkaConfig {
             )
         }
 
-        fun kafkaTemplate(producerFactory: ProducerFactory<NokkelInput, BeskjedInput>) = KafkaTemplate(producerFactory)
+        fun <K, V> kafkaTemplate(producerFactory: ProducerFactory<K, V>) = KafkaTemplate<K, V>(producerFactory)
 
-        fun configureConcurrentKafkaListenerContainerFactory(
+        inline fun <reified T> configureConcurrentKafkaListenerContainerFactory(
             consumerFactory: ConsumerFactory<String, String>,
             retryInterval: Long,
-            kafkaTemplate: KafkaTemplate<NokkelInput, BeskjedInput>,
+            kafkaTemplate: KafkaTemplate<*, *>,
             objectMapper: ObjectMapper,
-            logger: Logger
+            logger: Logger,
+            noinline correlationIdExtractor: (T) -> String
         ): ConcurrentKafkaListenerContainerFactory<String, String> {
             val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
 
@@ -94,7 +92,7 @@ class CommonKafkaConfig {
             factory.setReplyTemplate(kafkaTemplate)
 
             // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#payload-conversion-with-batch
-            factory.setMessageConverter(JsonMessageConverter(objectMapper))
+            factory.setRecordMessageConverter(JsonMessageConverter(objectMapper))
 
             // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#committing-offsets
             factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD
@@ -109,8 +107,9 @@ class CommonKafkaConfig {
             factory.setAfterRollbackProcessor(defaultAfterRollbackProsessor(logger, retryInterval))
 
             factory.setRecordInterceptor { record, _ ->
-                val melding = objectMapper.readValue(record.value(), K9Beskjed::class.java)
-                val correlationId = melding.metadata.correlationId
+                val melding = objectMapper.readValue(record.value(), T::class.java)
+                val correlationId = correlationIdExtractor(melding)
+
                 MDCUtil.toMDC(Constants.CORRELATION_ID, correlationId)
                 MDCUtil.toMDC(Constants.NAV_CONSUMER_ID, "k9-dittnav-varsel")
                 record
@@ -119,7 +118,7 @@ class CommonKafkaConfig {
             return factory
         }
 
-        private fun defaultAfterRollbackProsessor(logger: Logger, retryInterval: Long) =
+        fun defaultAfterRollbackProsessor(logger: Logger, retryInterval: Long) =
             DefaultAfterRollbackProcessor<String, String>(
                 recoverer(logger), FixedBackOff(retryInterval, Long.MAX_VALUE)
             ).apply {

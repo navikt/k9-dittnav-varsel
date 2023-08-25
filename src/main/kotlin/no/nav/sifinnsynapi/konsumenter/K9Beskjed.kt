@@ -41,7 +41,8 @@ enum class Ytelse{
     OMSORGSPENGER_UTV_KS, // Omsorgspenger utvidet rett - kronisk syke eller funksjonshemming.
     OMSORGSPENGER_UT_SNF, // Omsorgspenger utbetaling snf
     OMSORGSPENGER_UT_ARBEIDSTAKER, // Omsorgspenger utbetaling arbeidstaker
-    PLEIEPENGER_LIVETS_SLUTTFASE
+    PLEIEPENGER_LIVETS_SLUTTFASE,
+    PLEIEPENGER_SYKT_BARN
 }
 
 data class Metadata @JsonCreator constructor(
@@ -50,7 +51,7 @@ data class Metadata @JsonCreator constructor(
     @JsonProperty("requestId") val requestId : String? = null
 )
 
-fun K9Beskjed.somJson(mapper: ObjectMapper) = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this)
+fun <T> T.somJson(mapper: ObjectMapper) = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this)
 
 fun K9Beskjed.somNøkkel(): NokkelInput {
     return NokkelInputBuilder()
