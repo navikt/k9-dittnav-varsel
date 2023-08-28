@@ -40,6 +40,7 @@ class K9BeskjedKonsument(
     )
     fun konsumerUtkst(@Payload utkast: K9Utkast) {
         val utkastId = JSONObject(utkast.utkast).getString("utkastId")
+        logger.info("DEBUG: {}", utkast.utkast) // TODO: Fjern før produksjon
         logger.info("Mottok K9Utkast fra ytelse {} med utkastId: {}", utkast.ytelse, utkastId)
 
         dittnavService.sendUtkast(utkastId, utkast.utkast)
