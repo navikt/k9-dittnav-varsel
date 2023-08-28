@@ -38,8 +38,10 @@ enum class Ytelse{
     ETTERSENDING_OMP_UT_ARBEIDSTAKER, // Ettersending - Omsorgspenger utbetaling arbeidstaker ytelse.
     ETTERSENDING_OMP_UTV_MA, // Ettersending - Omsorgspenger utvidet rett - midlertidig alene
     ETTERSENDING_OMP_DELE_DAGER, // Ettersending - Melding om deling av omsorgsdager,
-    OMSORGSPENGER_UTV_KS, // Omsorgspenger utvidet rett - kronisk syke eller funksjonshemming.
-    OMSORGSPENGER_UT_SNF, // Omsorgspenger utbetaling snf
+    @Deprecated("Utgår") OMSORGSPENGER_UTV_KS, // Omsorgspenger utvidet rett - kronisk syke eller funksjonshemming.
+    OMSORGSPENGER_UTVIDET_RETT, // Omsorgspenger utvidet rett - kronisk syke eller funksjonshemming.
+    @Deprecated("Utgår") OMSORGSPENGER_UT_SNF, // Omsorgspenger utbetaling snf
+    OMSORGSPENGER_UTBETALING_SNF, // Omsorgspenger utbetaling snf
     OMSORGSPENGER_UT_ARBEIDSTAKER, // Omsorgspenger utbetaling arbeidstaker
     PLEIEPENGER_LIVETS_SLUTTFASE,
     PLEIEPENGER_SYKT_BARN
