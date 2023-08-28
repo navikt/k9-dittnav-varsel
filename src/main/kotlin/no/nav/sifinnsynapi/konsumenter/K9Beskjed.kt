@@ -44,7 +44,8 @@ enum class Ytelse{
     OMSORGSPENGER_UTBETALING_SNF, // Omsorgspenger utbetaling snf
     OMSORGSPENGER_UT_ARBEIDSTAKER, // Omsorgspenger utbetaling arbeidstaker
     PLEIEPENGER_LIVETS_SLUTTFASE,
-    PLEIEPENGER_SYKT_BARN
+    PLEIEPENGER_SYKT_BARN,
+    ENDRINGSMELDING_PLEIEPENGER_SYKT_BARN
 }
 
 data class Metadata @JsonCreator constructor(
