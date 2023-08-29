@@ -1,7 +1,6 @@
 package no.nav.sifinnsynapi.utils
 
 import no.nav.sifinnsynapi.konsumenter.K9Beskjed
-import no.nav.sifinnsynapi.konsumenter.K9Utkast
 import no.nav.sifinnsynapi.konsumenter.Metadata
 import no.nav.sifinnsynapi.konsumenter.Ytelse
 import java.util.*
@@ -23,14 +22,25 @@ fun gyldigK9Beskjed(tekst: String, link: String? = null, ytelse: Ytelse? = null)
     )
 }
 
-fun gyldigK9Utkast(utkast: String, ytelse: Ytelse): K9Utkast {
-    return K9Utkast(
-        metadata = Metadata(
-            version = 1,
-            correlationId = UUID.randomUUID().toString(),
-            requestId = UUID.randomUUID().toString()
-        ),
-        ytelse = ytelse,
-        utkast = utkast
-    )
+fun gyldigK9Utkast(utkastId: String, ytelse: Ytelse): String {
+    //language=json
+    return """
+    {
+      "metadata": {
+        "correlationId": "${UUID.randomUUID()}",
+        "version": 1
+      },
+      "ytelse": "${ytelse.name}",
+      "utkast": {
+        "utkastId": "$utkastId",
+        "@event_name": "created",
+        "@origin": "k9-brukerdialog-cache",
+        "ident": "12345678910",
+        "tittel": "Søknad om pleiepenger for sykt barn",
+        "tittel_i18n": "{}",
+        "link": "https://www.nav.no/familie/sykdom-i-familien/soknad/pleiepenger",
+        "metrics": "{}"
+      }
+    }
+    """.trimIndent()
 }

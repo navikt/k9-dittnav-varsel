@@ -22,6 +22,11 @@ fun EmbeddedKafkaBroker.opprettKafkaProducer(): Producer<String, Any> {
 
 fun <T> Producer<String, Any>.leggPåTopic(data: T, topic: String, mapper: ObjectMapper) {
     requireNotNull(data)
+    if (data is String) {
+        this.send(ProducerRecord(topic, data))
+        this.flush()
+        return
+    }
     this.send(ProducerRecord(topic, data.somJson(mapper)))
     this.flush()
 }
@@ -30,7 +35,8 @@ fun <K, V> EmbeddedKafkaBroker.opprettKafkaConsumer(groupId: String, topicName: 
 
     val consumerProps = KafkaTestUtils.consumerProps(groupId, "true", this)
     consumerProps[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = "io.confluent.kafka.serializers.KafkaAvroDeserializer"
-    consumerProps[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = "io.confluent.kafka.serializers.KafkaAvroDeserializer"
+    consumerProps[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] =
+        "io.confluent.kafka.serializers.KafkaAvroDeserializer"
     consumerProps[KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG] = "true"
     consumerProps[AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG] = "mock://localhost"
 
@@ -41,7 +47,7 @@ fun <K, V> EmbeddedKafkaBroker.opprettKafkaConsumer(groupId: String, topicName: 
 
 fun <K, V> Consumer<K, V>.hentMelding(
     topic: String,
-    keyPredicate: (K) -> Boolean
+    keyPredicate: (K) -> Boolean,
 ): ConsumerRecord<K, V>? {
     val end = System.currentTimeMillis() + Duration.ofSeconds(10).toMillis()
     seekToBeginning(assignment())

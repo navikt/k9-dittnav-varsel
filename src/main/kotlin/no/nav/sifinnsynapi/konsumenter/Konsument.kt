@@ -10,10 +10,10 @@ import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Service
 
 @Service
-class K9BeskjedKonsument(
+class Konsument(
     private val dittnavService: DittnavService,
 ) {
-    private val logger = LoggerFactory.getLogger(K9BeskjedKonsument::class.java)
+    private val logger = LoggerFactory.getLogger(Konsument::class.java)
 
     @KafkaListener(
         topics = [K9_DITTNAV_VARSEL_BESKJED],
@@ -39,10 +39,11 @@ class K9BeskjedKonsument(
         containerFactory = "utkastKafkaJsonListenerContainerFactory"
     )
     fun konsumerUtkst(@Payload utkast: K9Utkast) {
-        val utkastId = JSONObject(utkast.utkast).getString("utkastId")
+        val utkastJson = JSONObject(utkast.utkast)
+        val utkastId = utkastJson.getString("utkastId")
         logger.info("DEBUG: {}", utkast.utkast) // TODO: Fjern før produksjon
         logger.info("Mottok K9Utkast fra ytelse {} med utkastId: {}", utkast.ytelse, utkastId)
 
-        dittnavService.sendUtkast(utkastId, utkast.utkast)
+        dittnavService.sendUtkast(utkastId, utkastJson.toString())
     }
 }

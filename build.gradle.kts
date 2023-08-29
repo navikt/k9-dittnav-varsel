@@ -58,7 +58,6 @@ dependencies {
 
     // NAV
     implementation("com.github.navikt:brukernotifikasjon-schemas:$brukernotifikasjonVersion")
-    implementation("com.github.navikt:tms-utkast:20230808103449-2eb1848")
 
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-actuator")

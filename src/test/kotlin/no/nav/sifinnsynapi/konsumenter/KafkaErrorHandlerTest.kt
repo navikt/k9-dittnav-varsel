@@ -11,8 +11,12 @@ import no.nav.sifinnsynapi.config.Topics.DITT_NAV_UTKAST
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_BESKJED
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_UTKAST
 import no.nav.sifinnsynapi.dittnav.DittnavService
-import no.nav.sifinnsynapi.utils.*
-import no.nav.tms.utkast.builder.UtkastJsonBuilder
+import no.nav.sifinnsynapi.utils.gyldigK9Beskjed
+import no.nav.sifinnsynapi.utils.gyldigK9Utkast
+import no.nav.sifinnsynapi.utils.hentMelding
+import no.nav.sifinnsynapi.utils.leggPåTopic
+import no.nav.sifinnsynapi.utils.opprettKafkaConsumer
+import no.nav.sifinnsynapi.utils.opprettKafkaProducer
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.Producer
 import org.awaitility.kotlin.await
@@ -99,16 +103,9 @@ class KafkaErrorHandlerTest {
     fun `Sender utkast hvor dittnavService feiler, forvent at SeekToCurrentErrorHandler prøver igjen minst 10 ganger`() {
         mockDittnavServiceUtkastFailure()
 
-        // legg på 1 hendelse om mottatt søknad
         val utkastId = UUID.randomUUID().toString()
-        produserK9Utkast(
-            UtkastJsonBuilder()
-                .withUtkastId(utkastId)
-                .withIdent("12345678910")
-                .withTittel("Søknad om pleiepenger sykt barn")
-                .withLink("https://www.nav.no/familie/sykdom-i-familien/soknad/pleiepenger/soknad")
-                .create()
-        )
+
+        producer.leggPåTopic(gyldigK9Utkast(utkastId, Ytelse.PLEIEPENGER_SYKT_BARN), K9_DITTNAV_VARSEL_UTKAST, mapper)
 
         awaitAndAssertNull { utkastConsumer.hentMelding(DITT_NAV_UTKAST) { it == utkastId }?.value() }
 
@@ -123,14 +120,6 @@ class KafkaErrorHandlerTest {
 
     private fun mockDittnavServiceUtkastFailure() {
         every { dittnavService.sendUtkast(any(), any()) } throws Exception(MOCKED_ERROR_MESSAGE)
-    }
-
-    private fun produserK9Utkast(utkast: String) {
-        val k9Utkast = gyldigK9Utkast(
-            utkast, Ytelse.PLEIEPENGER_SYKT_BARN
-        )
-
-        producer.leggPåTopic(k9Utkast, K9_DITTNAV_VARSEL_UTKAST, mapper)
     }
 
     private fun awaitAndAssertNull(valueProvider: () -> Any?) {

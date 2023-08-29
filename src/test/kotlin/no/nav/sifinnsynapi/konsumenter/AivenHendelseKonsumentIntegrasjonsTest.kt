@@ -8,17 +8,22 @@ import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_UTKAST
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_BESKJED
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_UTKAST
-import no.nav.sifinnsynapi.utils.*
-import no.nav.tms.utkast.builder.UtkastJsonBuilder
+import no.nav.sifinnsynapi.utils.gyldigK9Beskjed
+import no.nav.sifinnsynapi.utils.gyldigK9Utkast
+import no.nav.sifinnsynapi.utils.hentMelding
+import no.nav.sifinnsynapi.utils.leggPåTopic
+import no.nav.sifinnsynapi.utils.opprettKafkaConsumer
+import no.nav.sifinnsynapi.utils.opprettKafkaProducer
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.Producer
-import org.awaitility.kotlin.await
+import org.json.JSONObject
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.kafka.test.EmbeddedKafkaBroker
@@ -27,7 +32,6 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 @EmbeddedKafka( // Setter opp og tilgjengligjør embeded kafka broker
     topics = [K9_DITTNAV_VARSEL_BESKJED, DITT_NAV_BESKJED, K9_DITTNAV_VARSEL_UTKAST, DITT_NAV_UTKAST],
@@ -52,6 +56,9 @@ class AivenK9BeskjedKonsumentIntegrasjonsTest {
     lateinit var beskjedConsumer: Consumer<NokkelInput, BeskjedInput> // Kafka consumer som brukes til å lese kafka meldinger.
     lateinit var utkastConsumer: Consumer<String, String> // Kafka consumer som brukes til å lese utkaster.
 
+    private companion object {
+        val logger = LoggerFactory.getLogger(AivenK9BeskjedKonsumentIntegrasjonsTest::class.java)
+    }
 
     @BeforeAll
     fun setUp() {
@@ -174,21 +181,16 @@ class AivenK9BeskjedKonsumentIntegrasjonsTest {
     @Test
     fun `Legger utkast på topic og forventer riktig dittnav utkast`() {
 
-        // legg på 1 hendelse om mottatt søknad
         val utkastId = UUID.randomUUID().toString()
-        val utkast = gyldigK9Utkast(
-            UtkastJsonBuilder()
-                .withUtkastId(utkastId)
-                .withIdent("12345678910")
-                .withTittel("Søknad om pleiepenger sykt barn")
-                .withLink("https://www.nav.no/familie/sykdom-i-familien/soknad/pleiepenger/soknad")
-                .create(), Ytelse.PLEIEPENGER_SYKT_BARN
-        )
 
-        producer.leggPåTopic(utkast, Topics.K9_DITTNAV_VARSEL_UTKAST, mapper)
+        //language=JSON
+        val utkast = gyldigK9Utkast(utkastId, Ytelse.PLEIEPENGER_SYKT_BARN)
+
+        producer.leggPåTopic(utkast, K9_DITTNAV_VARSEL_UTKAST, mapper)
 
         val konsumertUtkast = utkastConsumer.hentMelding(DITT_NAV_UTKAST) { it == utkastId }?.value()
-        validerRiktigUtkast(utkast.utkast, konsumertUtkast)
+        logger.info("Produsert utkast" + JSONObject(konsumertUtkast).toString(2))
+        validerRiktigUtkast(utkast, konsumertUtkast)
     }
 }
 
@@ -201,5 +203,5 @@ fun validerRiktigBrukernotifikasjon(k9Beskjed: K9Beskjed, brukernotifikasjon: Be
 
 fun validerRiktigUtkast(utkast: String, konsumertUtkast: String?) {
     assertTrue(konsumertUtkast != null)
-    assertTrue(utkast == konsumertUtkast)
+    assertTrue(JSONObject(utkast).getJSONObject("utkast").toString() == konsumertUtkast)
 }
