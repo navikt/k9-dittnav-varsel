@@ -41,6 +41,7 @@ class DittnavService(
                 )
                 throw ex
             }.thenAccept {
+                logger.info("DEBUG: {}", it.producerRecord.value()) // TODO: Fjern før produksjon
                 logger.info("Sender utkast videre til ${DITT_NAV_UTKAST}.")
             }
     }
