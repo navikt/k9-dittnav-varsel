@@ -9,6 +9,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.common.serialization.StringDeserializer
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaProducerFactory
@@ -31,7 +32,7 @@ fun <T> Producer<String, Any>.leggPåTopic(data: T, topic: String, mapper: Objec
     this.flush()
 }
 
-fun <K, V> EmbeddedKafkaBroker.opprettKafkaConsumer(groupId: String, topicName: String): Consumer<K, V> {
+fun <K, V> EmbeddedKafkaBroker.opprettKafkaAvroConsumer(groupId: String, topicName: String): Consumer<K, V> {
 
     val consumerProps = KafkaTestUtils.consumerProps(groupId, "true", this)
     consumerProps[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = "io.confluent.kafka.serializers.KafkaAvroDeserializer"
@@ -39,6 +40,17 @@ fun <K, V> EmbeddedKafkaBroker.opprettKafkaConsumer(groupId: String, topicName: 
         "io.confluent.kafka.serializers.KafkaAvroDeserializer"
     consumerProps[KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG] = "true"
     consumerProps[AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG] = "mock://localhost"
+
+    val consumer = DefaultKafkaConsumerFactory<K, V>(HashMap(consumerProps)).createConsumer()
+    consumer.subscribe(listOf(topicName))
+    return consumer
+}
+
+fun <K, V> EmbeddedKafkaBroker.opprettKafkaStringConsumer(groupId: String, topicName: String): Consumer<K, V> {
+
+    val consumerProps = KafkaTestUtils.consumerProps(groupId, "true", this)
+    consumerProps[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
+    consumerProps[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
 
     val consumer = DefaultKafkaConsumerFactory<K, V>(HashMap(consumerProps)).createConsumer()
     consumer.subscribe(listOf(topicName))

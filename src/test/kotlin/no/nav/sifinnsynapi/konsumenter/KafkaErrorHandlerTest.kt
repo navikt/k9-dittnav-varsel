@@ -15,7 +15,7 @@ import no.nav.sifinnsynapi.utils.gyldigK9Beskjed
 import no.nav.sifinnsynapi.utils.gyldigK9Utkast
 import no.nav.sifinnsynapi.utils.hentMelding
 import no.nav.sifinnsynapi.utils.leggPåTopic
-import no.nav.sifinnsynapi.utils.opprettKafkaConsumer
+import no.nav.sifinnsynapi.utils.opprettKafkaAvroConsumer
 import no.nav.sifinnsynapi.utils.opprettKafkaProducer
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.Producer
@@ -66,9 +66,9 @@ class KafkaErrorHandlerTest {
     fun setUp() {
         producer = embeddedKafkaBroker.opprettKafkaProducer()
         beskjedConsumer =
-            embeddedKafkaBroker.opprettKafkaConsumer(groupId = "beskjed-consumer", topicName = DITT_NAV_BESKJED)
+            embeddedKafkaBroker.opprettKafkaAvroConsumer(groupId = "beskjed-consumer", topicName = DITT_NAV_BESKJED)
         utkastConsumer =
-            embeddedKafkaBroker.opprettKafkaConsumer(groupId = "utkast-consumer", topicName = DITT_NAV_UTKAST)
+            embeddedKafkaBroker.opprettKafkaAvroConsumer(groupId = "utkast-consumer", topicName = DITT_NAV_UTKAST)
     }
 
     @AfterAll

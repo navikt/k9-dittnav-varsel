@@ -9,6 +9,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.config.SslConfigs
+import org.apache.kafka.common.serialization.StringSerializer
 import org.slf4j.Logger
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
@@ -60,7 +61,7 @@ class CommonKafkaConfig {
             )
         }
 
-        fun <K, V> producerFactory(kafkaConfigProps: KafkaConfigProperties): ProducerFactory<K, V> {
+        fun <K, V> avroProducerFactory(kafkaConfigProps: KafkaConfigProperties): ProducerFactory<K, V> {
             val producerProps = kafkaConfigProps.producer
             return DefaultKafkaProducerFactory(
                 mutableMapOf<String, Any>(
@@ -74,6 +75,19 @@ class CommonKafkaConfig {
                 ) + commonConfig(kafkaConfigProps)
             )
         }
+
+        fun <K, V> stringProducerFactory(kafkaConfigProps: KafkaConfigProperties): ProducerFactory<K, V> {
+            val producerProps = kafkaConfigProps.producer
+            return DefaultKafkaProducerFactory(
+                mutableMapOf<String, Any>(
+                    ProducerConfig.CLIENT_ID_CONFIG to producerProps.clientId,
+                    ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
+                    ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
+                    ProducerConfig.RETRIES_CONFIG to producerProps.retries
+                ) + commonConfig(kafkaConfigProps)
+            )
+        }
+
 
         fun <K, V> kafkaTemplate(producerFactory: ProducerFactory<K, V>) = KafkaTemplate<K, V>(producerFactory)
 

@@ -3,7 +3,6 @@ package no.nav.sifinnsynapi.konsumenter
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
 import no.nav.brukernotifikasjon.schemas.input.NokkelInput
-import no.nav.sifinnsynapi.config.Topics
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_UTKAST
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_BESKJED
@@ -12,8 +11,9 @@ import no.nav.sifinnsynapi.utils.gyldigK9Beskjed
 import no.nav.sifinnsynapi.utils.gyldigK9Utkast
 import no.nav.sifinnsynapi.utils.hentMelding
 import no.nav.sifinnsynapi.utils.leggPåTopic
-import no.nav.sifinnsynapi.utils.opprettKafkaConsumer
+import no.nav.sifinnsynapi.utils.opprettKafkaAvroConsumer
 import no.nav.sifinnsynapi.utils.opprettKafkaProducer
+import no.nav.sifinnsynapi.utils.opprettKafkaStringConsumer
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.Producer
 import org.json.JSONObject
@@ -64,9 +64,9 @@ class AivenK9BeskjedKonsumentIntegrasjonsTest {
     fun setUp() {
         producer = embeddedKafkaBroker.opprettKafkaProducer()
         beskjedConsumer =
-            embeddedKafkaBroker.opprettKafkaConsumer(groupId = "beskjed-consumer", topicName = DITT_NAV_BESKJED)
+            embeddedKafkaBroker.opprettKafkaAvroConsumer(groupId = "beskjed-consumer", topicName = DITT_NAV_BESKJED)
         utkastConsumer =
-            embeddedKafkaBroker.opprettKafkaConsumer(groupId = "utkast-consumer", topicName = DITT_NAV_UTKAST)
+            embeddedKafkaBroker.opprettKafkaStringConsumer(groupId = "utkast-consumer", topicName = DITT_NAV_UTKAST)
     }
 
     @AfterAll

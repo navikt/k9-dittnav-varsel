@@ -3,9 +3,10 @@ package no.nav.sifinnsynapi.config
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
 import no.nav.brukernotifikasjon.schemas.input.NokkelInput
+import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.avroProducerFactory
 import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.configureConcurrentKafkaListenerContainerFactory
 import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.consumerFactory
-import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.producerFactory
+import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.stringProducerFactory
 import no.nav.sifinnsynapi.konsumenter.K9Beskjed
 import no.nav.sifinnsynapi.konsumenter.K9Utkast
 import org.slf4j.LoggerFactory
@@ -30,11 +31,11 @@ class AivenKafkaConfig(
     fun consumerFactory(): ConsumerFactory<String, String> = consumerFactory(kafkaClusterProperties.aiven)
 
     @Bean
-    fun producerFactory(): ProducerFactory<String, String> = producerFactory(kafkaClusterProperties.aiven)
+    fun producerFactory(): ProducerFactory<String, String> = stringProducerFactory(kafkaClusterProperties.aiven)
 
     @Bean
     fun beskjedProducerFactory(): ProducerFactory<NokkelInput, BeskjedInput> =
-        producerFactory(kafkaClusterProperties.aiven)
+        avroProducerFactory(kafkaClusterProperties.aiven)
 
     @Bean
     fun beskjedKafkaTemplate(beskjedProducerFactory: ProducerFactory<NokkelInput, BeskjedInput>): KafkaTemplate<NokkelInput, BeskjedInput> =
