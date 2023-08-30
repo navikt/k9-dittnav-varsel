@@ -33,6 +33,7 @@ enum class Ytelse{
     OMSORGSDAGER_MELDING_KORONA,
     OMSORGSDAGER_MELDING_FORDELE,
     ETTERSENDING_PLEIEPENGER_SYKT_BARN,
+    ETTERSENDING_PLEIEPENGER_LIVETS_SLUTTFASE,
     ETTERSENDING_OMP_UTV_KS, // Ettersending - Omsorgspenger utvidet rett - kronisk syke eller funksjonshemming.
     ETTERSENDING_OMP_UT_SNF, // Ettersending - Omsorgspenger utbetaling SNF ytelse.
     ETTERSENDING_OMP_UT_ARBEIDSTAKER, // Ettersending - Omsorgspenger utbetaling arbeidstaker ytelse.
