@@ -18,13 +18,13 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
 
 @Configuration
-class AivenKafkaConfig(
+class KafkaConfig(
     private val objectMapper: ObjectMapper,
     private val kafkaClusterProperties: KafkaClusterProperties,
 ) {
 
     companion object {
-        private val logger = LoggerFactory.getLogger(AivenKafkaConfig::class.java)
+        private val logger = LoggerFactory.getLogger(KafkaConfig::class.java)
     }
 
     @Bean
@@ -61,11 +61,11 @@ class AivenKafkaConfig(
 
     @Bean
     fun utkastKafkaJsonListenerContainerFactory(
-        aivenConsumerFactory: ConsumerFactory<String, String>,
+        consumerFactory: ConsumerFactory<String, String>,
         kafkaTemplate: KafkaTemplate<String, String>,
     ): ConcurrentKafkaListenerContainerFactory<String, String> =
         configureConcurrentKafkaListenerContainerFactory<K9Utkast>(
-            consumerFactory = aivenConsumerFactory,
+            consumerFactory = consumerFactory,
             kafkaTemplate = kafkaTemplate,
             retryInterval = kafkaClusterProperties.aiven.consumer.retryInterval,
             objectMapper = objectMapper,

@@ -21,13 +21,13 @@ class Konsument(
         groupId = "#{'\${kafka.aiven.consumer.group-id}'}",
         containerFactory = "beskjedKafkaJsonListenerContainerFactory"
     )
-    fun konsumerAiven(@Payload melding: K9Beskjed) {
+    fun konsumerBeskjed(@Payload melding: K9Beskjed) {
         if (melding.ytelse != null) logger.info(
-            "AIVEN - Mottok K9Beskjed fra ytelse {} med eventID: {}, event: :{}",
+            "Mottok K9Beskjed fra ytelse {} med eventID: {}, event: :{}",
             melding.ytelse,
             melding.eventId,
             melding
-        ) else logger.info("AIVEN - Mottok K9Beskjed med eventID: {}, event: :{}", melding.eventId, melding)
+        ) else logger.info("Mottok K9Beskjed med eventID: {}, event: :{}", melding.eventId, melding)
 
         dittnavService.sendBeskjed(melding.somNøkkel(), melding.somBeskjed())
     }

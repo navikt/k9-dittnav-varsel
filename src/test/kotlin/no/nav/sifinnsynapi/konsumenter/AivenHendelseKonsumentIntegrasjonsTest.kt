@@ -43,7 +43,7 @@ import java.util.*
 @DirtiesContext
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT) // Integrasjonstest - Kjører opp hele Spring Context med alle konfigurerte beans.
-class AivenK9BeskjedKonsumentIntegrasjonsTest {
+class KonsumentIntegrasjonsTest {
 
     @Autowired
     lateinit var mapper: ObjectMapper
@@ -53,11 +53,11 @@ class AivenK9BeskjedKonsumentIntegrasjonsTest {
     private lateinit var embeddedKafkaBroker: EmbeddedKafkaBroker // Broker som brukes til å konfigurere opp en kafka producer.
 
     lateinit var producer: Producer<String, Any> // Kafka producer som brukes til å legge på kafka meldinger.
-    lateinit var beskjedConsumer: Consumer<NokkelInput, BeskjedInput> // Kafka consumer som brukes til å lese kafka meldinger.
+    lateinit var beskjedConsumer: Consumer<NokkelInput, BeskjedInput> // Kafka consumer som brukes til å lese beskjeder.
     lateinit var utkastConsumer: Consumer<String, String> // Kafka consumer som brukes til å lese utkaster.
 
     private companion object {
-        val logger = LoggerFactory.getLogger(AivenK9BeskjedKonsumentIntegrasjonsTest::class.java)
+        val logger = LoggerFactory.getLogger(KonsumentIntegrasjonsTest::class.java)
     }
 
     @BeforeAll
