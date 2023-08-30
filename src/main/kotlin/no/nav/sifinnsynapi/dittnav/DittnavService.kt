@@ -23,7 +23,7 @@ class DittnavService(
                 logger.warn("Kunne ikke sende melding {} på {}", nøkkel.getEventId(), DITT_NAV_BESKJED, ex)
                 throw ex
             }.thenAccept {
-                logger.info("Sender beskjed videre til ${DITT_NAV_BESKJED} med eventId ${nøkkel.getEventId()}")
+                logger.info("Beskjed sendt til ${DITT_NAV_BESKJED} med eventId ${nøkkel.getEventId()}")
             }
     }
 
