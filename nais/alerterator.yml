@@ -90,3 +90,13 @@ spec:
           labels:
             namespace: {{namespace}}
             severity: danger
+
+        - alert: Publisering av meldinger feiler
+          expr: ceil(increase(spring_kafka_template_seconds_count{result="failure", app="{{app}}"}[3m])) > 0
+          for: 1m
+          annotations:
+            summary: "Publisering av melding med \{{ $labels.name }} feiler med  \{{ $labels.exception }}. Sjekk loggene for å finne ut hvorfor dette feiler."
+            action: "`kubectl logs \{{ $labels.pod }} -n \{{ $labels.namespace }} -c \{{ $labels.app }}`"
+          labels:
+            namespace: {{namespace}}
+            severity: danger
