@@ -21,3 +21,26 @@ fun gyldigK9Beskjed(tekst: String, link: String? = null, ytelse: Ytelse? = null)
         ytelse = ytelse
     )
 }
+
+fun gyldigK9Utkast(utkastId: String, ytelse: Ytelse): String {
+    //language=json
+    return """
+    {
+      "metadata": {
+        "correlationId": "${UUID.randomUUID()}",
+        "version": 1
+      },
+      "ytelse": "${ytelse.name}",
+      "utkast": {
+        "utkastId": "$utkastId",
+        "@event_name": "created",
+        "@origin": "k9-brukerdialog-cache",
+        "ident": "12345678910",
+        "tittel": "Søknad om pleiepenger for sykt barn",
+        "tittel_i18n": "{}",
+        "link": "https://www.nav.no/familie/sykdom-i-familien/soknad/pleiepenger",
+        "metrics": "{}"
+      }
+    }
+    """.trimIndent()
+}

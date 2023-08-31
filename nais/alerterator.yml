@@ -1,45 +1,82 @@
-apiVersion: nais.io/v1
-kind: Alert
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
 metadata:
   name: {{app}}-alerts
+  namespace: {{namespace}}
   labels:
     team: {{team}}
-  namespace: {{namespace}}
 spec:
-  receivers:
-    slack:
-      channel: {{slack-channel}}
-      prependText: "{{{slack-notify-type}}}"
-  alerts:
-    - alert: Applikasjon nede
-      severity: danger
-      expr: kube_deployment_status_replicas_available{deployment="{{app}}"} == 0
-      for: 2m
-      description: "App \{{ $labels.app }} er nede i namespace \{{ $labels.kubernetes_namespace }}"
-      action: "`kubectl describe pod \{{ $labels.kubernetes_pod_name }} -n \{{ $labels.kubernetes_namespace }} -c \{{ $labels.app }}` for events, og `kubectl logs \{{ $labels.kubernetes_pod_name }} -n \{{ $labels.kubernetes_namespace }} -c \{{ $labels.app }}` for logger"
+  groups:
+    - name: {{app}}-alerts
+      rules:
+        - alert: Applikasjon nede
+          expr: kube_deployment_status_replicas_available{deployment="{{app}}"} == 0
+          for: 5m
+          annotations:
+            consequence: Ingen varslinger blir sendt
+            action: "`kubectl describe pod <podname>` -> `kubectl logs <podname>`"
+            summary: "App \{{ $labels.deployment }} er nede i namespace \{{ $labels.namespace }}"
+          labels:
+            namespace: {{namespace}}
+            severity: danger
 
-    - alert: høy andel error i logger
-      severity: danger
-      expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="{{app}}",log_level=~"Error"}[3m])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="{{app}}"}[3m]))) > 1
-      for: 3m
-      action: "Sjekk loggene til app \{{ $labels.log_app }} i namespace \{{ $labels.log_namespace }}, for å se hvorfor det er så mye feil"
+        - alert: Høy andel error i logger
+          expr: sum by (app, container, pod, namespace) (floor(increase(logback_events_total{app="{{app}}", level="error"} [3m]))) > 0
+          for: 5m
+          annotations:
+            action: "`kubectl logs \{{ $labels.pod }} -c \{{ $labels.container }} -n \{{ $labels.namespace }}`"
+            summary: "Høy andel error i logger for app \{{ $labels.app }} feiler med \{{ $labels.exception }} i namespace \{{ $labels.namespace }}"
+          labels:
+            namespace: {{namespace}}
+            severity: danger
 
-    - alert: høy andel warnings i logger
-      severity: warning
-      expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="{{app}}",log_level=~"Warning"}[3m])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="{{app}}"}[3m]))) > 10
-      for: 3m
-      action: "Sjekk loggene til app \{{ $labels.log_app }} i namespace \{{ $labels.log_namespace }}, for å se hvorfor det er så mye feil"
+        - alert: Høy andel warning i logger
+          expr: sum by (app, container, pod, namespace) (floor(increase(logback_events_total{app="{{app}}", level="warning"} [3m]))) > 0
+          for: 5m
+          annotations:
+            action: "`kubectl logs \{{ $labels.pod }} -c \{{ $labels.container }} -n \{{ $labels.namespace }}`"
+            summary: "Høy andel warning i logger for app \{{ $labels.app }} feiler med \{{ $labels.exception }} i namespace \{{ $labels.namespace }}"
+          labels:
+            namespace: {{namespace}}
+            severity: warning
 
-    - alert: "\{{ $labels.name }} feiler i \{{ $labels.app }}."
-      severity: danger
-      expr: floor(increase(spring_kafka_listener_seconds_count{result="failure", app="{{app}}"}[3m])) > 0
-      for: 1m
-      description: "Konsumering av melding i \{{ $labels.name }} feiler. Sjekk loggene for å finne ut hvorfor dette feiler."
-      action: "`kubectl logs \{{ $labels.kubernetes_pod_name }} -n \{{ $labels.kubernetes_namespace }} -c \{{ $labels.app }}`"
+        - alert: Høy andel HTTP serverfeil (5xx responser)
+          expr: floor(increase(http_server_requests_seconds_count{status=~"5.*", app="{{app}}"}[3m])) > 1
+          for: 1m
+          annotations:
+            summary: "Følgende request feilet: `Status \{{ $labels.status }} - \{{ $labels.method }} \{{ $labels.route }}`.\n
+                        Grunn:\n ```\{{ $labels.problem_details }}```\n
+                        Sjekk loggene for å se hvorfor dette feiler."
+            action: "`kubectl logs \{{ $labels.pod }} -n \{{ $labels.namespace }} -c \{{ $labels.app }}`"
+          labels:
+            namespace: {{namespace}}
+            severity: danger
 
-    - alert: Helsesjekk feiler
-      expr: floor(increase(http_server_requests_seconds_count{status!~"200", uri="/actuator/health", app="{{app}}"}[3m])) > 0
-      severity: warning
-      for: 2m
-      desription: "Sjekk loggene for å se hvorfor helsesjekken feiler.`"
-      action: "`kubectl logs \{{ $labels.kubernetes_pod_name }} -n \{{ $labels.kubernetes_namespace }} -c \{{ $labels.app }}`"
+        - alert: Høy andel HTTP klientfeil (4xx responser)
+          severity: danger
+          expr: floor(increase(http_server_requests_seconds_count{status=~"4.*", status!~"404|401|403|451", app="{{app}}"}[3m])) > 0
+          for: 1m
+          description: "Følgende request feilet: `Status \{{ $labels.status }} - \{{ $labels.method }} \{{ $labels.route }}`.\n
+                    Grunn:\n ```\{{ $labels.problem_details }}```\n
+                    Sjekk loggene for å se hvorfor dette feiler"
+          action: "`kubectl logs \{{ $labels.pod }} -n \{{ $labels.namespace }} -c \{{ $labels.app }}`"
+
+        - alert: Konsumering av meldinger feiler
+          expr: ceil(increase(spring_kafka_listener_seconds_count{result="failure", app="{{app}}"}[3m])) > 0
+          for: 1m
+          annotations:
+            summary: "Konsumering av melding i \{{ $labels.name }} feiler. Sjekk loggene for å finne ut hvorfor dette feiler."
+            action: "`kubectl logs \{{ $labels.pod }} -n \{{ $labels.namespace }} -c \{{ $labels.app }}`"
+          labels:
+            namespace: {{namespace}}
+            severity: danger
+
+        - alert: Helsesjekk feiler
+          expr: floor(increase(http_server_requests_seconds_count{status!~"200", uri="/actuator/health", app="{{app}}"}[3m])) > 0
+          for: 2m
+          annotations:
+            summary: "Sjekk loggene for å se hvorfor helsesjekken feiler.`"
+            action: "`kubectl logs \{{ $labels.pod }} -n \{{ $labels.namespace }} -c \{{ $labels.app }}`"
+          labels:
+            namespace: {{namespace}}
+            severity: danger
