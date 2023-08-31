@@ -43,7 +43,8 @@ enum class Ytelse{
     OMSORGSPENGER_UTVIDET_RETT, // Omsorgspenger utvidet rett - kronisk syke eller funksjonshemming.
     @Deprecated("Utgår") OMSORGSPENGER_UT_SNF, // Omsorgspenger utbetaling snf
     OMSORGSPENGER_UTBETALING_SNF, // Omsorgspenger utbetaling snf
-    OMSORGSPENGER_UT_ARBEIDSTAKER, // Omsorgspenger utbetaling arbeidstaker
+    @Deprecated("Utgår") OMSORGSPENGER_UT_ARBEIDSTAKER, // Omsorgspenger utbetaling arbeidstaker,
+    OMSORGSPENGER_UTBETALING_ARBEIDSTAKER,
     PLEIEPENGER_LIVETS_SLUTTFASE,
     PLEIEPENGER_SYKT_BARN,
     ENDRINGSMELDING_PLEIEPENGER_SYKT_BARN
