@@ -7,16 +7,20 @@ import io.mockk.verify
 import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
 import no.nav.brukernotifikasjon.schemas.input.NokkelInput
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED
+import no.nav.sifinnsynapi.config.Topics.DITT_NAV_MICROFRONTEND
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_UTKAST
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_BESKJED
+import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_MICROFRONTEND
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_UTKAST
 import no.nav.sifinnsynapi.dittnav.DittnavService
 import no.nav.sifinnsynapi.utils.gyldigK9Beskjed
+import no.nav.sifinnsynapi.utils.gyldigK9Microfrontend
 import no.nav.sifinnsynapi.utils.gyldigK9Utkast
 import no.nav.sifinnsynapi.utils.hentMelding
 import no.nav.sifinnsynapi.utils.leggPåTopic
 import no.nav.sifinnsynapi.utils.opprettKafkaAvroConsumer
 import no.nav.sifinnsynapi.utils.opprettKafkaProducer
+import no.nav.tms.microfrontend.Sensitivitet
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.Producer
 import org.awaitility.kotlin.await
@@ -37,7 +41,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 @EmbeddedKafka( // Setter opp og tilgjengligjør embeded kafka broker
-    topics = [K9_DITTNAV_VARSEL_BESKJED, DITT_NAV_BESKJED, K9_DITTNAV_VARSEL_UTKAST, DITT_NAV_UTKAST],
+    topics = [K9_DITTNAV_VARSEL_BESKJED, DITT_NAV_BESKJED, K9_DITTNAV_VARSEL_UTKAST, DITT_NAV_UTKAST, K9_DITTNAV_VARSEL_MICROFRONTEND, DITT_NAV_MICROFRONTEND],
     count = 3,
     bootstrapServersProperty = "kafka-servers" // Setter bootstrap-servers for consumer og producer.
 )
@@ -111,6 +115,26 @@ class KafkaErrorHandlerTest {
 
         verify(atLeast = 10) {
             dittnavService.sendUtkast(any(), any())
+        }
+    }
+
+    @Test
+    fun `Sender microfrontend event hvor dittnavService feiler, forvent at SeekToCurrentErrorHandler prøver igjen minst 10 ganger`() {
+        mockDittnavServiceUtkastFailure()
+
+        val correlationId = UUID.randomUUID().toString()
+
+        producer.leggPåTopic(gyldigK9Microfrontend(
+            correlationId = correlationId,
+            ident = "12345678910",
+            action = MicrofrontendAction.ENABLE,
+            sensitivitet = Sensitivitet.HIGH,
+        ), K9_DITTNAV_VARSEL_MICROFRONTEND, mapper)
+
+        awaitAndAssertNull { utkastConsumer.hentMelding(DITT_NAV_MICROFRONTEND) { it == correlationId }?.value() }
+
+        verify(atLeast = 10) {
+            dittnavService.toggleMicrofrontend(any(), any())
         }
     }
 
