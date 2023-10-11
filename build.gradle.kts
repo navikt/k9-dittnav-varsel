@@ -58,6 +58,7 @@ dependencies {
 
     // NAV
     implementation("com.github.navikt:brukernotifikasjon-schemas:$brukernotifikasjonVersion")
+    implementation("com.github.navikt:tms-mikrofrontend-selector:20230912102330-b4690df")
 
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-actuator")

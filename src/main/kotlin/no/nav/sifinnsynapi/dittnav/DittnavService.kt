@@ -3,6 +3,7 @@ package no.nav.sifinnsynapi.dittnav
 import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
 import no.nav.brukernotifikasjon.schemas.input.NokkelInput
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED
+import no.nav.sifinnsynapi.config.Topics.DITT_NAV_MICROFRONTEND
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_UTKAST
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.json.JSONObject
@@ -36,6 +37,18 @@ class DittnavService(
                 val anonymisertUtkast = JSONObject(it.producerRecord.value())
                 anonymisertUtkast.remove("ident") // Fjerner ident fra utkastet før det logges.
                 logger.info("Utkast sendt til ${DITT_NAV_UTKAST}. {}", anonymisertUtkast)
+            }
+    }
+
+    fun toggleMicrofrontend(mikrofrontendId: String, mikrofrontend: String) {
+        kafkaTemplate.send(ProducerRecord(DITT_NAV_MICROFRONTEND, mikrofrontendId,  mikrofrontend))
+            .exceptionally { ex: Throwable ->
+                logger.warn("Kunne ikke sende microfrontend event til {}", DITT_NAV_MICROFRONTEND, ex)
+                throw ex
+            }.thenAccept {
+                val anonymisertUtkast = JSONObject(it.producerRecord.value())
+                anonymisertUtkast.remove("ident") // Fjerner ident fra microfrontend event før det logges.
+                logger.info("Microfrontend event sendt til ${DITT_NAV_MICROFRONTEND}. {}", anonymisertUtkast)
             }
     }
 }

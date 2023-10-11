@@ -2,7 +2,10 @@ package no.nav.sifinnsynapi.utils
 
 import no.nav.sifinnsynapi.konsumenter.K9Beskjed
 import no.nav.sifinnsynapi.konsumenter.Metadata
+import no.nav.sifinnsynapi.konsumenter.MicrofrontendAction
+import no.nav.sifinnsynapi.konsumenter.MicrofrontendId
 import no.nav.sifinnsynapi.konsumenter.Ytelse
+import no.nav.tms.microfrontend.Sensitivitet
 import java.util.*
 
 fun gyldigK9Beskjed(tekst: String, link: String? = null, ytelse: Ytelse? = null): K9Beskjed {
@@ -41,6 +44,31 @@ fun gyldigK9Utkast(utkastId: String, ytelse: Ytelse): String {
         "link": "https://www.nav.no/familie/sykdom-i-familien/soknad/pleiepenger",
         "metrics": "{}"
       }
+    }
+    """.trimIndent()
+}
+
+fun gyldigK9Microfrontend(
+    correlationId: String = UUID.randomUUID().toString(),
+    ident: String,
+    microfrontendId: MicrofrontendId = MicrofrontendId.PLEIEPENGER_INNSYN,
+    action: MicrofrontendAction,
+    sensitivitet: Sensitivitet? = null,
+    initiatedBy: String = "k9-dittnav-varsel",
+
+    ): String {
+    //language=json
+    return """
+    {
+      "metadata": {
+        "correlationId": "$correlationId",
+        "version": 1
+      },
+      "ident": "$ident",
+      "microfrontendId": "${microfrontendId.name}",
+      "action": "${action.name}",
+      "sensitivitet": ${sensitivitet?.let { "\"${it.name}\"" }},
+      "initiatedBy": "$initiatedBy"
     }
     """.trimIndent()
 }

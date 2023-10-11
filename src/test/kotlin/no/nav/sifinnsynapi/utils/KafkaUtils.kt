@@ -46,14 +46,14 @@ fun <K, V> EmbeddedKafkaBroker.opprettKafkaAvroConsumer(groupId: String, topicNa
     return consumer
 }
 
-fun <K, V> EmbeddedKafkaBroker.opprettKafkaStringConsumer(groupId: String, topicName: String): Consumer<K, V> {
+fun <K, V> EmbeddedKafkaBroker.opprettKafkaStringConsumer(groupId: String, topics: List<String>): Consumer<K, V> {
 
     val consumerProps = KafkaTestUtils.consumerProps(groupId, "true", this)
     consumerProps[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
     consumerProps[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
 
     val consumer = DefaultKafkaConsumerFactory<K, V>(HashMap(consumerProps)).createConsumer()
-    consumer.subscribe(listOf(topicName))
+    consumer.subscribe(topics)
     return consumer
 }
 

@@ -8,6 +8,7 @@ import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.configureConcurren
 import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.consumerFactory
 import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.stringProducerFactory
 import no.nav.sifinnsynapi.konsumenter.K9Beskjed
+import no.nav.sifinnsynapi.konsumenter.K9Microfrontend
 import no.nav.sifinnsynapi.konsumenter.K9Utkast
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
@@ -65,6 +66,20 @@ class KafkaConfig(
         kafkaTemplate: KafkaTemplate<String, String>,
     ): ConcurrentKafkaListenerContainerFactory<String, String> =
         configureConcurrentKafkaListenerContainerFactory<K9Utkast>(
+            consumerFactory = consumerFactory,
+            kafkaTemplate = kafkaTemplate,
+            retryInterval = kafkaClusterProperties.aiven.consumer.retryInterval,
+            objectMapper = objectMapper,
+            logger = logger,
+            correlationIdExtractor = { it.metadata.correlationId }
+        )
+
+    @Bean
+    fun microfrontendKafkaJsonListenerContainerFactory(
+        consumerFactory: ConsumerFactory<String, String>,
+        kafkaTemplate: KafkaTemplate<String, String>,
+    ): ConcurrentKafkaListenerContainerFactory<String, String> =
+        configureConcurrentKafkaListenerContainerFactory<K9Microfrontend>(
             consumerFactory = consumerFactory,
             kafkaTemplate = kafkaTemplate,
             retryInterval = kafkaClusterProperties.aiven.consumer.retryInterval,

@@ -4,25 +4,33 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
 import no.nav.brukernotifikasjon.schemas.input.NokkelInput
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED
+import no.nav.sifinnsynapi.config.Topics.DITT_NAV_MICROFRONTEND
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_UTKAST
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_BESKJED
+import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_MICROFRONTEND
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_UTKAST
 import no.nav.sifinnsynapi.utils.gyldigK9Beskjed
+import no.nav.sifinnsynapi.utils.gyldigK9Microfrontend
 import no.nav.sifinnsynapi.utils.gyldigK9Utkast
 import no.nav.sifinnsynapi.utils.hentMelding
 import no.nav.sifinnsynapi.utils.leggPåTopic
 import no.nav.sifinnsynapi.utils.opprettKafkaAvroConsumer
 import no.nav.sifinnsynapi.utils.opprettKafkaProducer
 import no.nav.sifinnsynapi.utils.opprettKafkaStringConsumer
+import no.nav.tms.microfrontend.Sensitivitet
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.Producer
 import org.json.JSONObject
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.ValueSource
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -34,7 +42,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.util.*
 
 @EmbeddedKafka( // Setter opp og tilgjengligjør embeded kafka broker
-    topics = [K9_DITTNAV_VARSEL_BESKJED, DITT_NAV_BESKJED, K9_DITTNAV_VARSEL_UTKAST, DITT_NAV_UTKAST],
+    topics = [K9_DITTNAV_VARSEL_BESKJED, DITT_NAV_BESKJED, K9_DITTNAV_VARSEL_UTKAST, DITT_NAV_UTKAST, K9_DITTNAV_VARSEL_MICROFRONTEND, DITT_NAV_MICROFRONTEND],
     count = 3,
     bootstrapServersProperty = "kafka-servers" // Setter bootstrap-servers for consumer og producer.
 )
@@ -53,8 +61,8 @@ class KonsumentIntegrasjonsTest {
     private lateinit var embeddedKafkaBroker: EmbeddedKafkaBroker // Broker som brukes til å konfigurere opp en kafka producer.
 
     lateinit var producer: Producer<String, Any> // Kafka producer som brukes til å legge på kafka meldinger.
-    lateinit var beskjedConsumer: Consumer<NokkelInput, BeskjedInput> // Kafka consumer som brukes til å lese beskjeder.
-    lateinit var utkastConsumer: Consumer<String, String> // Kafka consumer som brukes til å lese utkaster.
+    lateinit var dittnavBeskjedConsumer: Consumer<NokkelInput, BeskjedInput> // Kafka consumer som brukes til å lese beskjeder.
+    lateinit var dittnavStringConsumer: Consumer<String, String> // Kafka consumer som brukes til å lese meldinger.
 
     private companion object {
         val logger = LoggerFactory.getLogger(KonsumentIntegrasjonsTest::class.java)
@@ -63,17 +71,20 @@ class KonsumentIntegrasjonsTest {
     @BeforeAll
     fun setUp() {
         producer = embeddedKafkaBroker.opprettKafkaProducer()
-        beskjedConsumer =
+        dittnavBeskjedConsumer =
             embeddedKafkaBroker.opprettKafkaAvroConsumer(groupId = "beskjed-consumer", topicName = DITT_NAV_BESKJED)
-        utkastConsumer =
-            embeddedKafkaBroker.opprettKafkaStringConsumer(groupId = "utkast-consumer", topicName = DITT_NAV_UTKAST)
+        dittnavStringConsumer =
+            embeddedKafkaBroker.opprettKafkaStringConsumer(
+                groupId = "dittnav-consumer",
+                topics = listOf(DITT_NAV_UTKAST, DITT_NAV_MICROFRONTEND)
+            )
     }
 
     @AfterAll
     internal fun tearDown() {
         producer.close()
-        beskjedConsumer.close()
-        utkastConsumer.close()
+        dittnavBeskjedConsumer.close()
+        dittnavStringConsumer.close()
     }
 
     @Test
@@ -89,7 +100,7 @@ class KonsumentIntegrasjonsTest {
 
         // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
         val brukernotifikasjon =
-            beskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
+            dittnavBeskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
         validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
     }
 
@@ -106,7 +117,7 @@ class KonsumentIntegrasjonsTest {
 
         // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
         val brukernotifikasjon =
-            beskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
+            dittnavBeskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
         validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
     }
 
@@ -123,7 +134,7 @@ class KonsumentIntegrasjonsTest {
 
         // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
         val brukernotifikasjon =
-            beskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
+            dittnavBeskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
         validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
     }
 
@@ -140,7 +151,7 @@ class KonsumentIntegrasjonsTest {
 
         // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
         val brukernotifikasjon =
-            beskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
+            dittnavBeskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
         validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
     }
 
@@ -157,7 +168,7 @@ class KonsumentIntegrasjonsTest {
 
         // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
         val brukernotifikasjon =
-            beskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
+            dittnavBeskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
         validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
     }
 
@@ -174,7 +185,7 @@ class KonsumentIntegrasjonsTest {
 
         // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
         val brukernotifikasjon =
-            beskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
+            dittnavBeskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
         validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
     }
 
@@ -188,9 +199,31 @@ class KonsumentIntegrasjonsTest {
 
         producer.leggPåTopic(utkast, K9_DITTNAV_VARSEL_UTKAST, mapper)
 
-        val konsumertUtkast = utkastConsumer.hentMelding(DITT_NAV_UTKAST) { it == utkastId }?.value()
+        val konsumertUtkast = dittnavStringConsumer.hentMelding(DITT_NAV_UTKAST) { it == utkastId }?.value()
         logger.info("Produsert utkast" + JSONObject(konsumertUtkast).toString(2))
         validerRiktigUtkast(utkast, konsumertUtkast)
+    }
+
+    @ParameterizedTest
+    @EnumSource(MicrofrontendAction::class)
+    fun `Legger microfrontend enable event på topic og forventer riktig event publisert til dittnav`(action: MicrofrontendAction) {
+
+        val correlationId = UUID.randomUUID().toString()
+
+        val microfrontendEvent = gyldigK9Microfrontend(
+            correlationId = correlationId,
+            ident = "12345678910",
+            microfrontendId = MicrofrontendId.PLEIEPENGER_INNSYN,
+            action = action,
+            sensitivitet = if (action == MicrofrontendAction.ENABLE) Sensitivitet.HIGH else null
+        )
+
+        producer.leggPåTopic(microfrontendEvent, K9_DITTNAV_VARSEL_MICROFRONTEND, mapper)
+
+        val konsumertMicrofrontendEvent =
+            dittnavStringConsumer.hentMelding(DITT_NAV_MICROFRONTEND) { it == correlationId }?.value()
+        logger.info("Produsert microfrontend event" + JSONObject(konsumertMicrofrontendEvent).toString(2))
+        validerRiktigMicrofrontendEvent(microfrontendEvent, konsumertMicrofrontendEvent)
     }
 }
 
@@ -204,4 +237,16 @@ fun validerRiktigBrukernotifikasjon(k9Beskjed: K9Beskjed, brukernotifikasjon: Be
 fun validerRiktigUtkast(utkast: String, konsumertUtkast: String?) {
     assertTrue(konsumertUtkast != null)
     assertTrue(JSONObject(utkast).getJSONObject("utkast").toString() == konsumertUtkast)
+}
+
+fun validerRiktigMicrofrontendEvent(k9Microfrontend: String, dittnavMicrofrontend: String?) {
+    assertTrue(dittnavMicrofrontend != null)
+    val publisert = JSONObject(k9Microfrontend)
+    val konsumert = JSONObject(dittnavMicrofrontend)
+
+    assertEquals(publisert.getString("ident"), konsumert.getString("ident"))
+    assertEquals(publisert.getString("action").lowercase(), konsumert.getString("@action"))
+    assertEquals(MicrofrontendId.valueOf(publisert.getString("microfrontendId")).id, konsumert.getString("microfrontend_id"))
+    assertEquals(publisert.getString("initiatedBy"), konsumert.getString("@initiated_by"))
+    assertEquals(publisert.optString("sensitivitet", null)?.lowercase(), konsumert.optString("sensitivitet", null))
 }
