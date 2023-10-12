@@ -12,7 +12,7 @@
   "env": {
     "SPRING_PROFILES_ACTIVE": "prod-gcp",
     "SPRING_APPLICATION_NAME": "k9-dittnav-varsel",
-    "KAFKA_AIVEN_CONSUMER_AUTO_OFFSET_RESET": "earliest"
+    "KAFKA_AIVEN_CONSUMER_AUTO_OFFSET_RESET": "latest"
   },
   "slack-channel": "sif-alerts",
   "slack-notify-type": "<!here> | k9-dittnav-varsel | "

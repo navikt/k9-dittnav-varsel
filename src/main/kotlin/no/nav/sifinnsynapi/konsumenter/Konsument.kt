@@ -54,7 +54,6 @@ class Konsument(
         id = "k9-dittnav-varsel-microfrontend-aiven-listener",
         groupId = "#{'\${kafka.aiven.consumer.group-id}'}",
         containerFactory = "microfrontendKafkaJsonListenerContainerFactory",
-        autoStartup = "true"
     )
     fun konsumerMikrofrontendEvent(@Payload k9Microfrontend: K9Microfrontend) {
         logger.info("Mottok microfrontend event: {}", k9Microfrontend)
