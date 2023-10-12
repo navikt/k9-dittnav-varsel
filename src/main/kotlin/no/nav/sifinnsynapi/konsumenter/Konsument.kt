@@ -52,7 +52,7 @@ class Konsument(
     @KafkaListener(
         topics = [K9_DITTNAV_VARSEL_MICROFRONTEND],
         id = "k9-dittnav-varsel-microfrontend-aiven-listener",
-        groupId = "#{'\${kafka.aiven.consumer.group-id}'}",
+        groupId = "k9-dittnav-varsel-microfrontend",
         containerFactory = "microfrontendKafkaJsonListenerContainerFactory",
     )
     fun konsumerMikrofrontendEvent(@Payload k9Microfrontend: K9Microfrontend) {
