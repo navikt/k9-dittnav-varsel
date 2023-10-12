@@ -39,8 +39,7 @@ class Konsument(
         topics = [K9_DITTNAV_VARSEL_UTKAST],
         id = "k9-dittnav-varsel-utkast-aiven-listener",
         groupId = "#{'\${kafka.aiven.consumer.group-id}'}",
-        containerFactory = "utkastKafkaJsonListenerContainerFactory",
-        autoStartup = "true"
+        containerFactory = "utkastKafkaJsonListenerContainerFactory"
     )
     fun konsumerUtkst(@Payload utkast: K9Utkast) {
         val utkastJson = JSONObject(utkast.utkast)
@@ -54,7 +53,8 @@ class Konsument(
         topics = [K9_DITTNAV_VARSEL_MICROFRONTEND],
         id = "k9-dittnav-varsel-microfrontend-aiven-listener",
         groupId = "#{'\${kafka.aiven.consumer.group-id}'}",
-        containerFactory = "microfrontendKafkaJsonListenerContainerFactory"
+        containerFactory = "microfrontendKafkaJsonListenerContainerFactory",
+        autoStartup = "true"
     )
     fun konsumerMikrofrontendEvent(@Payload k9Microfrontend: K9Microfrontend) {
         logger.info("Mottok microfrontend event: {}", k9Microfrontend)
