@@ -22,7 +22,8 @@ class Konsument(
         topics = [K9_DITTNAV_VARSEL_BESKJED],
         id = "k9-dittnav-varsel-beskjed-aiven-listener",
         groupId = "#{'\${kafka.aiven.consumer.group-id}'}",
-        containerFactory = "beskjedKafkaJsonListenerContainerFactory"
+        containerFactory = "beskjedKafkaJsonListenerContainerFactory",
+        autoStartup = "false"
     )
     fun konsumerBeskjed(@Payload melding: K9Beskjed) {
         if (melding.ytelse != null) logger.info(
@@ -39,7 +40,8 @@ class Konsument(
         topics = [K9_DITTNAV_VARSEL_UTKAST],
         id = "k9-dittnav-varsel-utkast-aiven-listener",
         groupId = "#{'\${kafka.aiven.consumer.group-id}'}",
-        containerFactory = "utkastKafkaJsonListenerContainerFactory"
+        containerFactory = "utkastKafkaJsonListenerContainerFactory",
+        autoStartup = "false"
     )
     fun konsumerUtkst(@Payload utkast: K9Utkast) {
         val utkastJson = JSONObject(utkast.utkast)
