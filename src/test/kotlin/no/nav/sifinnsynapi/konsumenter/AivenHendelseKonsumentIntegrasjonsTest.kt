@@ -89,7 +89,6 @@ class KonsumentIntegrasjonsTest {
     }
 
     @Test
-    @Disabled
     fun `Legger K9Beskjed på topic og forvent publisert dittnav beskjed`() {
         // legg på 1 hendelse om mottatt søknad
         val k9Beskjed = gyldigK9Beskjed(
@@ -107,7 +106,6 @@ class KonsumentIntegrasjonsTest {
     }
 
     @Test
-    @Disabled
     fun `Legger K9Beskjed på topic fra ettersending og forvent publisert dittnav beskjed`() {
         // legg på 1 hendelse om mottatt søknad
         val k9Beskjed = gyldigK9Beskjed(
@@ -125,7 +123,6 @@ class KonsumentIntegrasjonsTest {
     }
 
     @Test
-    @Disabled
     fun `Legger K9Beskjed på topic fra omsorgspenger utvidet rett og forvent publisert dittnav beskjed`() {
         // legg på 1 hendelse om mottatt søknad
         val k9Beskjed = gyldigK9Beskjed(
@@ -143,7 +140,6 @@ class KonsumentIntegrasjonsTest {
     }
 
     @Test
-    @Disabled
     fun `Legger K9Beskjed på topic fra omsorgspenger utbetaling snf og forvent publisert dittnav beskjed`() {
         // legg på 1 hendelse om mottatt søknad
         val k9Beskjed = gyldigK9Beskjed(
@@ -161,7 +157,6 @@ class KonsumentIntegrasjonsTest {
     }
 
     @Test
-    @Disabled
     fun `Legger K9Beskjed på topic fra pleiepenger livets sluttfase og forventer publisert dittnav beskjed`() {
         // legg på 1 hendelse om mottatt søknad
         val k9Beskjed = gyldigK9Beskjed(
@@ -179,7 +174,6 @@ class KonsumentIntegrasjonsTest {
     }
 
     @Test
-    @Disabled
     fun `Legger K9Beskjed på topic fra omsorgspenger utbetaling arbeidstaker og forventer publisert dittnav beskjed`() {
         // legg på 1 hendelse om mottatt søknad
         val k9Beskjed = gyldigK9Beskjed(
@@ -197,7 +191,6 @@ class KonsumentIntegrasjonsTest {
     }
 
     @Test
-    @Disabled
     fun `Legger utkast på topic og forventer riktig dittnav utkast`() {
 
         val utkastId = UUID.randomUUID().toString()

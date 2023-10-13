@@ -84,7 +84,6 @@ class KafkaErrorHandlerTest {
     }
 
     @Test
-    @Disabled
     fun `Sender K9Beskjed hvor dittnavService feiler, forvent at SeekToCurrentErrorHandler prøver igjen minst 10 ganger`() {
         mockDittnavServiceFailure()
 
@@ -106,7 +105,6 @@ class KafkaErrorHandlerTest {
     }
 
     @Test
-    @Disabled
     fun `Sender utkast hvor dittnavService feiler, forvent at SeekToCurrentErrorHandler prøver igjen minst 10 ganger`() {
         mockDittnavServiceUtkastFailure()
 
