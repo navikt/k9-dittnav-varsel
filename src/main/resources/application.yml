@@ -18,7 +18,7 @@ kafka:
       enable-auto-commit: false
       group-id: ${spring.application.name}
       auto-offset-reset: # overstyres fra nais/<cluster>.json
-      isolation-level: read_committed
+      isolation-level: read_uncommitted
       retry-interval: 60_000 # Egendefinert property
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
