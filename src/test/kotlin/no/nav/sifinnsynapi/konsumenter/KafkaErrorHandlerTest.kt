@@ -120,7 +120,6 @@ class KafkaErrorHandlerTest {
     }
 
     @Test
-    @Disabled
     fun `Sender microfrontend event hvor dittnavService feiler, forvent at SeekToCurrentErrorHandler prøver igjen minst 10 ganger`() {
         mockDittnavServiceUtkastFailure()
 

@@ -207,7 +207,6 @@ class KonsumentIntegrasjonsTest {
 
     @ParameterizedTest
     @EnumSource(MicrofrontendAction::class)
-    @Disabled
     fun `Legger microfrontend enable event på topic og forventer riktig event publisert til dittnav`(action: MicrofrontendAction) {
 
         val correlationId = UUID.randomUUID().toString()
