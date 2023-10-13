@@ -108,5 +108,9 @@ spec:
       access: readwrite
 
     - team: dusseldorf
+      application: k9-brukerdialog-kafka-manager
+      access: readwrite
+
+    - team: dusseldorf
       application: sif-innsyn-api
       access: write
