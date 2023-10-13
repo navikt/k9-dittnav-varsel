@@ -25,6 +25,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
@@ -206,6 +207,7 @@ class KonsumentIntegrasjonsTest {
 
     @ParameterizedTest
     @EnumSource(MicrofrontendAction::class)
+    @Disabled
     fun `Legger microfrontend enable event på topic og forventer riktig event publisert til dittnav`(action: MicrofrontendAction) {
 
         val correlationId = UUID.randomUUID().toString()

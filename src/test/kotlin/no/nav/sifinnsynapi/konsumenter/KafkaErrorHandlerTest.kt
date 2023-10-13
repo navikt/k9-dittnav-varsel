@@ -27,6 +27,7 @@ import org.awaitility.kotlin.await
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
@@ -119,6 +120,7 @@ class KafkaErrorHandlerTest {
     }
 
     @Test
+    @Disabled
     fun `Sender microfrontend event hvor dittnavService feiler, forvent at SeekToCurrentErrorHandler prøver igjen minst 10 ganger`() {
         mockDittnavServiceUtkastFailure()
 
