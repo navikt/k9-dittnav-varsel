@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.9.10"
-    kotlin("plugin.spring") version "1.9.10"
-    id("org.springframework.boot") version "3.1.4"
-    id("io.spring.dependency-management") version "1.1.3"
-    id("org.sonarqube") version "4.4.0.3356"
+    kotlin("jvm") version "1.9.21"
+    kotlin("plugin.spring") version "1.9.21"
+    id("org.springframework.boot") version "3.2.0"
+    id("io.spring.dependency-management") version "1.1.4"
+    id("org.sonarqube") version "4.4.1.3373"
     jacoco
 }
 
@@ -58,7 +58,7 @@ dependencies {
 
     // NAV
     implementation("com.github.navikt:brukernotifikasjon-schemas:$brukernotifikasjonVersion")
-    implementation("com.github.navikt:tms-mikrofrontend-selector:20230912102330-b4690df")
+    implementation("com.github.navikt:tms-mikrofrontend-selector:20231005112556-1c554d9")
 
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-actuator")
