@@ -18,7 +18,7 @@ spec:
             summary: "App \{{ $labels.deployment }} er nede i namespace \{{ $labels.namespace }}"
           labels:
             namespace: {{namespace}}
-            severity: danger
+            severity: critical
 
         - alert: Høy andel error i logger
           expr: sum by (app, container, pod, namespace) (floor(increase(logback_events_total{app="{{app}}", level="error"} [3m]))) > 0
@@ -28,7 +28,7 @@ spec:
             summary: "Høy andel error i logger for app \{{ $labels.app }} feiler med \{{ $labels.exception }} i namespace \{{ $labels.namespace }}"
           labels:
             namespace: {{namespace}}
-            severity: danger
+            severity: critical
 
         - alert: Høy andel warning i logger
           expr: sum by (app, container, pod, namespace) (floor(increase(logback_events_total{app="{{app}}", level="warning"} [3m]))) > 0
@@ -50,16 +50,19 @@ spec:
             action: "`kubectl logs \{{ $labels.pod }} -n \{{ $labels.namespace }} -c \{{ $labels.app }}`"
           labels:
             namespace: {{namespace}}
-            severity: danger
+            severity: critical
 
         - alert: Høy andel HTTP klientfeil (4xx responser)
-          severity: danger
           expr: floor(increase(http_server_requests_seconds_count{status=~"4.*", status!~"404|401|403|451", app="{{app}}"}[3m])) > 0
           for: 1m
-          description: "Følgende request feilet: `Status \{{ $labels.status }} - \{{ $labels.method }} \{{ $labels.route }}`.\n
+          annotations:
+            summary: "Følgende request feilet: `Status \{{ $labels.status }} - \{{ $labels.method }} \{{ $labels.route }}`.\n
                     Grunn:\n ```\{{ $labels.problem_details }}```\n
                     Sjekk loggene for å se hvorfor dette feiler"
-          action: "`kubectl logs \{{ $labels.pod }} -n \{{ $labels.namespace }} -c \{{ $labels.app }}`"
+            action: "`kubectl logs \{{ $labels.pod }} -n \{{ $labels.namespace }} -c \{{ $labels.app }}`"
+          labels:
+            namespace: {{namespace}}
+            severity: critical
 
         - alert: Konsumering av meldinger feiler
           expr: ceil(increase(spring_kafka_listener_seconds_count{result="failure", app="{{app}}"}[3m])) > 0
@@ -69,7 +72,7 @@ spec:
             action: "`kubectl logs \{{ $labels.pod }} -n \{{ $labels.namespace }} -c \{{ $labels.app }}`"
           labels:
             namespace: {{namespace}}
-            severity: danger
+            severity: critical
 
         - alert: Helsesjekk feiler
           expr: floor(increase(http_server_requests_seconds_count{status!~"200", uri="/actuator/health", app="{{app}}"}[3m])) > 0
@@ -79,7 +82,7 @@ spec:
             action: "`kubectl logs \{{ $labels.pod }} -n \{{ $labels.namespace }} -c \{{ $labels.app }}`"
           labels:
             namespace: {{namespace}}
-            severity: danger
+            severity: critical
 
         - alert: Konsumering av meldinger feiler
           expr: ceil(increase(spring_kafka_listener_seconds_count{result="failure", app="{{app}}"}[3m])) > 0
@@ -89,7 +92,7 @@ spec:
             action: "`kubectl logs \{{ $labels.pod }} -n \{{ $labels.namespace }} -c \{{ $labels.app }}`"
           labels:
             namespace: {{namespace}}
-            severity: danger
+            severity: critical
 
         - alert: Publisering av meldinger feiler
           expr: ceil(increase(spring_kafka_template_seconds_count{result="failure", app="{{app}}"}[3m])) > 0
@@ -99,4 +102,4 @@ spec:
             action: "`kubectl logs \{{ $labels.pod }} -n \{{ $labels.namespace }} -c \{{ $labels.app }}`"
           labels:
             namespace: {{namespace}}
-            severity: danger
+            severity: critical
