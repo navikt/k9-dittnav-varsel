@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.9.22"
-    kotlin("plugin.spring") version "1.9.22"
-    id("org.springframework.boot") version "3.2.2"
+    kotlin("jvm") version "1.9.23"
+    kotlin("plugin.spring") version "1.9.23"
+    id("org.springframework.boot") version "3.2.4"
     id("io.spring.dependency-management") version "1.1.4"
-    id("org.sonarqube") version "4.4.1.3373"
+    id("org.sonarqube") version "5.0.0.4638"
     jacoco
 }
 
@@ -19,20 +19,20 @@ configurations {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
-val confluentVersion by extra("7.3.0")
+val confluentVersion by extra("7.6.0")
 val avroVersion by extra("1.11.3")
 val brukernotifikasjonVersion by extra("v2.5.1")
-val logstashLogbackEncoderVersion by extra("7.2")
-val retryVersion by extra("2.0.0")
-val jsonVersion by extra("20231013")
-val awaitilityKotlinVersion by extra("4.2.0")
-val assertkJvmVersion by extra("0.25")
-val springMockkVersion by extra("3.1.2")
-val mockkVersion by extra("1.13.2")
+val logstashLogbackEncoderVersion by extra("7.4")
+val retryVersion by extra("2.0.5")
+val jsonVersion by extra("20240303")
+val awaitilityKotlinVersion by extra("4.2.1")
+val assertkJvmVersion by extra("0.28.0")
+val springMockkVersion by extra("4.0.2")
+val mockkVersion by extra("1.13.10")
 
 repositories {
     mavenCentral()
@@ -129,7 +129,7 @@ tasks {
     withType<KotlinCompile> {
         kotlinOptions {
             freeCompilerArgs = listOf("-Xjsr305=strict")
-            jvmTarget = "17"
+            jvmTarget = "21"
         }
     }
 
