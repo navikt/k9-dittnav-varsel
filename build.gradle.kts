@@ -142,7 +142,7 @@ tasks {
     }
 }
 
-sonarqube {
+sonar {
     properties {
         property("sonar.projectKey", "navikt_k9-dittnav-varsel")
         property("sonar.organization", "navikt")
