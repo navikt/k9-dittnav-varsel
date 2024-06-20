@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.9.24"
-    kotlin("plugin.spring") version "1.9.24"
-    id("org.springframework.boot") version "3.2.5"
+    kotlin("jvm") version "2.0.0"
+    kotlin("plugin.spring") version "2.0.0"
+    id("org.springframework.boot") version "3.3.1"
     id("io.spring.dependency-management") version "1.1.5"
     id("org.sonarqube") version "5.0.0.4638"
     jacoco
@@ -106,7 +106,7 @@ dependencies {
     implementation("org.json:json:$jsonVersion")
     implementation("com.github.ben-manes.caffeine:caffeine")
     // Flere sikkerhetsfil. Transitiv fra avro og kafka-connect-avro-converter, så kan fjernes når de er oppdatert. 
-    implementation("org.apache.commons:commons-compress:1.26.1")
+    implementation("org.apache.commons:commons-compress:1.26.2")
 
 
     testImplementation("org.awaitility:awaitility-kotlin:$awaitilityKotlinVersion")
