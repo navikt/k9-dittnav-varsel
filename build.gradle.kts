@@ -106,7 +106,7 @@ dependencies {
     implementation("org.json:json:$jsonVersion")
     implementation("com.github.ben-manes.caffeine:caffeine")
     // Flere sikkerhetsfil. Transitiv fra avro og kafka-connect-avro-converter, så kan fjernes når de er oppdatert. 
-    implementation("org.apache.commons:commons-compress:1.26.2")
+    implementation("org.apache.commons:commons-compress:1.27.1")
 
 
     testImplementation("org.awaitility:awaitility-kotlin:$awaitilityKotlinVersion")
