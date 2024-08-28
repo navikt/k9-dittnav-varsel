@@ -41,6 +41,10 @@ spec:
   prometheus:
     enabled: true
     path: /actuator/prometheus
+  observability:
+    autoInstrumentation:
+      enabled: {{observabilityEnabled}}
+      runtime: java
   env:
   {{#each env}}
    - name: {{@key}}

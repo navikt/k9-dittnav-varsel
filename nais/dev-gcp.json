@@ -9,6 +9,7 @@
   "outboundRules": [
     "login.microsoftonline.com"
   ],
+  "observabilityEnabled": "true",
   "env": {
     "SPRING_PROFILES_ACTIVE": "dev-gcp",
     "SPRING_APPLICATION_NAME": "k9-dittnav-varsel",
