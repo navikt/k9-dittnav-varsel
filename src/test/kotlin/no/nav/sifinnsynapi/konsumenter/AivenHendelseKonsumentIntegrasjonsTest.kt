@@ -191,6 +191,23 @@ class KonsumentIntegrasjonsTest {
     }
 
     @Test
+    fun `Legger K9Beskjed på topic fra opplæringspenger og forventer publisert dittnav beskjed`() {
+        // legg på 1 hendelse om mottatt søknad
+        val k9Beskjed = gyldigK9Beskjed(
+            tekst = "Søknad om opplæringspenger",
+            link = "https://www.nav.no/familie/sykdom-i-familien/soknad/opplaringspenger",
+            ytelse = Ytelse.OPPLÆRINGSPENGER
+        )
+
+        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
+
+        // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
+        val brukernotifikasjon =
+            dittnavBeskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
+        validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
+    }
+
+    @Test
     fun `Legger utkast på topic og forventer riktig dittnav utkast`() {
 
         val utkastId = UUID.randomUUID().toString()
