@@ -25,13 +25,11 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
-import org.junit.jupiter.params.provider.ValueSource
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -196,7 +194,7 @@ class KonsumentIntegrasjonsTest {
         val k9Beskjed = gyldigK9Beskjed(
             tekst = "Søknad om opplæringspenger",
             link = "https://www.nav.no/familie/sykdom-i-familien/soknad/opplaringspenger",
-            ytelse = Ytelse.OPPLÆRINGSPENGER
+            ytelse = Ytelse.OPPLARINGSPENGER
         )
 
         producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)

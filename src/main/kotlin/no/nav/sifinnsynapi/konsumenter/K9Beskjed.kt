@@ -49,7 +49,7 @@ enum class Ytelse{
     PLEIEPENGER_LIVETS_SLUTTFASE,
     PLEIEPENGER_SYKT_BARN,
     ENDRINGSMELDING_PLEIEPENGER_SYKT_BARN,
-    OPPLÆRINGSPENGER; // Opplæringspenger
+    OPPLARINGSPENGER; // Opplæringspenger
 }
 
 data class Metadata @JsonCreator constructor(
