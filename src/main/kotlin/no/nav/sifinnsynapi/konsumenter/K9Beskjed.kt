@@ -49,7 +49,9 @@ enum class Ytelse{
     PLEIEPENGER_LIVETS_SLUTTFASE,
     PLEIEPENGER_SYKT_BARN,
     ENDRINGSMELDING_PLEIEPENGER_SYKT_BARN,
-    OPPLARINGSPENGER; // Opplæringspenger
+    OPPLARINGSPENGER, // Opplæringspenger
+    UNGDOMSYTELSE; // Ungdomsytelse
+    ;
 }
 
 data class Metadata @JsonCreator constructor(
