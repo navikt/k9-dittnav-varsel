@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm") version "2.0.20"
     kotlin("plugin.spring") version "2.0.20"
-    id("org.springframework.boot") version "3.3.3"
+    id("org.springframework.boot") version "3.3.4"
     id("io.spring.dependency-management") version "1.1.6"
     id("org.sonarqube") version "5.1.0.4882"
     jacoco
@@ -52,7 +52,7 @@ repositories {
     }
 }
 dependencies {
-    implementation("org.yaml:snakeyaml:2.2") {
+    implementation("org.yaml:snakeyaml:2.3") {
         because("https://github.com/navikt/k9-dittnav-varsel/security/dependabot/2")
     }
 
