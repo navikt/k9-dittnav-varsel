@@ -24,7 +24,7 @@ java {
 }
 
 val confluentVersion by extra("7.6.0")
-val avroVersion by extra("1.11.3")
+val avroVersion by extra("1.11.4")
 val brukernotifikasjonVersion by extra("v2.5.1")
 val logstashLogbackEncoderVersion by extra("7.4")
 val retryVersion by extra("2.0.5")
