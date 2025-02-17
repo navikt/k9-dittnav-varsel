@@ -52,7 +52,7 @@ repositories {
     }
 }
 dependencies {
-    implementation("org.yaml:snakeyaml:2.3") {
+    implementation("org.yaml:snakeyaml:2.4") {
         because("https://github.com/navikt/k9-dittnav-varsel/security/dependabot/2")
     }
 
