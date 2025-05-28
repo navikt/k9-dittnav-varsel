@@ -42,6 +42,10 @@ spec:
     enabled: true
     path: /actuator/prometheus
   observability:
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
     autoInstrumentation:
       enabled: {{observabilityEnabled}}
       runtime: java
