@@ -7,9 +7,16 @@ import no.nav.brukernotifikasjon.schemas.builders.BeskjedInputBuilder
 import no.nav.brukernotifikasjon.schemas.builders.NokkelInputBuilder
 import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
 import no.nav.brukernotifikasjon.schemas.input.NokkelInput
+import no.nav.tms.varsel.action.Produsent
+import no.nav.tms.varsel.builder.VarselActionBuilder
+import no.nav.tms.varsel.action.Varseltype
+import no.nav.tms.varsel.action.Sensitivitet
+import no.nav.tms.varsel.action.Tekst
 import java.net.URL
 import java.time.LocalDateTime
 import java.time.ZoneOffset.UTC
+import java.time.ZonedDateTime
+import java.time.ZoneId
 
 data class K9Beskjed(
     val metadata: Metadata,
@@ -26,7 +33,7 @@ data class K9Beskjed(
     }
 }
 
-enum class Ytelse{
+enum class Ytelse {
     OMSORGSDAGER_ALENEOMSORG,
     OMSORGSPENGER_MIDLERTIDIG_ALENE,
     OMSORGSDAGER_MELDING_OVERFØRE,
@@ -41,11 +48,14 @@ enum class Ytelse{
     ETTERSENDING_OMP_UTV_MA, // Ettersending - Omsorgspenger utvidet rett - midlertidig alene
     ETTERSENDING_OMP_DELE_DAGER, // Ettersending - Melding om deling av omsorgsdager,
     ETTERSENDING_OPPLARINGSPENGER, // Ettersending - Opplæringspenger
-    @Deprecated("Utgår") OMSORGSPENGER_UTV_KS, // Omsorgspenger utvidet rett - kronisk syke eller funksjonshemming.
+    @Deprecated("Utgår")
+    OMSORGSPENGER_UTV_KS, // Omsorgspenger utvidet rett - kronisk syke eller funksjonshemming.
     OMSORGSPENGER_UTVIDET_RETT, // Omsorgspenger utvidet rett - kronisk syke eller funksjonshemming.
-    @Deprecated("Utgår") OMSORGSPENGER_UT_SNF, // Omsorgspenger utbetaling snf
+    @Deprecated("Utgår")
+    OMSORGSPENGER_UT_SNF, // Omsorgspenger utbetaling snf
     OMSORGSPENGER_UTBETALING_SNF, // Omsorgspenger utbetaling snf
-    @Deprecated("Utgår") OMSORGSPENGER_UT_ARBEIDSTAKER, // Omsorgspenger utbetaling arbeidstaker,
+    @Deprecated("Utgår")
+    OMSORGSPENGER_UT_ARBEIDSTAKER, // Omsorgspenger utbetaling arbeidstaker,
     OMSORGSPENGER_UTBETALING_ARBEIDSTAKER,
     PLEIEPENGER_LIVETS_SLUTTFASE,
     PLEIEPENGER_SYKT_BARN,
@@ -56,9 +66,9 @@ enum class Ytelse{
 }
 
 data class Metadata @JsonCreator constructor(
-    @JsonProperty("version") val version : Int,
-    @JsonProperty("correlationId") val correlationId : String,
-    @JsonProperty("requestId") val requestId : String? = null
+    @JsonProperty("version") val version: Int,
+    @JsonProperty("correlationId") val correlationId: String,
+    @JsonProperty("requestId") val requestId: String? = null
 )
 
 fun <T> T.somJson(mapper: ObjectMapper) = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this)
@@ -81,6 +91,27 @@ fun K9Beskjed.somBeskjed(): BeskjedInput {
         .withTekst(tekst)
         .withTidspunkt(LocalDateTime.now(UTC))
 
-    if(link != null) builder.withLink(URL(link))
+    if (link != null) builder.withLink(URL(link))
     return builder.build()
+}
+
+fun K9Beskjed.somVarselOpprett(): String {
+    return VarselActionBuilder.opprett {
+        type = Varseltype.Beskjed
+        varselId = eventId
+        sensitivitet = Sensitivitet.High // sikkerhetsnivå 4
+        ident = søkerFødselsnummer
+        tekster += Tekst(
+            spraakkode = "nb",
+            tekst = this@somVarselOpprett.tekst,
+            default = true
+        )
+        link = this@somVarselOpprett.link
+        aktivFremTil = ZonedDateTime.now(ZoneId.of("Z")).plusDays(dagerSynlig)
+        produsent = Produsent (
+            cluster = System.getenv("NAIS_CLUSTER_NAME") ?: "prod-gcp",
+            namespace = System.getenv("NAIS_NAMESPACE") ?: "dusseldorf",
+            appnavn = System.getenv("NAIS_APP_NAME") ?: "k9-dittnav-varsel"
+        )
+    }
 }

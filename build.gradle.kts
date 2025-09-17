@@ -27,6 +27,7 @@ java {
 val confluentVersion by extra("7.6.0")
 val avroVersion by extra("1.11.4")
 val brukernotifikasjonVersion by extra("v2.5.1")
+val tmsVarselVersjon by extra("2.1.1")
 val logstashLogbackEncoderVersion by extra("7.4")
 val retryVersion by extra("2.0.5")
 val jsonVersion by extra("20240303")
@@ -41,6 +42,11 @@ repositories {
     maven {
         name = "github-package-registry-navikt"
         url = uri("https://maven.pkg.github.com/navikt/maven-release")
+    }
+
+    maven {
+        name = "github-package-registry-mirror-navikt"
+        url = uri("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
     }
 
     maven {
@@ -60,6 +66,7 @@ dependencies {
     // NAV
     implementation("com.github.navikt:brukernotifikasjon-schemas:$brukernotifikasjonVersion")
     implementation("com.github.navikt:tms-mikrofrontend-selector:20231005112556-1c554d9")
+    implementation("no.nav.tms.varsel:kotlin-builder:$tmsVarselVersjon")
 
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-actuator")

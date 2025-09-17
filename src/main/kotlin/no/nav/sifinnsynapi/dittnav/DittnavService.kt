@@ -3,6 +3,7 @@ package no.nav.sifinnsynapi.dittnav
 import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
 import no.nav.brukernotifikasjon.schemas.input.NokkelInput
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED
+import no.nav.sifinnsynapi.config.Topics.DITT_NAV_VARSEL
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_MICROFRONTEND
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_UTKAST
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -18,6 +19,7 @@ class DittnavService(
 ) {
     val logger = LoggerFactory.getLogger(DittnavService::class.java)
 
+    @Deprecated("Bruk sendVarsel istedet")
     fun sendBeskjed(nøkkel: NokkelInput, beskjed: BeskjedInput) {
         beskjedKafkaTemplate.send(ProducerRecord(DITT_NAV_BESKJED, nøkkel, beskjed))
             .exceptionally { ex: Throwable ->
@@ -25,6 +27,16 @@ class DittnavService(
                 throw ex
             }.thenAccept {
                 logger.info("Beskjed sendt til ${DITT_NAV_BESKJED} med eventId ${nøkkel.getEventId()}")
+            }
+    }
+
+    fun sendVarsel(varselId: String, varselJson: String) {
+        kafkaTemplate.send(ProducerRecord(DITT_NAV_VARSEL, varselId, varselJson))
+            .exceptionally { ex: Throwable ->
+                logger.warn("Kunne ikke sende varsel {} til {}", varselId, DITT_NAV_VARSEL, ex)
+                throw ex
+            }.thenAccept {
+                logger.info("Varsel sendt til $DITT_NAV_VARSEL med varselId $varselId")
             }
     }
 
