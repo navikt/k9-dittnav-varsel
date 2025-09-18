@@ -19,43 +19,11 @@ data class K9Beskjed(
     val dagerSynlig: Long,
     val søkerFødselsnummer: String,
     val eventId: String,
-    val ytelse: Ytelse? = null
+    val ytelse: String? = null
 ) {
     override fun toString(): String {
         return "K9Beskjed(metadata=$metadata, grupperingsId='$grupperingsId', tekst='$tekst', link='$link', dagerSynlig=$dagerSynlig, eventId='$eventId')"
     }
-}
-
-enum class Ytelse {
-    OMSORGSDAGER_ALENEOMSORG,
-    OMSORGSPENGER_MIDLERTIDIG_ALENE,
-    OMSORGSDAGER_MELDING_OVERFØRE,
-    OMSORGSDAGER_MELDING_KORONA,
-    OMSORGSDAGER_MELDING_FORDELE,
-    ETTERSENDING_PLEIEPENGER_SYKT_BARN,
-    ETTERSENDING_PLEIEPENGER_LIVETS_SLUTTFASE,
-    ETTERSENDING_OMP,
-    ETTERSENDING_OMP_UTV_KS, // Ettersending - Omsorgspenger utvidet rett - kronisk syke eller funksjonshemming.
-    ETTERSENDING_OMP_UT_SNF, // Ettersending - Omsorgspenger utbetaling SNF ytelse.
-    ETTERSENDING_OMP_UT_ARBEIDSTAKER, // Ettersending - Omsorgspenger utbetaling arbeidstaker ytelse.
-    ETTERSENDING_OMP_UTV_MA, // Ettersending - Omsorgspenger utvidet rett - midlertidig alene
-    ETTERSENDING_OMP_DELE_DAGER, // Ettersending - Melding om deling av omsorgsdager,
-    ETTERSENDING_OPPLARINGSPENGER, // Ettersending - Opplæringspenger
-    @Deprecated("Utgår")
-    OMSORGSPENGER_UTV_KS, // Omsorgspenger utvidet rett - kronisk syke eller funksjonshemming.
-    OMSORGSPENGER_UTVIDET_RETT, // Omsorgspenger utvidet rett - kronisk syke eller funksjonshemming.
-    @Deprecated("Utgår")
-    OMSORGSPENGER_UT_SNF, // Omsorgspenger utbetaling snf
-    OMSORGSPENGER_UTBETALING_SNF, // Omsorgspenger utbetaling snf
-    @Deprecated("Utgår")
-    OMSORGSPENGER_UT_ARBEIDSTAKER, // Omsorgspenger utbetaling arbeidstaker,
-    OMSORGSPENGER_UTBETALING_ARBEIDSTAKER,
-    PLEIEPENGER_LIVETS_SLUTTFASE,
-    PLEIEPENGER_SYKT_BARN,
-    ENDRINGSMELDING_PLEIEPENGER_SYKT_BARN,
-    OPPLARINGSPENGER, // Opplæringspenger
-    UNGDOMSYTELSE; // Ungdomsytelse
-    ;
 }
 
 data class Metadata @JsonCreator constructor(
