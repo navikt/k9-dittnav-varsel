@@ -111,7 +111,7 @@ class KafkaErrorHandlerTest {
 
         val utkastId = UUID.randomUUID().toString()
 
-        producer.leggPåTopic(gyldigK9Utkast(utkastId, Ytelse.PLEIEPENGER_SYKT_BARN), K9_DITTNAV_VARSEL_UTKAST, mapper)
+        producer.leggPåTopic(gyldigK9Utkast(utkastId, "PLEIEPENGER_SYKT_BARN"), K9_DITTNAV_VARSEL_UTKAST, mapper)
 
         awaitAndAssertNull { utkastConsumer.hentMelding(DITT_NAV_UTKAST) { it == utkastId }?.value() }
 

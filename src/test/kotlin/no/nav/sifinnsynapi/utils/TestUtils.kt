@@ -4,11 +4,10 @@ import no.nav.sifinnsynapi.konsumenter.K9Beskjed
 import no.nav.sifinnsynapi.konsumenter.Metadata
 import no.nav.sifinnsynapi.konsumenter.MicrofrontendAction
 import no.nav.sifinnsynapi.konsumenter.MicrofrontendId
-import no.nav.sifinnsynapi.konsumenter.Ytelse
 import no.nav.tms.microfrontend.Sensitivitet
 import java.util.*
 
-fun gyldigK9Beskjed(tekst: String, link: String? = null, ytelse: Ytelse? = null): K9Beskjed {
+fun gyldigK9Beskjed(tekst: String, link: String? = null, ytelse: String? = null): K9Beskjed {
     return K9Beskjed(
         metadata = Metadata(
             version = 1,
@@ -25,7 +24,7 @@ fun gyldigK9Beskjed(tekst: String, link: String? = null, ytelse: Ytelse? = null)
     )
 }
 
-fun gyldigK9Utkast(utkastId: String, ytelse: Ytelse): String {
+fun gyldigK9Utkast(utkastId: String, ytelse: String): String {
     //language=json
     return """
     {
@@ -33,7 +32,7 @@ fun gyldigK9Utkast(utkastId: String, ytelse: Ytelse): String {
         "correlationId": "${UUID.randomUUID()}",
         "version": 1
       },
-      "ytelse": "${ytelse.name}",
+      "ytelse": "$ytelse",
       "utkast": {
         "utkastId": "$utkastId",
         "@event_name": "created",
