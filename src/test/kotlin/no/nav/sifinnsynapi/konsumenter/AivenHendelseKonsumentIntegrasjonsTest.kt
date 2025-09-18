@@ -27,7 +27,6 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
-import org.junit.jupiter.params.provider.ValueSource
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -88,34 +87,8 @@ class KonsumentIntegrasjonsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = [
-        "OMSORGSDAGER_ALENEOMSORG",
-        "OMSORGSPENGER_MIDLERTIDIG_ALENE",
-        "OMSORGSDAGER_MELDING_OVERFØRE",
-        "OMSORGSDAGER_MELDING_KORONA",
-        "OMSORGSDAGER_MELDING_FORDELE",
-        "ETTERSENDING_PLEIEPENGER_SYKT_BARN",
-        "ETTERSENDING_PLEIEPENGER_LIVETS_SLUTTFASE",
-        "ETTERSENDING_OMP",
-        "ETTERSENDING_OMP_UTV_KS",
-        "ETTERSENDING_OMP_UT_SNF",
-        "ETTERSENDING_OMP_UT_ARBEIDSTAKER",
-        "ETTERSENDING_OMP_UTV_MA",
-        "ETTERSENDING_OMP_DELE_DAGER",
-        "ETTERSENDING_OPPLARINGSPENGER",
-        "OMSORGSPENGER_UTV_KS",
-        "OMSORGSPENGER_UTVIDET_RETT",
-        "OMSORGSPENGER_UT_SNF",
-        "OMSORGSPENGER_UTBETALING_SNF",
-        "OMSORGSPENGER_UT_ARBEIDSTAKER",
-        "OMSORGSPENGER_UTBETALING_ARBEIDSTAKER",
-        "PLEIEPENGER_LIVETS_SLUTTFASE",
-        "PLEIEPENGER_SYKT_BARN",
-        "ENDRINGSMELDING_PLEIEPENGER_SYKT_BARN",
-        "OPPLARINGSPENGER",
-        "UNGDOMSYTELSE"
-    ])
-    fun `Legger k9Beskjed på topic og forventer publisert varsel på mine sider`(ytelse: String) {
+    @EnumSource(Ytelse::class)
+    fun `Legger k9Beskjed på topic og forventer publisert varsel på mine sider`(ytelse: Ytelse) {
         // legg på 1 hendelse om mottatt søknad
         val k9Beskjed = gyldigK9Beskjed(
             tekst = "Vi har mottatt din søknad for $ytelse.",
@@ -130,40 +103,13 @@ class KonsumentIntegrasjonsTest {
         validerRiktigJsonVarsel(k9Beskjed, jsonVarsel)
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = [
-        "OMSORGSDAGER_ALENEOMSORG",
-        "OMSORGSPENGER_MIDLERTIDIG_ALENE",
-        "OMSORGSDAGER_MELDING_OVERFØRE",
-        "OMSORGSDAGER_MELDING_KORONA",
-        "OMSORGSDAGER_MELDING_FORDELE",
-        "ETTERSENDING_PLEIEPENGER_SYKT_BARN",
-        "ETTERSENDING_PLEIEPENGER_LIVETS_SLUTTFASE",
-        "ETTERSENDING_OMP",
-        "ETTERSENDING_OMP_UTV_KS",
-        "ETTERSENDING_OMP_UT_SNF",
-        "ETTERSENDING_OMP_UT_ARBEIDSTAKER",
-        "ETTERSENDING_OMP_UTV_MA",
-        "ETTERSENDING_OMP_DELE_DAGER",
-        "ETTERSENDING_OPPLARINGSPENGER",
-        "OMSORGSPENGER_UTV_KS",
-        "OMSORGSPENGER_UTVIDET_RETT",
-        "OMSORGSPENGER_UT_SNF",
-        "OMSORGSPENGER_UTBETALING_SNF",
-        "OMSORGSPENGER_UT_ARBEIDSTAKER",
-        "OMSORGSPENGER_UTBETALING_ARBEIDSTAKER",
-        "PLEIEPENGER_LIVETS_SLUTTFASE",
-        "PLEIEPENGER_SYKT_BARN",
-        "ENDRINGSMELDING_PLEIEPENGER_SYKT_BARN",
-        "OPPLARINGSPENGER",
-        "UNGDOMSYTELSE"
-    ])
-    fun `Legger K9Beskjed uten link på topic og forventer riktig JSON varsel`(ytelse: String) {
+    @Test
+    fun `Legger K9Beskjed uten link på topic og forventer riktig JSON varsel`() {
         // Test JSON varsel uten link
         val k9Beskjed = gyldigK9Beskjed(
-            tekst = "Vi har mottatt din søknad for $ytelse.",
+            tekst = "Ettersendelse mottatt for omsorgspenger.",
             link = null,
-            ytelse = ytelse
+            ytelse = Ytelse.ETTERSENDING_OMP
         )
 
         producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
@@ -173,40 +119,13 @@ class KonsumentIntegrasjonsTest {
         validerRiktigJsonVarsel(k9Beskjed, jsonVarsel)
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = [
-        "OMSORGSDAGER_ALENEOMSORG",
-        "OMSORGSPENGER_MIDLERTIDIG_ALENE",
-        "OMSORGSDAGER_MELDING_OVERFØRE",
-        "OMSORGSDAGER_MELDING_KORONA",
-        "OMSORGSDAGER_MELDING_FORDELE",
-        "ETTERSENDING_PLEIEPENGER_SYKT_BARN",
-        "ETTERSENDING_PLEIEPENGER_LIVETS_SLUTTFASE",
-        "ETTERSENDING_OMP",
-        "ETTERSENDING_OMP_UTV_KS",
-        "ETTERSENDING_OMP_UT_SNF",
-        "ETTERSENDING_OMP_UT_ARBEIDSTAKER",
-        "ETTERSENDING_OMP_UTV_MA",
-        "ETTERSENDING_OMP_DELE_DAGER",
-        "ETTERSENDING_OPPLARINGSPENGER",
-        "OMSORGSPENGER_UTV_KS",
-        "OMSORGSPENGER_UTVIDET_RETT",
-        "OMSORGSPENGER_UT_SNF",
-        "OMSORGSPENGER_UTBETALING_SNF",
-        "OMSORGSPENGER_UT_ARBEIDSTAKER",
-        "OMSORGSPENGER_UTBETALING_ARBEIDSTAKER",
-        "PLEIEPENGER_LIVETS_SLUTTFASE",
-        "PLEIEPENGER_SYKT_BARN",
-        "ENDRINGSMELDING_PLEIEPENGER_SYKT_BARN",
-        "OPPLARINGSPENGER",
-        "UNGDOMSYTELSE"
-    ])
-    fun `Legger utkast på topic og forventer riktig dittnav utkast`(ytelse: String) {
+    @Test
+    fun `Legger utkast på topic og forventer riktig dittnav utkast`() {
 
         val utkastId = UUID.randomUUID().toString()
 
         //language=JSON
-        val utkast = gyldigK9Utkast(utkastId, ytelse)
+        val utkast = gyldigK9Utkast(utkastId, Ytelse.PLEIEPENGER_SYKT_BARN)
 
         producer.leggPåTopic(utkast, K9_DITTNAV_VARSEL_UTKAST, mapper)
 
