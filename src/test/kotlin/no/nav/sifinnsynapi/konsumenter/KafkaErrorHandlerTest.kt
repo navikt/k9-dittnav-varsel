@@ -4,11 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
-import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
-import no.nav.brukernotifikasjon.schemas.input.NokkelInput
-import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_MICROFRONTEND
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_UTKAST
+import no.nav.sifinnsynapi.config.Topics.DITT_NAV_VARSEL
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_BESKJED
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_MICROFRONTEND
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_UTKAST
@@ -18,8 +16,8 @@ import no.nav.sifinnsynapi.utils.gyldigK9Microfrontend
 import no.nav.sifinnsynapi.utils.gyldigK9Utkast
 import no.nav.sifinnsynapi.utils.hentMelding
 import no.nav.sifinnsynapi.utils.leggPåTopic
-import no.nav.sifinnsynapi.utils.opprettKafkaAvroConsumer
 import no.nav.sifinnsynapi.utils.opprettKafkaProducer
+import no.nav.sifinnsynapi.utils.opprettKafkaStringConsumer
 import no.nav.tms.microfrontend.Sensitivitet
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.Producer
@@ -27,7 +25,6 @@ import org.awaitility.kotlin.await
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
@@ -42,7 +39,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 @EmbeddedKafka( // Setter opp og tilgjengligjør embeded kafka broker
-    topics = [K9_DITTNAV_VARSEL_BESKJED, DITT_NAV_BESKJED, K9_DITTNAV_VARSEL_UTKAST, DITT_NAV_UTKAST, K9_DITTNAV_VARSEL_MICROFRONTEND, DITT_NAV_MICROFRONTEND],
+    topics = [K9_DITTNAV_VARSEL_BESKJED, K9_DITTNAV_VARSEL_UTKAST, DITT_NAV_UTKAST, K9_DITTNAV_VARSEL_MICROFRONTEND, DITT_NAV_MICROFRONTEND],
     count = 3,
     bootstrapServersProperty = "kafka-servers" // Setter bootstrap-servers for consumer og producer.
 )
@@ -61,8 +58,8 @@ class KafkaErrorHandlerTest {
     private lateinit var embeddedKafkaBroker: EmbeddedKafkaBroker // Broker som brukes til å konfigurere opp en kafka producer.
 
     lateinit var producer: Producer<String, Any> // Kafka producer som brukes til å legge på kafka meldinger
-    lateinit var beskjedConsumer: Consumer<NokkelInput, BeskjedInput> // Kafka consumer som brukes til å lese kafka meldinger.
     lateinit var utkastConsumer: Consumer<String, String> // Kafka consumer som brukes til å lese utkaster.
+    lateinit var dittnavVarselConsumer: Consumer<String, String> // Kafka consumer for ny JSON-basert varsel topic
 
     @MockkBean()
     lateinit var dittnavService: DittnavService
@@ -70,16 +67,20 @@ class KafkaErrorHandlerTest {
     @BeforeAll
     fun setUp() {
         producer = embeddedKafkaBroker.opprettKafkaProducer()
-        beskjedConsumer =
-            embeddedKafkaBroker.opprettKafkaAvroConsumer(groupId = "beskjed-consumer", topicName = DITT_NAV_BESKJED)
-        utkastConsumer =
-            embeddedKafkaBroker.opprettKafkaAvroConsumer(groupId = "utkast-consumer", topicName = DITT_NAV_UTKAST)
+        utkastConsumer = embeddedKafkaBroker.opprettKafkaStringConsumer(
+            groupId = "utkast-consumer",
+            topics = listOf(DITT_NAV_UTKAST)
+        )
+        dittnavVarselConsumer = embeddedKafkaBroker.opprettKafkaStringConsumer(
+            groupId = "dittnav-varsel-consumer",
+            topics = listOf(DITT_NAV_VARSEL)
+        )
     }
 
     @AfterAll
     internal fun tearDown() {
         producer.close()
-        beskjedConsumer.close()
+
         utkastConsumer.close()
     }
 
@@ -96,11 +97,11 @@ class KafkaErrorHandlerTest {
         producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
 
         awaitAndAssertNull {
-            beskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
+            dittnavVarselConsumer.hentMelding(DITT_NAV_VARSEL) { it == k9Beskjed.eventId }?.value()
         }
 
         verify(atLeast = 10) {
-            dittnavService.sendBeskjed(any(), any())
+            dittnavService.sendVarsel(any(), any())
         }
     }
 
@@ -125,12 +126,14 @@ class KafkaErrorHandlerTest {
 
         val correlationId = UUID.randomUUID().toString()
 
-        producer.leggPåTopic(gyldigK9Microfrontend(
-            correlationId = correlationId,
-            ident = "12345678910",
-            action = MicrofrontendAction.ENABLE,
-            sensitivitet = Sensitivitet.HIGH,
-        ), K9_DITTNAV_VARSEL_MICROFRONTEND, mapper)
+        producer.leggPåTopic(
+            gyldigK9Microfrontend(
+                correlationId = correlationId,
+                ident = "12345678910",
+                action = MicrofrontendAction.ENABLE,
+                sensitivitet = Sensitivitet.HIGH,
+            ), K9_DITTNAV_VARSEL_MICROFRONTEND, mapper
+        )
 
         awaitAndAssertNull { utkastConsumer.hentMelding(DITT_NAV_MICROFRONTEND) { it == correlationId }?.value() }
 
@@ -140,7 +143,7 @@ class KafkaErrorHandlerTest {
     }
 
     private fun mockDittnavServiceFailure() {
-        every { dittnavService.sendBeskjed(any(), any()) } throws Exception(MOCKED_ERROR_MESSAGE)
+        every { dittnavService.sendVarsel(any(), any()) } throws Exception(MOCKED_ERROR_MESSAGE)
     }
 
     private fun mockDittnavServiceUtkastFailure() {

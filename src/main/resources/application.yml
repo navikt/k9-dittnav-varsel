@@ -24,9 +24,4 @@ kafka:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
     producer:
       client-id: ${HOSTNAME}
-      key-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
-      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
       retries: 3
-      schemaRegistryUrl: ${KAFKA_SCHEMA_REGISTRY}
-      schemaRegistryUser: ${KAFKA_SCHEMA_REGISTRY_USER}
-      schemaRegistryPassword: ${KAFKA_SCHEMA_REGISTRY_PASSWORD}

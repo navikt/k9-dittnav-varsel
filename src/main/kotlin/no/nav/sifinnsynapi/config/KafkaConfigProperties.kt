@@ -27,12 +27,7 @@ data class KafkaConsumerProperties(
 
 data class KafkaProducerProperties(
     val clientId: String,
-    val keySerializer: String,
-    val valueSerializer: String,
     val retries: Int,
-    val schemaRegistryUrl: String,
-    val schemaRegistryUser: String,
-    val schemaRegistryPassword: String,
 )
 
 data class KafkaProperties(

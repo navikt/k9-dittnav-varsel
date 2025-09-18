@@ -1,9 +1,6 @@
 package no.nav.sifinnsynapi.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
-import no.nav.brukernotifikasjon.schemas.input.NokkelInput
-import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.avroProducerFactory
 import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.configureConcurrentKafkaListenerContainerFactory
 import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.consumerFactory
 import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.stringProducerFactory
@@ -35,25 +32,17 @@ class KafkaConfig(
     fun producerFactory(): ProducerFactory<String, String> = stringProducerFactory(kafkaClusterProperties.aiven)
 
     @Bean
-    fun beskjedProducerFactory(): ProducerFactory<NokkelInput, BeskjedInput> =
-        avroProducerFactory(kafkaClusterProperties.aiven)
-
-    @Bean
-    fun beskjedKafkaTemplate(beskjedProducerFactory: ProducerFactory<NokkelInput, BeskjedInput>): KafkaTemplate<NokkelInput, BeskjedInput> =
-        CommonKafkaConfig.kafkaTemplate(beskjedProducerFactory)
-
-    @Bean
     fun kafkaTemplate(producerFactory: ProducerFactory<String, String>): KafkaTemplate<String, String> =
         CommonKafkaConfig.kafkaTemplate(producerFactory)
 
     @Bean
     fun beskjedKafkaJsonListenerContainerFactory(
         consumerFactory: ConsumerFactory<String, String>,
-        beskjedKafkaTemplate: KafkaTemplate<NokkelInput, BeskjedInput>,
+        kafkaTemplate: KafkaTemplate<String, String>,
     ): ConcurrentKafkaListenerContainerFactory<String, String> =
         configureConcurrentKafkaListenerContainerFactory<K9Beskjed>(
             consumerFactory = consumerFactory,
-            kafkaTemplate = beskjedKafkaTemplate,
+            kafkaTemplate = kafkaTemplate,
             retryInterval = kafkaClusterProperties.aiven.consumer.retryInterval,
             objectMapper = objectMapper,
             logger = logger,

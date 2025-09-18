@@ -1,12 +1,9 @@
 package no.nav.sifinnsynapi.konsumenter
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
-import no.nav.brukernotifikasjon.schemas.input.NokkelInput
-import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED
-import no.nav.sifinnsynapi.config.Topics.DITT_NAV_VARSEL
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_MICROFRONTEND
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_UTKAST
+import no.nav.sifinnsynapi.config.Topics.DITT_NAV_VARSEL
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_BESKJED
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_MICROFRONTEND
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_UTKAST
@@ -15,7 +12,6 @@ import no.nav.sifinnsynapi.utils.gyldigK9Microfrontend
 import no.nav.sifinnsynapi.utils.gyldigK9Utkast
 import no.nav.sifinnsynapi.utils.hentMelding
 import no.nav.sifinnsynapi.utils.leggPåTopic
-import no.nav.sifinnsynapi.utils.opprettKafkaAvroConsumer
 import no.nav.sifinnsynapi.utils.opprettKafkaProducer
 import no.nav.sifinnsynapi.utils.opprettKafkaStringConsumer
 import no.nav.tms.microfrontend.Sensitivitet
@@ -42,7 +38,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.util.*
 
 @EmbeddedKafka( // Setter opp og tilgjengligjør embeded kafka broker
-    topics = [K9_DITTNAV_VARSEL_BESKJED, DITT_NAV_BESKJED, DITT_NAV_VARSEL, K9_DITTNAV_VARSEL_UTKAST, DITT_NAV_UTKAST, K9_DITTNAV_VARSEL_MICROFRONTEND, DITT_NAV_MICROFRONTEND],
+    topics = [K9_DITTNAV_VARSEL_BESKJED, DITT_NAV_VARSEL, K9_DITTNAV_VARSEL_UTKAST, DITT_NAV_UTKAST, K9_DITTNAV_VARSEL_MICROFRONTEND, DITT_NAV_MICROFRONTEND],
     count = 3,
     bootstrapServersProperty = "kafka-servers" // Setter bootstrap-servers for consumer og producer.
 )
@@ -61,7 +57,6 @@ class KonsumentIntegrasjonsTest {
     private lateinit var embeddedKafkaBroker: EmbeddedKafkaBroker // Broker som brukes til å konfigurere opp en kafka producer.
 
     lateinit var producer: Producer<String, Any> // Kafka producer som brukes til å legge på kafka meldinger.
-    lateinit var dittnavBeskjedConsumer: Consumer<NokkelInput, BeskjedInput> // Kafka consumer som brukes til å lese beskjeder.
     lateinit var dittnavStringConsumer: Consumer<String, String> // Kafka consumer som brukes til å lese meldinger.
     lateinit var dittnavVarselConsumer: Consumer<String, String> // Kafka consumer for ny JSON-basert varsel topic
 
@@ -72,8 +67,6 @@ class KonsumentIntegrasjonsTest {
     @BeforeAll
     fun setUp() {
         producer = embeddedKafkaBroker.opprettKafkaProducer()
-        dittnavBeskjedConsumer =
-            embeddedKafkaBroker.opprettKafkaAvroConsumer(groupId = "beskjed-consumer", topicName = DITT_NAV_BESKJED)
         dittnavStringConsumer =
             embeddedKafkaBroker.opprettKafkaStringConsumer(
                 groupId = "dittnav-consumer",
@@ -89,128 +82,41 @@ class KonsumentIntegrasjonsTest {
     @AfterAll
     internal fun tearDown() {
         producer.close()
-        dittnavBeskjedConsumer.close()
         dittnavStringConsumer.close()
         dittnavVarselConsumer.close()
     }
 
-    @Test
-    fun `Legger K9Beskjed på topic og forvent publisert dittnav beskjed`() {
+    @ParameterizedTest
+    @EnumSource(Ytelse::class)
+    fun `Legger k9Beskjed på topic og forventer publisert varsel på mine sider`(ytelse: Ytelse) {
         // legg på 1 hendelse om mottatt søknad
         val k9Beskjed = gyldigK9Beskjed(
-            tekst = "Vi har mottatt din melding om registrering av aleneomsorg.",
+            tekst = "Vi har mottatt din søknad for $ytelse.",
             link = "https://www.nav.no",
-            ytelse = Ytelse.OMSORGSDAGER_ALENEOMSORG
+            ytelse = ytelse
         )
 
         producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
 
-        // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
-        val brukernotifikasjon =
-            dittnavBeskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
-        validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
+        // Verifiser at JSON varsel blir publisert riktig uten link.
+        val jsonVarsel = dittnavVarselConsumer.hentMelding(DITT_NAV_VARSEL) { it == k9Beskjed.eventId }?.value()
+        validerRiktigJsonVarsel(k9Beskjed, jsonVarsel)
     }
 
     @Test
-    fun `Legger K9Beskjed på topic fra ettersending og forvent publisert dittnav beskjed`() {
-        // legg på 1 hendelse om mottatt søknad
+    fun `Legger K9Beskjed uten link på topic og forventer riktig JSON varsel`() {
+        // Test JSON varsel uten link
         val k9Beskjed = gyldigK9Beskjed(
-            tekst = "Vi har mottatt din ettersendelse til pleiepenger.",
+            tekst = "Ettersendelse mottatt for omsorgspenger.",
             link = null,
-            ytelse = Ytelse.ETTERSENDING_PLEIEPENGER_SYKT_BARN
+            ytelse = Ytelse.ETTERSENDING_OMP
         )
 
         producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
 
-        // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
-        val brukernotifikasjon =
-            dittnavBeskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
-        validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
-    }
-
-    @Test
-    fun `Legger K9Beskjed på topic fra omsorgspenger utvidet rett og forvent publisert dittnav beskjed`() {
-        // legg på 1 hendelse om mottatt søknad
-        val k9Beskjed = gyldigK9Beskjed(
-            tekst = "Vi har mottatt søknad fra deg om ekstra omsorgsdager ved kronisk sykt eller funksjonshemmet barn.",
-            link = null,
-            ytelse = Ytelse.OMSORGSPENGER_UTV_KS
-        )
-
-        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
-
-        // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
-        val brukernotifikasjon =
-            dittnavBeskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
-        validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
-    }
-
-    @Test
-    fun `Legger K9Beskjed på topic fra omsorgspenger utbetaling snf og forvent publisert dittnav beskjed`() {
-        // legg på 1 hendelse om mottatt søknad
-        val k9Beskjed = gyldigK9Beskjed(
-            tekst = "Søknad om utbetaling av omsorgspenger er mottatt.",
-            link = null,
-            ytelse = Ytelse.OMSORGSPENGER_UT_SNF
-        )
-
-        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
-
-        // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
-        val brukernotifikasjon =
-            dittnavBeskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
-        validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
-    }
-
-    @Test
-    fun `Legger K9Beskjed på topic fra pleiepenger livets sluttfase og forventer publisert dittnav beskjed`() {
-        // legg på 1 hendelse om mottatt søknad
-        val k9Beskjed = gyldigK9Beskjed(
-            tekst = "Søknad om pleiepenger livets sluttfase",
-            link = null,
-            ytelse = Ytelse.PLEIEPENGER_LIVETS_SLUTTFASE
-        )
-
-        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
-
-        // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
-        val brukernotifikasjon =
-            dittnavBeskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
-        validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
-    }
-
-    @Test
-    fun `Legger K9Beskjed på topic fra omsorgspenger utbetaling arbeidstaker og forventer publisert dittnav beskjed`() {
-        // legg på 1 hendelse om mottatt søknad
-        val k9Beskjed = gyldigK9Beskjed(
-            tekst = "Søknad om utbetaling av omsorgspenger for arbeidstaker",
-            link = null,
-            ytelse = Ytelse.OMSORGSPENGER_UT_ARBEIDSTAKER
-        )
-
-        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
-
-        // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
-        val brukernotifikasjon =
-            dittnavBeskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
-        validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
-    }
-
-    @Test
-    fun `Legger K9Beskjed på topic fra opplæringspenger og forventer publisert dittnav beskjed`() {
-        // legg på 1 hendelse om mottatt søknad
-        val k9Beskjed = gyldigK9Beskjed(
-            tekst = "Søknad om opplæringspenger",
-            link = "https://www.nav.no/familie/sykdom-i-familien/soknad/opplaringspenger",
-            ytelse = Ytelse.OPPLARINGSPENGER
-        )
-
-        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
-
-        // forvent at mottatt hendelse konsumeres og at det blir sendt ut en beskjed på aapen-brukernotifikasjon-nyBeskjed-v1 topic
-        val brukernotifikasjon =
-            dittnavBeskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
-        validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
+        // Verifiser at JSON varsel blir publisert riktig uten link.
+        val jsonVarsel = dittnavVarselConsumer.hentMelding(DITT_NAV_VARSEL) { it == k9Beskjed.eventId }?.value()
+        validerRiktigJsonVarsel(k9Beskjed, jsonVarsel)
     }
 
     @Test
@@ -249,69 +155,6 @@ class KonsumentIntegrasjonsTest {
         logger.info("Produsert microfrontend event" + JSONObject(konsumertMicrofrontendEvent).toString(2))
         validerRiktigMicrofrontendEvent(microfrontendEvent, konsumertMicrofrontendEvent)
     }
-
-    @Test
-    fun `Legger K9Beskjed på topic og forventer publisert JSON varsel på nytt topic`() {
-        // Test ny JSON varsel format
-        val k9Beskjed = gyldigK9Beskjed(
-            tekst = "Vi har mottatt din søknad om pleiepenger.",
-            link = "https://www.nav.no/familie/sykdom-i-familien",
-            ytelse = Ytelse.PLEIEPENGER_SYKT_BARN
-        )
-
-        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
-
-        // Verifiser at ny JSON varsel blir publisert til ny topic
-        val jsonVarsel = dittnavVarselConsumer.hentMelding(DITT_NAV_VARSEL) { it == k9Beskjed.eventId }?.value()
-        validerRiktigJsonVarsel(k9Beskjed, jsonVarsel)
-
-        logger.info("JSON varsel publisert: ${JSONObject(jsonVarsel).toString(2)}")
-    }
-
-    @Test
-    fun `Legger K9Beskjed uten link på topic og forventer riktig JSON varsel`() {
-        // Test JSON varsel uten link
-        val k9Beskjed = gyldigK9Beskjed(
-            tekst = "Ettersendelse mottatt for omsorgspenger.",
-            link = null,
-            ytelse = Ytelse.ETTERSENDING_OMP
-        )
-
-        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
-
-        // Verifiser at JSON varsel blir publisert riktig uten link.
-        val jsonVarsel = dittnavVarselConsumer.hentMelding(DITT_NAV_VARSEL) { it == k9Beskjed.eventId }?.value()
-        validerRiktigJsonVarsel(k9Beskjed, jsonVarsel)
-    }
-
-    @Test
-    fun `Verifiser at både legacy AVRO og nytt JSON format publiseres under migrering`() {
-        // Test ved migrering at både legacy AVRO and ny JSON format blir publisert.
-        val k9Beskjed = gyldigK9Beskjed(
-            tekst = "Dobbel format test melding.",
-            link = "https://www.nav.no/test",
-            ytelse = Ytelse.UNGDOMSYTELSE
-        )
-
-        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
-
-        // Verifiser legacy AVRO format
-        val brukernotifikasjon = dittnavBeskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
-        validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
-
-        // Verifiser ny JSON format
-        val jsonVarsel = dittnavVarselConsumer.hentMelding(DITT_NAV_VARSEL) { it == k9Beskjed.eventId }?.value()
-        validerRiktigJsonVarsel(k9Beskjed, jsonVarsel)
-
-        logger.info("Både legacy AVRO og ny JSON format publisert ved migrering")
-    }
-}
-
-
-fun validerRiktigBrukernotifikasjon(k9Beskjed: K9Beskjed, brukernotifikasjon: BeskjedInput?) {
-    assertTrue(brukernotifikasjon != null)
-    assertTrue(k9Beskjed.tekst == brukernotifikasjon?.getTekst())
-    k9Beskjed.link?.let { assertTrue(k9Beskjed.link == brukernotifikasjon?.getLink()) }
 }
 
 fun validerRiktigUtkast(utkast: String, konsumertUtkast: String?) {

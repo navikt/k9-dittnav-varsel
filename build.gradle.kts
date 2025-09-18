@@ -24,9 +24,6 @@ java {
     targetCompatibility = JavaVersion.VERSION_21
 }
 
-val confluentVersion by extra("7.6.0")
-val avroVersion by extra("1.11.4")
-val brukernotifikasjonVersion by extra("v2.5.1")
 val tmsVarselVersjon by extra("2.1.1")
 val logstashLogbackEncoderVersion by extra("7.4")
 val retryVersion by extra("2.0.5")
@@ -64,7 +61,6 @@ dependencies {
     }
 
     // NAV
-    implementation("com.github.navikt:brukernotifikasjon-schemas:$brukernotifikasjonVersion")
     implementation("com.github.navikt:tms-mikrofrontend-selector:20231005112556-1c554d9")
     implementation("no.nav.tms.varsel:kotlin-builder:$tmsVarselVersjon")
 
@@ -96,9 +92,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
     //Kafka
-    implementation("org.apache.avro:avro:$avroVersion")
-    implementation("io.confluent:kafka-connect-avro-converter:$confluentVersion")
-    implementation("io.confluent:kafka-avro-serializer:$confluentVersion")
     implementation("org.springframework.kafka:spring-kafka")
     constraints {
         implementation("org.scala-lang:scala-library") {
