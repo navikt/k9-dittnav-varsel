@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
 import no.nav.brukernotifikasjon.schemas.input.NokkelInput
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_BESKJED
+import no.nav.sifinnsynapi.config.Topics.DITT_NAV_VARSEL
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_MICROFRONTEND
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_UTKAST
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_BESKJED
@@ -41,7 +42,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.util.*
 
 @EmbeddedKafka( // Setter opp og tilgjengligjør embeded kafka broker
-    topics = [K9_DITTNAV_VARSEL_BESKJED, DITT_NAV_BESKJED, K9_DITTNAV_VARSEL_UTKAST, DITT_NAV_UTKAST, K9_DITTNAV_VARSEL_MICROFRONTEND, DITT_NAV_MICROFRONTEND],
+    topics = [K9_DITTNAV_VARSEL_BESKJED, DITT_NAV_BESKJED, DITT_NAV_VARSEL, K9_DITTNAV_VARSEL_UTKAST, DITT_NAV_UTKAST, K9_DITTNAV_VARSEL_MICROFRONTEND, DITT_NAV_MICROFRONTEND],
     count = 3,
     bootstrapServersProperty = "kafka-servers" // Setter bootstrap-servers for consumer og producer.
 )
@@ -62,6 +63,7 @@ class KonsumentIntegrasjonsTest {
     lateinit var producer: Producer<String, Any> // Kafka producer som brukes til å legge på kafka meldinger.
     lateinit var dittnavBeskjedConsumer: Consumer<NokkelInput, BeskjedInput> // Kafka consumer som brukes til å lese beskjeder.
     lateinit var dittnavStringConsumer: Consumer<String, String> // Kafka consumer som brukes til å lese meldinger.
+    lateinit var dittnavVarselConsumer: Consumer<String, String> // Kafka consumer for ny JSON-basert varsel topic
 
     private companion object {
         val logger = LoggerFactory.getLogger(KonsumentIntegrasjonsTest::class.java)
@@ -77,6 +79,11 @@ class KonsumentIntegrasjonsTest {
                 groupId = "dittnav-consumer",
                 topics = listOf(DITT_NAV_UTKAST, DITT_NAV_MICROFRONTEND)
             )
+        dittnavVarselConsumer =
+            embeddedKafkaBroker.opprettKafkaStringConsumer(
+                groupId = "dittnav-varsel-consumer",
+                topics = listOf(DITT_NAV_VARSEL)
+            )
     }
 
     @AfterAll
@@ -84,6 +91,7 @@ class KonsumentIntegrasjonsTest {
         producer.close()
         dittnavBeskjedConsumer.close()
         dittnavStringConsumer.close()
+        dittnavVarselConsumer.close()
     }
 
     @Test
@@ -241,6 +249,62 @@ class KonsumentIntegrasjonsTest {
         logger.info("Produsert microfrontend event" + JSONObject(konsumertMicrofrontendEvent).toString(2))
         validerRiktigMicrofrontendEvent(microfrontendEvent, konsumertMicrofrontendEvent)
     }
+
+    @Test
+    fun `Legger K9Beskjed på topic og forventer publisert JSON varsel på nytt topic`() {
+        // Test ny JSON varsel format
+        val k9Beskjed = gyldigK9Beskjed(
+            tekst = "Vi har mottatt din søknad om pleiepenger.",
+            link = "https://www.nav.no/familie/sykdom-i-familien",
+            ytelse = Ytelse.PLEIEPENGER_SYKT_BARN
+        )
+
+        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
+
+        // Verifiser at ny JSON varsel blir publisert til ny topic
+        val jsonVarsel = dittnavVarselConsumer.hentMelding(DITT_NAV_VARSEL) { it == k9Beskjed.eventId }?.value()
+        validerRiktigJsonVarsel(k9Beskjed, jsonVarsel)
+
+        logger.info("JSON varsel publisert: ${JSONObject(jsonVarsel).toString(2)}")
+    }
+
+    @Test
+    fun `Legger K9Beskjed uten link på topic og forventer riktig JSON varsel`() {
+        // Test JSON varsel uten link
+        val k9Beskjed = gyldigK9Beskjed(
+            tekst = "Ettersendelse mottatt for omsorgspenger.",
+            link = null,
+            ytelse = Ytelse.ETTERSENDING_OMP
+        )
+
+        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
+
+        // Verifiser at JSON varsel blir publisert riktig uten link.
+        val jsonVarsel = dittnavVarselConsumer.hentMelding(DITT_NAV_VARSEL) { it == k9Beskjed.eventId }?.value()
+        validerRiktigJsonVarsel(k9Beskjed, jsonVarsel)
+    }
+
+    @Test
+    fun `Verifiser at både legacy AVRO og nytt JSON format publiseres under migrering`() {
+        // Test ved migrering at både legacy AVRO and ny JSON format blir publisert.
+        val k9Beskjed = gyldigK9Beskjed(
+            tekst = "Dobbel format test melding.",
+            link = "https://www.nav.no/test",
+            ytelse = Ytelse.UNGDOMSYTELSE
+        )
+
+        producer.leggPåTopic(k9Beskjed, K9_DITTNAV_VARSEL_BESKJED, mapper)
+
+        // Verifiser legacy AVRO format
+        val brukernotifikasjon = dittnavBeskjedConsumer.hentMelding(DITT_NAV_BESKJED) { it.getEventId() == k9Beskjed.eventId }?.value()
+        validerRiktigBrukernotifikasjon(k9Beskjed, brukernotifikasjon)
+
+        // Verifiser ny JSON format
+        val jsonVarsel = dittnavVarselConsumer.hentMelding(DITT_NAV_VARSEL) { it == k9Beskjed.eventId }?.value()
+        validerRiktigJsonVarsel(k9Beskjed, jsonVarsel)
+
+        logger.info("Både legacy AVRO og ny JSON format publisert ved migrering")
+    }
 }
 
 
@@ -265,4 +329,40 @@ fun validerRiktigMicrofrontendEvent(k9Microfrontend: String, dittnavMicrofronten
     assertEquals(MicrofrontendId.valueOf(publisert.getString("microfrontendId")).id, konsumert.getString("microfrontend_id"))
     assertEquals(publisert.getString("initiatedBy"), konsumert.getString("@initiated_by"))
     assertEquals(publisert.optString("sensitivitet", null)?.lowercase(), konsumert.optString("sensitivitet", null))
+}
+
+fun validerRiktigJsonVarsel(k9Beskjed: K9Beskjed, jsonVarsel: String?) {
+    assertTrue(jsonVarsel != null)
+    val konsumertJson = JSONObject(jsonVarsel)
+
+    // Valider at ny JSON varsel format er i henhold til dokumentasjonen.
+    assertEquals("opprett", konsumertJson.getString("@event_name"))
+    assertEquals("beskjed", konsumertJson.getString("type"))
+    assertEquals(k9Beskjed.eventId, konsumertJson.getString("varselId"))
+    assertEquals("high", konsumertJson.getString("sensitivitet"))
+    assertEquals(k9Beskjed.søkerFødselsnummer, konsumertJson.getString("ident"))
+
+    // Valider tekster
+    val tekster = konsumertJson.getJSONArray("tekster")
+    assertTrue(tekster.length() == 1)
+    val tekst = tekster.getJSONObject(0)
+    assertEquals("nb", tekst.getString("spraakkode"))
+    assertEquals(k9Beskjed.tekst, tekst.getString("tekst"))
+    assertTrue(tekst.getBoolean("default"))
+
+    // Valider valgfri link
+    if (k9Beskjed.link != null) {
+        assertEquals(k9Beskjed.link, konsumertJson.getString("link"))
+    } else {
+        assertTrue(!konsumertJson.has("link") || konsumertJson.isNull("link"))
+    }
+
+    // Valider aktivFremTil eksisterer
+    assertTrue(konsumertJson.has("aktivFremTil"))
+
+    // Valider produsent
+    val produsent = konsumertJson.getJSONObject("produsent")
+    assertEquals("prod-gcp", produsent.getString("cluster"))
+    assertEquals("dusseldorf", produsent.getString("namespace"))
+    assertEquals("k9-dittnav-varsel", produsent.getString("appnavn"))
 }

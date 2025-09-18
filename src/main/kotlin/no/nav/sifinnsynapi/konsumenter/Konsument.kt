@@ -32,7 +32,19 @@ class Konsument(
             melding
         ) else logger.info("Mottok K9Beskjed med eventID: {}, event: :{}", melding.eventId, melding)
 
-        dittnavService.sendBeskjed(melding.somNøkkel(), melding.somBeskjed())
+        // Ved migrering: send både til legacy AVRO topic og ny JSON topic.
+        try {
+            // Legacy AVRO format
+            dittnavService.sendBeskjed(melding.somNøkkel(), melding.somBeskjed())
+
+            // Ny JSON format
+            dittnavService.sendVarsel(melding.eventId, melding.somVarselOpprett())
+
+            logger.info("Beskjed sendt til både legacy og nytt topic for eventId: {}", melding.eventId)
+        } catch (ex: Exception) {
+            logger.error("Feil ved sending av beskjed for eventId: {}", melding.eventId, ex)
+            throw ex
+        }
     }
 
     @KafkaListener(
