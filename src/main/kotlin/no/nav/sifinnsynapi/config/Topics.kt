@@ -9,8 +9,4 @@ object Topics {
 
     const val K9_DITTNAV_VARSEL_MICROFRONTEND = "dusseldorf.privat-k9-dittnav-varsel-microfrontend"
     const val DITT_NAV_MICROFRONTEND = "min-side.aapen-microfrontend-v1"
-
-    // Legacy AVRO topic - vil fjernes etter migrering
-    @Deprecated("Bruk DITT_NAV_VARSEL istedet")
-    const val DITT_NAV_BESKJED = "min-side.aapen-brukernotifikasjon-beskjed-v1"
 }

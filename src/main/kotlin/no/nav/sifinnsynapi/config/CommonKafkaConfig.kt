@@ -1,7 +1,6 @@
 package no.nav.sifinnsynapi.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import no.nav.sifinnsynapi.util.Constants
 import no.nav.sifinnsynapi.util.MDCUtil
 import org.apache.kafka.clients.CommonClientConfigs
@@ -57,21 +56,6 @@ class CommonKafkaConfig {
                     ConsumerConfig.ISOLATION_LEVEL_CONFIG to consumerProps.isolationLevel,
                     ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to consumerProps.keyDeserializer,
                     ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to consumerProps.valueDeserializer
-                ) + commonConfig(kafkaConfigProps)
-            )
-        }
-
-        fun <K, V> avroProducerFactory(kafkaConfigProps: KafkaConfigProperties): ProducerFactory<K, V> {
-            val producerProps = kafkaConfigProps.producer
-            return DefaultKafkaProducerFactory(
-                mutableMapOf<String, Any>(
-                    ProducerConfig.CLIENT_ID_CONFIG to producerProps.clientId,
-                    ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to producerProps.keySerializer,
-                    ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to producerProps.valueSerializer,
-                    ProducerConfig.RETRIES_CONFIG to producerProps.retries,
-                    KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG to producerProps.schemaRegistryUrl,
-                    KafkaAvroDeserializerConfig.BASIC_AUTH_CREDENTIALS_SOURCE to "USER_INFO",
-                    KafkaAvroDeserializerConfig.USER_INFO_CONFIG to "${producerProps.schemaRegistryUser}:${producerProps.schemaRegistryPassword}"
                 ) + commonConfig(kafkaConfigProps)
             )
         }

@@ -1,8 +1,6 @@
 package no.nav.sifinnsynapi.utils
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig
-import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import no.nav.sifinnsynapi.konsumenter.somJson
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -30,20 +28,6 @@ fun <T> Producer<String, Any>.leggPåTopic(data: T, topic: String, mapper: Objec
     }
     this.send(ProducerRecord(topic, data.somJson(mapper)))
     this.flush()
-}
-
-fun <K, V> EmbeddedKafkaBroker.opprettKafkaAvroConsumer(groupId: String, topicName: String): Consumer<K, V> {
-
-    val consumerProps = KafkaTestUtils.consumerProps(groupId, "true", this)
-    consumerProps[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = "io.confluent.kafka.serializers.KafkaAvroDeserializer"
-    consumerProps[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] =
-        "io.confluent.kafka.serializers.KafkaAvroDeserializer"
-    consumerProps[KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG] = "true"
-    consumerProps[AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG] = "mock://localhost"
-
-    val consumer = DefaultKafkaConsumerFactory<K, V>(HashMap(consumerProps)).createConsumer()
-    consumer.subscribe(listOf(topicName))
-    return consumer
 }
 
 fun <K, V> EmbeddedKafkaBroker.opprettKafkaStringConsumer(groupId: String, topics: List<String>): Consumer<K, V> {

@@ -3,20 +3,13 @@ package no.nav.sifinnsynapi.konsumenter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nav.brukernotifikasjon.schemas.builders.BeskjedInputBuilder
-import no.nav.brukernotifikasjon.schemas.builders.NokkelInputBuilder
-import no.nav.brukernotifikasjon.schemas.input.BeskjedInput
-import no.nav.brukernotifikasjon.schemas.input.NokkelInput
 import no.nav.tms.varsel.action.Produsent
-import no.nav.tms.varsel.builder.VarselActionBuilder
-import no.nav.tms.varsel.action.Varseltype
 import no.nav.tms.varsel.action.Sensitivitet
 import no.nav.tms.varsel.action.Tekst
-import java.net.URL
-import java.time.LocalDateTime
-import java.time.ZoneOffset.UTC
-import java.time.ZonedDateTime
+import no.nav.tms.varsel.action.Varseltype
+import no.nav.tms.varsel.builder.VarselActionBuilder
 import java.time.ZoneId
+import java.time.ZonedDateTime
 
 data class K9Beskjed(
     val metadata: Metadata,
@@ -72,28 +65,6 @@ data class Metadata @JsonCreator constructor(
 )
 
 fun <T> T.somJson(mapper: ObjectMapper) = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this)
-
-fun K9Beskjed.somNøkkel(): NokkelInput {
-    return NokkelInputBuilder()
-        .withAppnavn("k9-dittnav-varsel")
-        .withNamespace("dusseldorf")
-        .withFodselsnummer(søkerFødselsnummer)
-        .withGrupperingsId(grupperingsId)
-        .withEventId(eventId)
-        .build()
-}
-
-fun K9Beskjed.somBeskjed(): BeskjedInput {
-    val builder = BeskjedInputBuilder()
-        .withEksternVarsling(false)
-        .withSikkerhetsnivaa(4)
-        .withSynligFremTil(LocalDateTime.now().plusDays(dagerSynlig))
-        .withTekst(tekst)
-        .withTidspunkt(LocalDateTime.now(UTC))
-
-    if (link != null) builder.withLink(URL(link))
-    return builder.build()
-}
 
 fun K9Beskjed.somVarselOpprett(): String {
     return VarselActionBuilder.opprett {
