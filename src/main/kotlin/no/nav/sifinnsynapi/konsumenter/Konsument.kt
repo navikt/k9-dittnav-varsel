@@ -33,10 +33,7 @@ class Konsument(
         ) else logger.info("Mottok K9Beskjed med eventID: {}, event: :{}", melding.eventId, melding)
 
         try {
-
             dittnavService.sendVarsel(melding.eventId, melding.somVarselOpprett())
-
-            logger.info("Beskjed sendt til både legacy og nytt topic for eventId: {}", melding.eventId)
         } catch (ex: Exception) {
             logger.error("Feil ved sending av beskjed for eventId: {}", melding.eventId, ex)
             throw ex
