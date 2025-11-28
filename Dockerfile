@@ -1,4 +1,4 @@
-FROM amazoncorretto:21-alpine3.20
+FROM ghcr.io/navikt/sif-baseimages/java-chainguard-21:2025.11.25.1015z
 
 COPY build/libs/*.jar app.jar
 
