@@ -1,5 +1,5 @@
-FROM amazoncorretto:21-alpine3.20
+FROM ghcr.io/navikt/sif-baseimages/java-chainguard-21:2025.12.03.1527Z
 
 COPY build/libs/*.jar app.jar
 
-CMD ["java", "-jar", "app.jar"]
+CMD ["-jar", "app.jar"]
