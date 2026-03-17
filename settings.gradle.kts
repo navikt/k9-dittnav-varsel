@@ -1,7 +1,7 @@
 rootProject.name = "k9-dittnav-varsel"
 
 plugins {
-    id("com.gradle.develocity") version("3.19")
+    id("com.gradle.develocity") version("4.3.2")
 }
 
 develocity {

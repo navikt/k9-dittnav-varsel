@@ -2,8 +2,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "2.2.21"
-    kotlin("plugin.spring") version "2.2.21"
+    kotlin("jvm") version "2.3.20"
+    kotlin("plugin.spring") version "2.3.20"
     id("org.springframework.boot") version "4.0.3"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.sonarqube") version "7.0.1.6134"
@@ -20,15 +20,13 @@ configurations {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 val tmsVarselVersjon by extra("2.1.1")
 val logstashLogbackEncoderVersion by extra("7.4")
-val retryVersion by extra("2.0.5")
 val jsonVersion by extra("20240303")
-val awaitilityKotlinVersion by extra("4.2.1")
 val assertkJvmVersion by extra("0.28.0")
 val springMockkVersion by extra("4.0.2")
 val mockkVersion by extra("1.13.10")
@@ -64,7 +62,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
-    implementation("org.springframework.retry:spring-retry:$retryVersion")
+    implementation("org.springframework.retry:spring-retry")
     implementation("org.springframework:spring-aspects")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
@@ -104,7 +102,7 @@ dependencies {
     implementation("org.apache.commons:commons-compress:1.28.0")
 
 
-    testImplementation("org.awaitility:awaitility-kotlin:$awaitilityKotlinVersion")
+    testImplementation("org.awaitility:awaitility-kotlin")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkJvmVersion")
     testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
@@ -127,7 +125,7 @@ tasks {
     withType<KotlinCompile> {
         compilerOptions {
             freeCompilerArgs.set(listOf("-Xjsr305=strict"))
-            jvmTarget.set(JvmTarget.JVM_21)
+            jvmTarget.set(JvmTarget.JVM_25)
         }
     }
 
@@ -136,7 +134,7 @@ tasks {
     }
 
     withType<Wrapper> {
-        gradleVersion = "8.14"
+        gradleVersion = "9.4"
     }
 }
 
