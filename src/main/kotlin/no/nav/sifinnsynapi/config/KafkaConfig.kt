@@ -1,6 +1,6 @@
 package no.nav.sifinnsynapi.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.configureConcurrentKafkaListenerContainerFactory
 import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.consumerFactory
 import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.stringProducerFactory

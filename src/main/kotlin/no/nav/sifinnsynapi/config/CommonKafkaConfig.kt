@@ -1,6 +1,7 @@
 package no.nav.sifinnsynapi.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 import no.nav.sifinnsynapi.util.Constants
 import no.nav.sifinnsynapi.util.MDCUtil
 import org.apache.kafka.clients.CommonClientConfigs
@@ -19,7 +20,7 @@ import org.springframework.kafka.core.ProducerFactory
 import org.springframework.kafka.listener.ConsumerRecordRecoverer
 import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.listener.DefaultAfterRollbackProcessor
-import org.springframework.kafka.support.converter.JsonMessageConverter
+import org.springframework.kafka.support.converter.StringJacksonJsonMessageConverter
 import org.springframework.util.backoff.FixedBackOff
 import java.time.Duration
 
@@ -90,7 +91,7 @@ class CommonKafkaConfig {
             factory.setReplyTemplate(kafkaTemplate)
 
             // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#payload-conversion-with-batch
-            factory.setRecordMessageConverter(JsonMessageConverter(objectMapper))
+            factory.setRecordMessageConverter(StringJacksonJsonMessageConverter(objectMapper as JsonMapper))
 
             // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#committing-offsets
             factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD

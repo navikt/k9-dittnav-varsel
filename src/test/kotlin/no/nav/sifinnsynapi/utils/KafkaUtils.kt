@@ -1,6 +1,6 @@
 package no.nav.sifinnsynapi.utils
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import no.nav.sifinnsynapi.konsumenter.somJson
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
