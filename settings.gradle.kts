@@ -5,11 +5,9 @@ plugins {
 }
 
 develocity {
-    if (System.getenv("CI") != null) {
-        buildScan {
-            publishAlways()
-            termsOfUseUrl = "https://gradle.com/terms-of-service"
-            termsOfUseAgree = "yes"
-        }
+    buildScan {
+        publishing.onlyIf { System.getenv("CI") != null }
+        termsOfUseUrl.set("https://gradle.com/help/legal-terms-of-use")
+        termsOfUseAgree.set("yes")
     }
 }

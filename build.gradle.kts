@@ -26,6 +26,7 @@ java {
 
 val tmsVarselVersjon by extra("2.1.1")
 val logstashLogbackEncoderVersion by extra("7.4")
+val retryVersion by extra("2.0.12")
 val jsonVersion by extra("20240303")
 val assertkJvmVersion by extra("0.28.0")
 val springMockkVersion by extra("4.0.2")
@@ -62,7 +63,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
-    implementation("org.springframework.retry:spring-retry")
+    implementation("org.springframework.retry:spring-retry:$retryVersion")
     implementation("org.springframework:spring-aspects")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
