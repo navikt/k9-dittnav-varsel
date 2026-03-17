@@ -1,6 +1,6 @@
 package no.nav.sifinnsynapi.config
 
-import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.configureConcurrentKafkaListenerContainerFactory
 import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.consumerFactory
 import no.nav.sifinnsynapi.config.CommonKafkaConfig.Companion.stringProducerFactory
@@ -17,7 +17,7 @@ import org.springframework.kafka.core.ProducerFactory
 
 @Configuration
 class KafkaConfig(
-    private val objectMapper: ObjectMapper,
+    private val objectMapper: JsonMapper,
     private val kafkaClusterProperties: KafkaClusterProperties,
 ) {
 

@@ -1,6 +1,5 @@
 package no.nav.sifinnsynapi.config
 
-import tools.jackson.databind.ObjectMapper
 import tools.jackson.databind.json.JsonMapper
 import no.nav.sifinnsynapi.util.Constants
 import no.nav.sifinnsynapi.util.MDCUtil
@@ -80,7 +79,7 @@ class CommonKafkaConfig {
             consumerFactory: ConsumerFactory<String, String>,
             retryInterval: Long,
             kafkaTemplate: KafkaTemplate<*, *>,
-            objectMapper: ObjectMapper,
+            objectMapper: JsonMapper,
             logger: Logger,
             noinline correlationIdExtractor: (T) -> String
         ): ConcurrentKafkaListenerContainerFactory<String, String> {
@@ -91,7 +90,7 @@ class CommonKafkaConfig {
             factory.setReplyTemplate(kafkaTemplate)
 
             // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#payload-conversion-with-batch
-            factory.setRecordMessageConverter(StringJacksonJsonMessageConverter(objectMapper as JsonMapper))
+            factory.setRecordMessageConverter(StringJacksonJsonMessageConverter(objectMapper))
 
             // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#committing-offsets
             factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD
