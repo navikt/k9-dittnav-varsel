@@ -1,6 +1,5 @@
 package no.nav.sifinnsynapi.konsumenter
 
-import tools.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
@@ -11,13 +10,7 @@ import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_BESKJED
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_MICROFRONTEND
 import no.nav.sifinnsynapi.config.Topics.K9_DITTNAV_VARSEL_UTKAST
 import no.nav.sifinnsynapi.dittnav.DittnavService
-import no.nav.sifinnsynapi.utils.gyldigK9Beskjed
-import no.nav.sifinnsynapi.utils.gyldigK9Microfrontend
-import no.nav.sifinnsynapi.utils.gyldigK9Utkast
-import no.nav.sifinnsynapi.utils.hentMelding
-import no.nav.sifinnsynapi.utils.leggPåTopic
-import no.nav.sifinnsynapi.utils.opprettKafkaProducer
-import no.nav.sifinnsynapi.utils.opprettKafkaStringConsumer
+import no.nav.sifinnsynapi.utils.*
 import no.nav.tms.microfrontend.Sensitivitet
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.producer.Producer
@@ -35,12 +28,13 @@ import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import tools.jackson.databind.ObjectMapper
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 @EmbeddedKafka( // Setter opp og tilgjengligjør embeded kafka broker
     topics = [K9_DITTNAV_VARSEL_BESKJED, K9_DITTNAV_VARSEL_UTKAST, DITT_NAV_UTKAST, K9_DITTNAV_VARSEL_MICROFRONTEND, DITT_NAV_MICROFRONTEND],
-    count = 3,
+    count = 1,
     bootstrapServersProperty = "kafka-servers" // Setter bootstrap-servers for consumer og producer.
 )
 @ExtendWith(SpringExtension::class)
