@@ -85,19 +85,19 @@ class CommonKafkaConfig {
 
             factory.setReplyTemplate(kafkaTemplate)
 
-            // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#payload-conversion-with-batch
+            // https://docs.spring.io/spring-kafka/reference/kafka/serdes.html#payload-conversion-with-batch
             factory.setRecordMessageConverter(StringJacksonJsonMessageConverter(objectMapper))
 
-            // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#committing-offsets
+            // https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-annotation.html#committing-offsets
             factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD
 
-            // https://docs.spring.io/spring-kafka/reference/html/#listener-container
+            // https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-container.html
             factory.containerProperties.setAuthExceptionRetryInterval(Duration.ofSeconds(10L))
 
-            // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#delivery-header
+            // https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-container.html#delivery-header
             factory.containerProperties.isDeliveryAttemptHeader = true
 
-            // https://docs.spring.io/spring-kafka/reference/html/#seek-to-current
+            // https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-container.html#seek-to-current
             factory.setAfterRollbackProcessor(defaultAfterRollbackProsessor(logger, retryInterval))
 
             factory.setRecordInterceptor { record, _ ->
