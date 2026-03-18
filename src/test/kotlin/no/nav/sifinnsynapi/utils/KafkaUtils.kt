@@ -1,6 +1,5 @@
 package no.nav.sifinnsynapi.utils
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.sifinnsynapi.konsumenter.somJson
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -13,6 +12,7 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.test.EmbeddedKafkaBroker
 import org.springframework.kafka.test.utils.KafkaTestUtils
+import tools.jackson.databind.ObjectMapper
 import java.time.Duration
 
 fun EmbeddedKafkaBroker.opprettKafkaProducer(): Producer<String, Any> {
@@ -30,7 +30,7 @@ fun <T> Producer<String, Any>.leggPåTopic(data: T, topic: String, mapper: Objec
     this.flush()
 }
 
-fun <K, V> EmbeddedKafkaBroker.opprettKafkaStringConsumer(groupId: String, topics: List<String>): Consumer<K, V> {
+fun <K : Any, V : Any> EmbeddedKafkaBroker.opprettKafkaStringConsumer(groupId: String, topics: List<String>): Consumer<K, V> {
 
     val consumerProps = KafkaTestUtils.consumerProps(groupId, "true", this)
     consumerProps[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java

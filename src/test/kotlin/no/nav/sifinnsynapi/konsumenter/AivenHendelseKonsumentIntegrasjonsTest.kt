@@ -1,6 +1,6 @@
 package no.nav.sifinnsynapi.konsumenter
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_MICROFRONTEND
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_UTKAST
 import no.nav.sifinnsynapi.config.Topics.DITT_NAV_VARSEL

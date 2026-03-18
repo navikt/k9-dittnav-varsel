@@ -1,6 +1,5 @@
 package no.nav.sifinnsynapi.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.sifinnsynapi.util.Constants
 import no.nav.sifinnsynapi.util.MDCUtil
 import org.apache.kafka.clients.CommonClientConfigs
@@ -11,16 +10,13 @@ import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.serialization.StringSerializer
 import org.slf4j.Logger
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
-import org.springframework.kafka.core.ConsumerFactory
-import org.springframework.kafka.core.DefaultKafkaConsumerFactory
-import org.springframework.kafka.core.DefaultKafkaProducerFactory
-import org.springframework.kafka.core.KafkaTemplate
-import org.springframework.kafka.core.ProducerFactory
+import org.springframework.kafka.core.*
 import org.springframework.kafka.listener.ConsumerRecordRecoverer
 import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.listener.DefaultAfterRollbackProcessor
-import org.springframework.kafka.support.converter.JsonMessageConverter
+import org.springframework.kafka.support.converter.StringJacksonJsonMessageConverter
 import org.springframework.util.backoff.FixedBackOff
+import tools.jackson.databind.json.JsonMapper
 import java.time.Duration
 
 class CommonKafkaConfig {
@@ -46,7 +42,7 @@ class CommonKafkaConfig {
             }
         }
 
-        fun <K, V> consumerFactory(kafkaConfigProps: KafkaConfigProperties): ConsumerFactory<K, V> {
+        fun <K : Any, V : Any> consumerFactory(kafkaConfigProps: KafkaConfigProperties): ConsumerFactory<K, V> {
             val consumerProps = kafkaConfigProps.consumer
             return DefaultKafkaConsumerFactory(
                 mutableMapOf<String, Any>(
@@ -60,7 +56,7 @@ class CommonKafkaConfig {
             )
         }
 
-        fun <K, V> stringProducerFactory(kafkaConfigProps: KafkaConfigProperties): ProducerFactory<K, V> {
+        fun <K : Any, V : Any> stringProducerFactory(kafkaConfigProps: KafkaConfigProperties): ProducerFactory<K, V> {
             val producerProps = kafkaConfigProps.producer
             return DefaultKafkaProducerFactory(
                 mutableMapOf<String, Any>(
@@ -73,35 +69,35 @@ class CommonKafkaConfig {
         }
 
 
-        fun <K, V> kafkaTemplate(producerFactory: ProducerFactory<K, V>) = KafkaTemplate<K, V>(producerFactory)
+        fun <K : Any, V : Any> kafkaTemplate(producerFactory: ProducerFactory<K, V>) = KafkaTemplate<K, V>(producerFactory)
 
         inline fun <reified T> configureConcurrentKafkaListenerContainerFactory(
             consumerFactory: ConsumerFactory<String, String>,
             retryInterval: Long,
             kafkaTemplate: KafkaTemplate<*, *>,
-            objectMapper: ObjectMapper,
+            objectMapper: JsonMapper,
             logger: Logger,
             noinline correlationIdExtractor: (T) -> String
         ): ConcurrentKafkaListenerContainerFactory<String, String> {
             val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
 
-            factory.consumerFactory = consumerFactory
+            factory.setConsumerFactory(consumerFactory)
 
             factory.setReplyTemplate(kafkaTemplate)
 
-            // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#payload-conversion-with-batch
-            factory.setRecordMessageConverter(JsonMessageConverter(objectMapper))
+            // https://docs.spring.io/spring-kafka/reference/kafka/serdes.html#payload-conversion-with-batch
+            factory.setRecordMessageConverter(StringJacksonJsonMessageConverter(objectMapper))
 
-            // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#committing-offsets
+            // https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-annotation.html#committing-offsets
             factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD
 
-            // https://docs.spring.io/spring-kafka/reference/html/#listener-container
+            // https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-container.html
             factory.containerProperties.setAuthExceptionRetryInterval(Duration.ofSeconds(10L))
 
-            // https://docs.spring.io/spring-kafka/docs/2.5.2.RELEASE/reference/html/#delivery-header
+            // https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-container.html#delivery-header
             factory.containerProperties.isDeliveryAttemptHeader = true
 
-            // https://docs.spring.io/spring-kafka/reference/html/#seek-to-current
+            // https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-container.html#seek-to-current
             factory.setAfterRollbackProcessor(defaultAfterRollbackProsessor(logger, retryInterval))
 
             factory.setRecordInterceptor { record, _ ->

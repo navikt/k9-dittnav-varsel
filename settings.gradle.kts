@@ -1,15 +1,13 @@
 rootProject.name = "k9-dittnav-varsel"
 
 plugins {
-    id("com.gradle.enterprise") version("3.13.4")
+    id("com.gradle.develocity") version("4.3.2")
 }
 
-gradleEnterprise {
-    if (System.getenv("CI") != null) {
-        buildScan {
-            publishAlways()
-            termsOfServiceUrl = "https://gradle.com/terms-of-service"
-            termsOfServiceAgree = "yes"
-        }
+develocity {
+    buildScan {
+        publishing.onlyIf { System.getenv("CI") != null }
+        termsOfUseUrl.set("https://gradle.com/help/legal-terms-of-use")
+        termsOfUseAgree.set("yes")
     }
 }
