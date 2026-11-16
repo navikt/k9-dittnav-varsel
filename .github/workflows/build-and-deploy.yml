@@ -12,16 +12,6 @@ on:
     branches:
 
 jobs:
-  sonar:
-    uses: navikt/sif-gha-workflows/.github/workflows/gradle-sonar.yml@main
-    permissions:
-      contents: read
-      pull-requests: read
-    secrets: inherit
-    with:
-      readertoken: false
-      javaversion: 25
-
   test:
     uses: navikt/sif-gha-workflows/.github/workflows/gradle-test.yml@main
     permissions:
