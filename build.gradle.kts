@@ -6,7 +6,7 @@ plugins {
     kotlin("plugin.spring") version "2.4.21"
     id("org.springframework.boot") version "4.1.2"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.sonarqube") version "7.5.0.8588"
+    id("org.sonarqube") version "7.6.0.18749"
     jacoco
 }
 
